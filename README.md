@@ -1,4 +1,4 @@
 ![rawRHexSticker](https://github.com/cpanse/rawR/blob/master/rawRcolor10%25.png)
 
 # rawR
-R interface for Thermo Fisher raw files branched from [rawDiag](https://github.com/fgcz/rawDiag)
+R interface for Thermo Fisher Scientifc raw files branched from [rawDiag](https://github.com/fgcz/rawDiag). This package wrappes the functionality of the [RawFileReader](https://planetorbitrap.com/rawfilereader) .NET assembly.
