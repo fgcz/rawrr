@@ -1,5 +1,5 @@
 ---
-title: "rawR-tr"
+title: "rawR - Technical Note, Journal of Proteome Research, Second Biennial Special Issue on Software Tools and Resources in February 2021"
 author: "Tobias Kockmann / Christian Panse"
 date: "8/27/2020"
 output: pdf_document
