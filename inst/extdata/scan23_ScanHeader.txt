@@ -1,0 +1,75 @@
+Total Ion Current:	79509784	
+Scan Low Mass:	350	
+Scan High Mass:	1800	
+Scan Start Time (Min):	0.03	
+Scan Number:	23	
+Base Peak Intensity:	5902283.5	
+Base Peak Mass:	445.12	
+Scan Mode:	FTMS + c NSI Full ms [350.0000-1800.0000]	
+======= Instrument data =====	
+	
+Multiple Injection:	ii	
+Multi Inject Info:	IT=28;28 	
+AGC:	On	
+Micro Scan Count:	1	
+Scan Segment:	1	
+Scan Event:	1	
+Master Index:	0	
+Charge State:	0	
+Monoisotopic M/Z:	0.0000	
+Ion Injection Time (ms):	55.000	
+Max. Ion Time (ms):	55.00	
+FT Resolution:	120000	
+MS2 Isolation Width:	1450.00	
+MS2 Isolation Offset:	0.00	
+AGC Target:	3000000	
+HCD Energy:		
+Analyzer Temperature:	27.06	
+=== Mass Calibration: ===:	
+	
+Conversion Parameter B:	211820581.4981	
+Conversion Parameter C:	-41163064.8120	
+Temperature Comp. (ppm):	-2.35	
+RF Comp. (ppm):	-0.09	
+Space Charge Comp. (ppm):	-2.32	
+Resolution Comp. (ppm):	0.57	
+Number of Lock Masses:	0	
+Lock Mass #1 (m/z):	0.0000	
+Lock Mass #2 (m/z):	0.0000	
+Lock Mass #3 (m/z):	0.0000	
+LM Search Window (ppm):	0.0	
+LM Search Window (mmu):	0.0	
+Number of LM Found:	0	
+Last Locking (sec):	0.0	
+LM m/z-Correction (ppm):	0.00	
+=== Ion Optics Settings: ===:	
+	
+S-Lens RF Level:	40.00	
+S-Lens Voltage (V):	21.00	
+Skimmer Voltage (V):	15.00	
+Inject Flatapole Offset (V):	5.00	
+Bent Flatapole DC (V):	2.00	
+MP2 and MP3 RF (V):	900.00	
+Gate Lens Voltage (V):	2.25	
+C-Trap RF (V):	2400.0	
+====  Diagnostic Data:  ====:	
+	
+Dynamic RT Shift (min):	0.00	
+Intens Comp Factor:	1.4322	
+Res. Dep. Intens:	0.985	
+CTCD NumF:	16	
+CTCD Comp:	0.938	
+CTCD ScScr:	0.844	
+RawOvFtT:	2397673.5	
+LC FWHM parameter:	15.0	
+Rod:	0	
+PS Inj. Time (ms):	0.640	
+AGC PS Mode:	1	
+AGC PS Diag:	1352020	
+HCD Energy eV:	0.000	
+AGC Fill:	0.60	
+Injection t0:	-0.081	
+t0 FLP:	355.07	
+Access Id:	0	
+Analog Input 1 (V):	0.000	
+Analog Input 2 (V):	0.000	
