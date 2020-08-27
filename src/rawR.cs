@@ -314,7 +314,7 @@ namespace FGCZExtensions
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(filename))
             {
-                file.WriteLine("e <- new.env(); e$PeakList <- list()");
+                // file.WriteLine("e <- new.env(); e$PeakList <- list()");
                 foreach (int scanNumber in L)
                 {
 

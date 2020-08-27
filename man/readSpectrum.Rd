@@ -27,7 +27,7 @@ libraries.
 (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
   'sample.raw'))
 
-S <- readScans(rawfile, 1:9)
+S <- readSpectrum(rawfile, scans = 1:9)
 
 S[[1]]
  
