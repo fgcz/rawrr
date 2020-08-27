@@ -1,0 +1,18 @@
+Sample Type	Unknown	
+Calibration Level		
+ID		
+Row Number	1	
+Comment		
+Instrument Method	C:\Xcalibur\methods\__General_methods\STM\autoQC01_GT20min_RT35min.meth	
+Processing Method		
+Vial		
+Injection Volume (µl)	0	
+Sample Weight	0	
+Sample Volume (µl)	0	
+ISTD Amount	0	
+Dil Factor	0	
+Study		
+Client		
+Laboratory		
+Company		
+Phone		

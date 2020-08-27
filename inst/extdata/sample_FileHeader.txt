@@ -1,0 +1,37 @@
+Sample Name		
+Comment		
+Seq Row	1	
+Sample Type	Unknown	
+Path		
+Cal Level		
+Cal File		
+Inj Volume	0	
+Sample Weight	0	
+Sample Volume	0	
+Sample Id		
+Istd Amount	0	
+CD Factor	0	
+Bar Code		
+Bar Code Status	0	
+Inst Method	C:\Xcalibur\methods\__General_methods\STM\autoQC01_GT20min_RT35min.meth	
+Proc Method		
+User Text1		
+User Text2		
+User Text3		
+User Text4		
+User Text5		
+Tray Index	-1	
+Tray Name		
+Tray Shape	Unknown	
+Vial Index	-1	
+Vials Per Tray	-1	
+Vials Per TrayX	-1	
+Vials Per TrayY	-1	
+Instrument Name	Q Exactive HF-X Orbitrap	
+Instrument Model	Q Exactive HF-X Orbitrap	
+Instrument Number	Exactive Series slot #6114	
+Instrument SoftWare	2.9-290033/2.9.0.2926	
+Instrument Hardware	rev. 1	
+Flags		
+Mass Tolerance	0.5 amu	
+Created by	ExactiveUser	
