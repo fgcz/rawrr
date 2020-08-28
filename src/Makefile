@@ -5,3 +5,4 @@ CSCFLAGS=-lib:../exec /r:ThermoFisher.CommonCore.Data.dll /r:ThermoFisher.Common
 #	$(CSC) /target:library rawDiag.cs  /out:../exec/rawDiag.dll  $(CSCFLAGS)
 exe:
 	$(CSC) /out:../exec/rawR.exe rawR.cs $(CSCFLAGS)
+
