@@ -31,7 +31,7 @@ proteomics, software, R package
 
 ...
 
-The binary example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were writen to disk after applying centroiding (c) and lock mass correction.
+The binary example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were writen to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extented testing is vaialable through the [tartare package](https://github.com/cpanse/tartare). Lions love raw meat!
 
 ## Results
 
