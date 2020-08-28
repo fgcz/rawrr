@@ -14,22 +14,65 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Abstract
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+...
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Keywords
 
-```{r cars}
-summary(cars)
-```
+proteomics, software, R package
 
-## Including Plots
+## Introduction
 
-You can also embed plots, for example:
+...
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+## Implementation
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+...
+
+## Results
+
+### Use Case I - Analyzing orbi trap spectra
+
+...
+
+### Use Case II - Working with chromatograms - iRT regression
+
+...
+
+
+## Conclusions
+
+...
+
+
+## Author information
+
+...
+
+### Corresponding author
+
+...
+
+### Author contributions
+
+The manuscript was written through contributions of all authors. All authors have given approval to the final version of the manuscript. ‡These authors contributed equally. (match statement to author names with a symbol)
+
+
+### Funding Sources
+Any funds used to support the research of the manuscript should be placed here (per journal style).
+
+
+## Acknowledgements
+
+(Word Style “TD_Acknowledgments”). Generally the last paragraph of the paper is the place to acknowledge people, organizations, and financing (you may state grant numbers and sponsors here). Follow the journal’s guidelines on what to include in the Acknowledgments section.
+
+
+## ABBREVIATIONS
+CCR2, CC chemokine receptor 2; CCL2, CC chemokine ligand 2; CCR5, CC chemokine receptor 5; TLC, thin layer chromatography.
+
+
+## References
+
+
+
