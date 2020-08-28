@@ -26,9 +26,12 @@ proteomics, software, R package
 
 ...
 
+
 ## Implementation
 
 ...
+
+Example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were recorded using centroiding (c) and applying lock mass correction.
 
 ## Results
 
