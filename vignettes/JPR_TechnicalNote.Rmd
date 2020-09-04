@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Abstract
 
-...
+The Bioconductor project has shown that the R statistical environment is a highly valuable tool for genomics data analysis (https://www.nature.com/articles/nmeth.3252), but with respect to proteomics we are still missing low level infrastructure to enable performant and robust analysis workflows in R. Fundamentally important are libraries that provide raw data access. Our R package rawDiag (doi:10.1021/acs.jproteome.8b00173) has provided the proof-of-principle how access to mass spectromerty raw files can be realized by wrapping vendor-provided APIs. Our novel package rawR now aims for complete, OS independent access to all spectral, chromatographic and meta data logged in Thermo Fisher Scientific raw files. rawR interoperates with other R packages for proteomics data visualisation (protViz) and will ...
 
 ## Keywords
 
