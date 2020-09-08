@@ -188,7 +188,7 @@ namespace FGCZExtensions
 
         public static void PrintInfoAsRcode(this IRawDataPlus rawFile)
 	{
-                Console.WriteLine("#R\ne <- new.env();\ne$info <- list()");
+                Console.WriteLine("#R\n\ne$info <- list()");
                 Console.WriteLine("e$info$`RAW file` <- '" + Path.GetFileName(rawFile.FileName) + "'");
                 Console.WriteLine("e$info$`RAW file version` <- '" + rawFile.FileHeader.Revision + "'");
                 Console.WriteLine("e$info$`Creation date` <- '" + rawFile.FileHeader.CreationDate + "'");
@@ -496,8 +496,8 @@ namespace FGCZ_Raw
                 int numberFilters = rawFile.GetFilters().Count;
 
                 // Get the scan filter for the first and last spectrum in the RAW file
-                var firstFilter = rawFile.GetFilterForScanNumber(firstScanNumber);
-                var lastFilter = rawFile.GetFilterForScanNumber(lastScanNumber);
+                //var firstFilter = rawFile.GetFilterForScanNumber(firstScanNumber);
+                //var lastFilter = rawFile.GetFilterForScanNumber(lastScanNumber);
 
                 if (mode == "scanFilter")
                 {
@@ -686,7 +686,8 @@ namespace FGCZ_Raw
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(filename))
             {
-                file.WriteLine("#R\ne <- new.env(); e$XIC <- list()");
+                //file.WriteLine("#R\ne <- new.env(); e$XIC <- list()");
+                file.WriteLine("#R\ne$XIC <- list()");
 
 
                 for (int i = 0; i < trace.Length; i++)
