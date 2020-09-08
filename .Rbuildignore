@@ -1,0 +1,4 @@
+^.*Makefile$
+^.*rawR.cs$
+^.*\.Rproj$
+^\.Rproj\.user$
