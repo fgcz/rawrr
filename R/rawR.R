@@ -147,3 +147,94 @@ readFileHeader <- function(rawfile,
     }
     NULL
 }
+
+#' Extracts Chromatogram (XIC)
+#'
+#' @param rawfile the file name. 
+#' @param mass a vector of mass values. 
+#' @param tol tolerance in ppm.
+#' @param mono if the mono enviroment should be used. 
+#' @param exe the exe file user by mono.
+#' @seealso Thermo Fisher NewRawfileReader C# code snippets
+#' \url{https://planetorbitrap.com/rawfilereader}.
+#' 
+#' @return list of chromatogram  objects
+#' @references \itemize{
+#' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
+#' \item{the R function 1st appeared in
+#' \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
+#' }
+#' @author Christian Trachsel, Tobias Kockmann and
+#' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
+#' @export readChromatogram 
+#' @examples
+#' 
+#' # Example 1: not meaning full but proof-of-concept
+#' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
+#' 
+#' X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
+#' 
+#' # Example 2: extract iRT peptides
+#' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+#' "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
+#' "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
+#' "LFLQFGAQGSPFLK")
+#' 
+#'  # [2H+] 
+#' if (require(protViz)){
+#'     (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
+#'   }else{
+#'      message("consider installing  https://CRAN.R-project.org/package=protViz")
+#'  }
+#'
+#' \dontrun{
+#' rawfile <- "/home/cp/Downloads/20180220_14_autoQC01.raw"
+#'  X <- readChromatogram(rawfile, masses=mZ)
+#' }
+#' 
+readChromatogram <- function(rawfile,
+                     mass,
+                     tol = 10,
+                     mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
+                     exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
+    
+    if (!file.exists(rawfile)){
+        warning('file not available. return.')
+        return
+    }
+    
+    tfi <- tempfile()
+    tfo <- tempfile()
+    tfstdout <- tempfile()
+    
+    cat(mass, file=tfi, sep="\n")
+    
+    cmd <- exe
+    
+    if (mono){
+        rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic", shQuote(tfi), tol, shQuote(tfo)))
+    }else{
+        rvs <- system2(exe, args = c( shQuote(rawfile), "xic", shQuote(tfi), tol, shQuote(tfo)))
+    }
+    
+    
+    rv <- try({
+        e <- new.env();
+        e$chromatogram <- list()
+        source(tfo, local = TRUE)
+        
+        e$chromatogram
+    }, NULL)
+    unlink(c(tfi, tfo, tfstdout))
+    
+    #message(paste(c(tfi, tfo, tfstdout), collapse = ", "))
+    #message(length(rv))
+   rv <- lapply(rv,
+                function(x){
+                     x$filename <- rawfile
+                     class(x) <- c(class(x), 'chromatogram');
+                    x})
+    
+    class(rv) <- 'chromatogramSet'
+    rv
+}

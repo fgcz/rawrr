@@ -687,7 +687,7 @@ namespace FGCZ_Raw
                 new System.IO.StreamWriter(filename))
             {
                 //file.WriteLine("#R\ne <- new.env(); e$XIC <- list()");
-                file.WriteLine("#R\ne$XIC <- list()");
+                file.WriteLine("#R\n");
 
 
                 for (int i = 0; i < trace.Length; i++)
@@ -707,7 +707,7 @@ namespace FGCZ_Raw
                         
                     }
                    
-                    file.WriteLine("e$XIC[[{0}]] <- list(", i + 1);
+                    file.WriteLine("e$chromatogram[[{0}]] <- list(", i + 1);
                     file.WriteLine("\tmass = {0},", massList[i]);
 
                     file.WriteLine("\ttimes = c(" + string.Join(",", tTime) + "),");
