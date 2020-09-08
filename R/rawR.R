@@ -148,17 +148,25 @@ readFileHeader <- function(rawfile,
     NULL
 }
 
+
+.is.validScanFilter <- function(x){
+  NA
+}
+
 #' Extracts Chromatogram (XIC)
 #'
 #' @param rawfile the file name. 
 #' @param mass a vector of mass values. 
 #' @param tol tolerance in ppm.
+#' @param filter defines the scan filter. (TODO: to be implemented)
 #' @param mono if the mono enviroment should be used. 
 #' @param exe the exe file user by mono.
+#' 
 #' @seealso Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #' 
-#' @return list of chromatogram  objects
+#' @return nested list of chromatogram objects.
+#' 
 #' @references \itemize{
 #' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
 #' \item{the R function 1st appeared in
@@ -176,25 +184,29 @@ readFileHeader <- function(rawfile,
 #' 
 #' # Example 2: extract iRT peptides
 #' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
-#' "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
-#' "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
-#' "LFLQFGAQGSPFLK")
+#'   "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
+#'   "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
+#'   "LFLQFGAQGSPFLK")
 #' 
-#'  # [2H+] 
+#' # [2H+] 
 #' if (require(protViz)){
-#'     (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
+#'      (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
 #'   }else{
 #'      message("consider installing  https://CRAN.R-project.org/package=protViz")
-#'  }
+#' }
 #'
 #' \dontrun{
-#' rawfile <- "/home/cp/Downloads/20180220_14_autoQC01.raw"
-#'  X <- readChromatogram(rawfile, masses=mZ)
+#' # https://fgcz-ms.uzh.ch/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw
+#' # md5 = 00ffee77b82202200e5aec0522729f51
+#' 
+#' rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
+#' X <- readChromatogram(rawfile, mZ)
 #' }
 #' 
 readChromatogram <- function(rawfile,
                      mass,
                      tol = 10,
+                     filter = NULL,
                      mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
                      exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
     
@@ -202,6 +214,8 @@ readChromatogram <- function(rawfile,
         warning('file not available. return.')
         return
     }
+    
+    warning("scanFilter is not implemented yet.")
     
     tfi <- tempfile()
     tfo <- tempfile()
@@ -214,7 +228,7 @@ readChromatogram <- function(rawfile,
     if (mono){
         rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic", shQuote(tfi), tol, shQuote(tfo)))
     }else{
-        rvs <- system2(exe, args = c( shQuote(rawfile), "xic", shQuote(tfi), tol, shQuote(tfo)))
+        rvs <- system2(exe, args = c(shQuote(rawfile), "xic", shQuote(tfi), tol, shQuote(tfo)))
     }
     
     
@@ -232,6 +246,8 @@ readChromatogram <- function(rawfile,
    rv <- lapply(rv,
                 function(x){
                      x$filename <- rawfile
+                     x$tol <- tol
+                     x$filter <- filter
                      class(x) <- c(class(x), 'chromatogram');
                     x})
     

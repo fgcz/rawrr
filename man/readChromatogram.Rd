@@ -8,6 +8,7 @@ readChromatogram(
   rawfile,
   mass,
   tol = 10,
+  filter = NULL,
   mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
   exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")
 )
@@ -19,12 +20,14 @@ readChromatogram(
 
 \item{tol}{tolerance in ppm.}
 
+\item{filter}{defines the scan filter. (TODO: to be implemented)}
+
 \item{mono}{if the mono enviroment should be used.}
 
 \item{exe}{the exe file user by mono.}
 }
 \value{
-list of chromatogram  objects
+nested list of chromatogram objects.
 }
 \description{
 Extracts Chromatogram (XIC)
@@ -38,20 +41,23 @@ X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 
 # Example 2: extract iRT peptides
 iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
-"GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
-"TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
-"LFLQFGAQGSPFLK")
+  "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
+  "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
+  "LFLQFGAQGSPFLK")
 
- # [2H+] 
+# [2H+] 
 if (require(protViz)){
-    (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
+     (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
   }else{
      message("consider installing  https://CRAN.R-project.org/package=protViz")
- }
+}
 
 \dontrun{
-rawfile <- "/home/cp/Downloads/20180220_14_autoQC01.raw"
- X <- readChromatogram(rawfile, masses=mZ)
+# https://fgcz-ms.uzh.ch/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw
+# md5 = 00ffee77b82202200e5aec0522729f51
+
+rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
+X <- readChromatogram(rawfile, mZ)
 }
 
 }
