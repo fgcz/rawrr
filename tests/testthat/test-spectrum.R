@@ -27,5 +27,9 @@ test_that("check readSpectrum 23.", {
 
   expect_true(sum(S$mZ %in% DF$m.z) >= 720)
   expect_true(sum(S$intensity %in% DF$Intensity) >= 720)
+
+  lapply(DF$m.z[DF$Flags == "F"] %in% S$mZ, expect_true)
+  lapply(DF$m.z[DF$Flags == "M"] %in% S$mZ, expect_true)
+  lapply(DF$m.z[DF$Flags == "E"] %in% S$mZ, expect_false)
 })
 

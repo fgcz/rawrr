@@ -2,13 +2,12 @@
 % Please edit documentation in R/rawR.R
 \name{readSpectrum}
 \alias{readSpectrum}
-\title{readSpectrum of a raw file}
+\title{Read a Set of Spectra}
 \usage{
 readSpectrum(rawfile, scans, tmpdir = tempdir())
 }
 \arguments{
-\item{rawfile}{the name of the Thermo Fisher Scietific raw file which
-the data are to be read from.}
+\item{rawfile}{the name of the Thermo Fisher Scietific raw file.}
 
 \item{scans}{a vector of requested scan numbers.}
 
@@ -19,9 +18,9 @@ uses \code{tempdir()}.}
 peaklistSet, a nested list of \CRANpkg{protViz} peaklist objects.
 }
 \description{
-the function reads scan information of a given set of scan
-number using a dot net interface and the ThermoFisher NewRawFileReader 
-libraries.
+the function reads scan information, e.g., charge, mZ,
+or intensity of a given set of scan numbers using a dot net interface and
+the ThermoFisher NewRawFileReader libraries.
 }
 \examples{
 (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
@@ -30,11 +29,27 @@ libraries.
 S <- readSpectrum(rawfile, scans = 1:9)
 
 S[[1]]
+
+names(S[[1]])
+
+.plot.peaklist <- function(x, ...){
+  plot(x$mZ, x$intensity, type='h')
+  labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
+  legend("topright", paste(names(labels), labels, sep=": "), ...)
+ }
  
 }
 \references{
-\url{https://doi.org/10.5281/zenodo.2640013}
+\itemize{
+\item{\url{https://doi.org/10.5281/zenodo.2640013}}
+\item{the R function 1st appeared in
+\url{https://doi.org/10.1021/acs.jproteome.8b00173}}
+}
+}
+\seealso{
+Thermo Fisher NewRawfileReader C# code snippets
+\url{https://planetorbitrap.com/rawfilereader}.
 }
 \author{
-Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
+Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 }
