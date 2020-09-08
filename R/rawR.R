@@ -132,7 +132,7 @@ readFileHeader <- function(rawfile,
         if (rvs == 0){
             
             try({
-                source(tf)
+                source(tf, local=TRUE)
                 
                 #message(paste("unlinking", tf, "..."))
                 #unlink(tf)
