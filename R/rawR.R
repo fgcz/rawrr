@@ -131,7 +131,9 @@ readFileHeader <- function(rawfile,
         
         if (rvs == 0){
             
-            try({
+            rv <- try({
+                e <- new.env();
+                e$info <- list()
                 source(tf, local=TRUE)
                 
                 #message(paste("unlinking", tf, "..."))

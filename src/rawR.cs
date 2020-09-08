@@ -188,7 +188,7 @@ namespace FGCZExtensions
 
         public static void PrintInfoAsRcode(this IRawDataPlus rawFile)
 	{
-                Console.WriteLine("#R\n\ne$info <- list()");
+                Console.WriteLine("#R\n\n");
                 Console.WriteLine("e$info$`RAW file` <- '" + Path.GetFileName(rawFile.FileName) + "'");
                 Console.WriteLine("e$info$`RAW file version` <- '" + rawFile.FileHeader.Revision + "'");
                 Console.WriteLine("e$info$`Creation date` <- '" + rawFile.FileHeader.CreationDate + "'");
