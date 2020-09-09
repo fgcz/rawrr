@@ -11,6 +11,8 @@ install.packages('http://fgcz-ms.uzh.ch/~cpanse/rawR_0.0.1.tar.gz')
 
 ## System requirements
 
+- [R](https://cran.r-project.org/) (>= 4.0)
+ 
 ### MS Windows
 
 Make sure that .NET Framework 4.5.1 or higher is installed.
