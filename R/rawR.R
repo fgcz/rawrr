@@ -82,7 +82,7 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
         return
     }
     
-    if (!.isMonoAssemblyWorking){
+    if (!.isMonoAssemblyWorking()){
         return (NULL)
     }
     
@@ -147,7 +147,7 @@ readFileHeader <- function(rawfile,
         return (NULL)
     }
     
-    if (!.isMonoAssemblyWorking){
+    if (!.isMonoAssemblyWorking()){
         return (NULL)
     }
     
@@ -251,7 +251,7 @@ readChromatogram <- function(rawfile,
         return
     }
     
-    if (!.isMonoAssemblyWorking){
+    if (!.isMonoAssemblyWorking()){
         return (NULL)
     }
     
