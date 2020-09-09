@@ -1,3 +1,34 @@
+.isMonoAssemblyWorking <- 
+    function(exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
+        if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
+            if (Sys.which('mono') == ""){
+                warning("Can not find Mono JIT compiler. check SystemRequirements.")
+                return()
+            }
+        }
+        
+        if (!file.exists(exe)){
+            warning("rawR.exe is not availble.")
+            return (FALSE)
+        }
+        
+        # execute Assembly
+        rvs <-  "?"
+        if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
+            rvs <- system2(Sys.which('mono'), args = c(shQuote(exe)), stdout = TRUE)
+        }else{
+            rvs <- system2(exe, stdout = TRUE)
+        }
+        
+        # expect that string
+        if (rvs != "No RAW file specified!"){
+            warning("Mono JIT compiler and rawR.exe assembly are not working.")
+            return (FALSE)
+        }
+        
+        TRUE
+    }
+
 #' Read a Set of Spectra
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
@@ -51,6 +82,10 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
         return
     }
     
+    if (!.isMonoAssemblyWorking){
+        return (NULL)
+    }
+    
     tfi <- tempfile(tmpdir=tmpdir)
     tfo <- tempfile(tmpdir=tmpdir)
     tfstdout <- tempfile(tmpdir=tmpdir)
@@ -60,8 +95,8 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
     cmd <- exe
     
     if (mono){
-        rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile),
-                                        "scans", shQuote(tfi), shQuote(tfo)))
+        rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile),
+                                                   "scans", shQuote(tfi), shQuote(tfo)))
     }else{
         rvs <- system2(exe, args = c( shQuote(rawfile), "scans", shQuote(tfi),
                                       shQuote(tfo)))
@@ -100,17 +135,22 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
 #' 
 #' M <- readFileHeader(rawfile)
 readFileHeader <- function(rawfile,
-    mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-    exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe"),
-    mono_path = "",
-    argv = "infoR",
-    system2_call = TRUE,
-    method = "thermo"){
+   mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
+   exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe"),
+   mono_path = "",
+   argv = "infoR",
+   system2_call = TRUE,
+                           method = "thermo"){
     
     if (!file.exists(rawfile)){
         warning('file not available. return.')
-        return
+        return (NULL)
     }
+    
+    if (!.isMonoAssemblyWorking){
+        return (NULL)
+    }
+    
     if(system2_call && method == 'thermo'){
         
         tf <- tempfile(fileext = '.R')
@@ -149,16 +189,12 @@ readFileHeader <- function(rawfile,
 }
 
 
-.is.validScanFilter <- function(x){
-  NA
-}
-
 #' Extracts Chromatogram (XIC)
 #'
 #' @param rawfile the file name. 
 #' @param mass a vector of mass values. 
 #' @param tol tolerance in ppm.
-#' @param filter defines the scan filter. (TODO: to be implemented)
+#' @param filter defines the scan filter, default is \code{filter="ms"}.
 #' @param mono if the mono enviroment should be used. 
 #' @param exe the exe file user by mono.
 #' 
@@ -204,18 +240,20 @@ readFileHeader <- function(rawfile,
 #' }
 #' 
 readChromatogram <- function(rawfile,
-                     mass,
-                     tol = 10,
-                     filter = NULL,
-                     mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-                     exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
-    
+     mass,
+     tol = 10,
+     filter = "ms",
+     mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
+     exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
+
     if (!file.exists(rawfile)){
         warning('file not available. return.')
         return
     }
     
-    warning("scanFilter is not implemented yet.")
+    if (!.isMonoAssemblyWorking){
+        return (NULL)
+    }
     
     tfi <- tempfile()
     tfo <- tempfile()
@@ -226,9 +264,11 @@ readChromatogram <- function(rawfile,
     cmd <- exe
     
     if (mono){
-        rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic", shQuote(tfi), tol, shQuote(tfo)))
+        rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic",
+                shQuote(tfi), tol, shQuote(tfo), shQuote(filter)))
     }else{
-        rvs <- system2(exe, args = c(shQuote(rawfile), "xic", shQuote(tfi), tol, shQuote(tfo)))
+        rvs <- system2(exe, args = c(shQuote(rawfile), "xic", shQuote(tfi), tol,
+                                     shQuote(tfo), shQuote(filter)))
     }
     
     
@@ -237,19 +277,33 @@ readChromatogram <- function(rawfile,
         e$chromatogram <- list()
         source(tfo, local = TRUE)
         
+        
+        if ('warning' %in% names(e)){
+            warning(e$warning)
+        }
+        
+        if ('message' %in% names(e)){
+            message(e$message)
+        }
+        
+        if ('error' %in% names(e)){
+            warning(e$error)
+            return(NULL)
+        } 
+        
         e$chromatogram
     }, NULL)
     unlink(c(tfi, tfo, tfstdout))
     
-    #message(paste(c(tfi, tfo, tfstdout), collapse = ", "))
+    #message(paste(c(tfi, tfo, tfstdout), collapse = ",\n"))
     #message(length(rv))
-   rv <- lapply(rv,
-                function(x){
+    rv <- lapply(rv,
+                 function(x){
                      x$filename <- rawfile
                      x$tol <- tol
                      x$filter <- filter
                      class(x) <- c(class(x), 'chromatogram');
-                    x})
+                     x})
     
     class(rv) <- 'chromatogramSet'
     rv
