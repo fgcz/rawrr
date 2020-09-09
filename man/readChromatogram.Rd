@@ -8,7 +8,7 @@ readChromatogram(
   rawfile,
   mass,
   tol = 10,
-  filter = NULL,
+  filter = "ms",
   mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
   exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")
 )
@@ -20,7 +20,7 @@ readChromatogram(
 
 \item{tol}{tolerance in ppm.}
 
-\item{filter}{defines the scan filter. (TODO: to be implemented)}
+\item{filter}{defines the scan filter, default is \code{filter="ms"}.}
 
 \item{mono}{if the mono enviroment should be used.}
 
