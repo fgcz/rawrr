@@ -11,11 +11,13 @@ install.packages('http://fgcz-ms.uzh.ch/~cpanse/rawR_0.0.1.tar.gz')
 
 ## System requirements
 
+- [R](https://cran.r-project.org/) (>= 4.0)
+ 
 ### MS Windows
 
 Make sure that .NET Framework 4.5.1 or higher is installed.
 
-### MacOS
+### macOS|Linux
 
 You need to have [Mono](https://www.mono-project.com) installed. Mono is an open source implementation of Microsoft's .NET Framework.
 
