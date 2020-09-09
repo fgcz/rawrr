@@ -1,18 +1,20 @@
-﻿/// adapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl 
-/// see URL http://planetorbitrap.com/rawfilereader#.WjkqIUtJmL4
-/// the ThermoFisher library has to be manual downloaded and installed
-/// Please read the License document
-/// Witold Wolski <wew@fgcz.ethz.ch> and Christian Panse <cp@fgcz.ethz.ch> and Christian Trachsel
-/// 2017-09-25 Zurich, Switzerland
-/// 2018-04-24 Zurich, Switzerland
-/// 2018-06-04 San Diego, CA, USA added xic option
-/// 2018-06-28 added xic and scan option
-/// 2018-07-24 bugfix
-/// 2018-11-23 added scanFilter option
-/// 2019-01-28 extract monoisotopicmZ attribute; include segments in MGF iff no centroid data are availbale
-/// 2019-05-28 save info as Yaml
-/// 2020-08-12 added infoR option
-/// 2020-08-26 readSpectrum backend
+﻿/*
+  adapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl 
+  see URL http://planetorbitrap.com/rawfilereader#.WjkqIUtJmL4
+  the ThermoFisher library has to be manual downloaded and installed
+  Please read the License document
+  Witold Wolski <wew@fgcz.ethz.ch> and Christian Panse <cp@fgcz.ethz.ch> and Christian Trachsel
+  2017-09-25 Zurich, Switzerland
+  2018-04-24 Zurich, Switzerland
+  2018-06-04 San Diego, CA, USA added xic option
+  2018-06-28 added xic and scan option
+  2018-07-24 bugfix
+  2018-11-23 added scanFilter option
+  2019-01-28 extract monoisotopicmZ attribute; include segments in MGF iff no centroid data are availbale
+  2019-05-28 save info as Yaml
+  2020-08-12 added infoR option
+  2020-08-26 readSpectrum backend
+*/
  
 using System;
 using System.Collections.Generic;
@@ -39,15 +41,15 @@ using ThermoFisher.CommonCore.RawFileReader;
 
 namespace FGCZExtensions
 {
-    //Extension methods must be defined in a static class
+    /// <summary>
+    /// The StringExtension  class
+    /// </summary>
     public static class StringExtension
     {
+
         /// <summary>
         /// make all the existing header names distinct
         /// </summary>
-        /// <author>
-        /// Christian Panse <cp@fgcz.ethz.ch> 2017-11-02
-        /// </author>
         /// <param name="s"> a string</param>
         /// <returns>a string</returns>
         public static string CleanRawfileTrailerHeader(this string s)
@@ -65,91 +67,12 @@ namespace FGCZExtensions
         }
     }
 
+    /// <summary>
+    /// utilize the new ThermoFisher RawFileReader
+    /// </summary>
     public static class IRawDataPlusExtension
     {
-
-        
-
-        public static void ExtractQualityControlTable(this IRawDataPlus rawFile, string outputFilename)
-        {
-            int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
-            int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
-            var filename = Path.GetFileName(rawFile.FileName);
-
-            using (System.IO.StreamWriter file =
-                new System.IO.StreamWriter(outputFilename))
-
-            {
-                // TODO(cp): rename header; start with capital character
-                file.Write(
-                    "filename"
-                    + "\tscanNumber"
-                    + "\tScanEventNumber"
-                    + "\tStartTime"
-                    + "\tBasePeakMass"
-                    + "\tBasePeakIntensity"
-                    + "\tTIC"
-                    + "\tScanType"
-                    + "\tCycleNumber"
-                    + "\tFrequency"
-                    + "\tHighMass"
-                    + "\tIonizationMode"
-                    + "\tMSOrder"
-                    + "\tMassAnalyzer"
-                    + "\tDetector"
-                    + "\tLock"
-                    + "\tPrecursorMass"
-                    + "\tLastPrecursorMass"
-                    + "\tCollisionEnergy"
-                    + "\tIsolationWidth"
-                );
-                var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
-                var trailerHeaderFieldCounter = 0;
-
-                foreach (var field in trailerFields)
-                {
-                    trailerHeaderFieldCounter++;
-                    var trailerHeaderFieldValue =
-                        field.Label.ToString().CleanRawfileTrailerHeader();
-                    
-                    if (trailerHeaderFieldValue.Length > 1){
-                        file.Write("\t{0}", trailerHeaderFieldValue, trailerHeaderFieldValue.Length );
-                    } else {
-                        file.Write("\tunnamedTrailerHeaderField_{0}", trailerHeaderFieldCounter);
-                    }
-
-                }
-
-
-                // "filename"          "scanNumber"       "StartTime"          "BasePeakMass"      "BasePeakIntensity"  
-                // "TIC"                "ScanType"           "CycleNumber"   "MSOrder"            "MassAnalyzer"  
-                // "PrecursorMass"     
-
-                // "ChargeState"      
-                //  [13] "IonInjectionTimems" "OrbitrapResolution" "FTResolution"       "MasterScanNumber" 
-                //  [17] "LMCorrectionppm"    "LMmZCorrectionppm" -> LMCorrection
-
-
-                file.WriteLine();
-
-                foreach (var scanNumber in Enumerable
-                    .Range(1, lastScanNumber - firstScanNumber))
-                {
-                    var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
-                    var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
-                    var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
-                    var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
-
-//                       var xx = rawFile.
-                    // Console.WriteLine("Polarity: {0}", filter.Polarity);
-
-                    file.Write(
-                        Path.GetFileName(filename)
-                        + "\t" + scanNumber
-                        + "\t" + scanStatistics.ScanEventNumber
-                        + "\t" + scanStatistics.StartTime
-                        + "\t" + scanStatistics.BasePeakMass
-                        + "\t" + scanStatistics.BasePeakIntensity.ToString()
+/*
                         + "\t" + scanStatistics.TIC.ToString()
                         + "\t" + scanStatistics.ScanType.ToString()
                         + "\t" + scanStatistics.CycleNumber.ToString()
@@ -175,17 +98,12 @@ namespace FGCZExtensions
                         file.Write("NA\tNA\tNA\tNA");
                     }
 
-                    foreach (var scanTrailerField in scanTrailer.Values)
-                    {
-                        file.Write("\t{0}", scanTrailerField.Replace("\t", "").Replace(" ", ""));
-                    }
 
-                    file.WriteLine();
-                }
-                //GetIntensitySum(rawFile, i, firstFilter.ToString(), true));
-            }
-        }
+*/
 
+        /// <summary>
+        /// write file header (metainfo) into R code
+        /// </summary>
         public static void PrintInfoAsRcode(this IRawDataPlus rawFile)
 	{
                 Console.WriteLine("#R\n\n");
@@ -385,7 +303,6 @@ namespace FGCZ_Raw
                     {"scanFilter", "print scan filters."},
                     {"infoR", "print the raw file's meta data as R code."},
                     {"chromatogram", "base peak chromatogram."},
-                    {"qc", "prints a qc table having one entry per scan."},
                     {"xic", "prints xic unfiltered."},
                     {"scans", "print spectrum of scanid as Rcode."}
                 };
@@ -521,28 +438,6 @@ namespace FGCZ_Raw
                     Environment.Exit(0);
                 }
 
-                if (mode == "qc")
-                {
-                    
-
-                    if (args.Length == 3)
-                    {
-                        var outputFilename = args[2].ToString();
-                        rawFile.ExtractQualityControlTable(outputFilename);
-                        
-                    }else if (args.Length == 2)
-                    {
-                        rawFile.ExtractQualityControlTable($"/dev/stdout");
-                        
-                    }
-                    else
-                    {
-                        Console.WriteLine("ERROR");
-                        Environment.Exit(1);
-                    }
-            
-                    Environment.Exit(0);
-                }
 
                 if (mode == "scans")
                 {
@@ -571,17 +466,21 @@ namespace FGCZ_Raw
                         var inputFilename = args[2];
                         double ppmError = Convert.ToDouble(args[3]);
                         var outputFilename = args[4];
+			string filter = "ms";
+			try {
+				filter = args[5];
+			}
+			catch{
+			}
                         List<double> massList = new List<double>();
                         if (File.Exists(args[2]))
                         {
-
-
                             foreach (var line in File.ReadAllLines(inputFilename))
                             {
                                 massList.Add(Convert.ToDouble(line));
                             }
 
-                            GetXIC(rawFile, -1, -1, massList, ppmError, outputFilename);
+                            ExtractChromatogram(rawFile, -1, -1, massList, ppmError, outputFilename, filter);
                         }
 
                         return;
@@ -651,24 +550,38 @@ namespace FGCZ_Raw
                     }
                 }
             }
-
             Console.WriteLine();
         }
 
+	private static bool IsValidFilter(IRawDataPlus rawFile, string filter)
+	{
+		if (rawFile.GetFilterFromString(filter) == null) {
+			return false;
+		} 
+		return true; 
+	}
 
-        private static void GetXIC(IRawDataPlus rawFile, int startScan, int endScan, List<double> massList,
-            double ppmError, string filename)
+        private static void ExtractChromatogram(IRawDataPlus rawFile, int startScan, int endScan, List<double> massList,
+            double ppmError, string filename, string filter = "ms")
         {
+
+	    if (IsValidFilter(rawFile, filter) == false){
+                using (System.IO.StreamWriter file =
+                    new System.IO.StreamWriter(filename))
+                {
+                    file.WriteLine("e$error <- \"'{0}' is not a valid filter string.\";", filter);
+		}
+		return;
+	    }
 
             List<ChromatogramTraceSettings> settingList = new List<ChromatogramTraceSettings>();
 
             foreach (var mass in massList)
             {
-
                 double massError = (0.5 * ppmError * mass) / 1000000;
                 ChromatogramTraceSettings settings = new ChromatogramTraceSettings(TraceType.MassRange)
                 {
-                    Filter = "ms",
+                    Filter = filter,
                     MassRanges = new[] {ThermoFisher.CommonCore.Data.Business.Range.Create(mass - massError, mass + massError)}
                 };
 
@@ -678,7 +591,6 @@ namespace FGCZ_Raw
             IChromatogramSettings[] allSettings = settingList.ToArray();
 
             var data = rawFile.GetChromatogramData(allSettings, startScan, endScan);
-
             
             // Split the data into the chromatograms
             var trace = ChromatogramSignal.FromChromatogramData(data);
@@ -686,14 +598,10 @@ namespace FGCZ_Raw
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(filename))
             {
-                //file.WriteLine("#R\ne <- new.env(); e$XIC <- list()");
                 file.WriteLine("#R\n");
-
 
                 for (int i = 0; i < trace.Length; i++)
                 {
-                    
-                    
                     List<double> tTime = new List<double>();
                     List<double> tIntensities = new List<double>();
                     
@@ -708,121 +616,12 @@ namespace FGCZ_Raw
                     }
                    
                     file.WriteLine("e$chromatogram[[{0}]] <- list(", i + 1);
+                    file.WriteLine("\tfilter = '{0}',", filter);
+                    file.WriteLine("\tppm = {0},", ppmError);
                     file.WriteLine("\tmass = {0},", massList[i]);
-
                     file.WriteLine("\ttimes = c(" + string.Join(",", tTime) + "),");
                     file.WriteLine("\tintensities = c(" + string.Join(",", tIntensities) + ")");
-                    
                     file.WriteLine(");");
-                }
-            }
-        }
-    
-
-
-    /// <summary>
-        /// Gets the spectrum from the RAW file.
-        /// </summary>
-        /// <param name="rawFile">
-        
-        private static void ComputeXIC(IRawDataPlus rawFile, int firstScanNumber, int lastScanNumber, bool outputData)
-        {
-            for (int scanNumber = firstScanNumber; scanNumber <= lastScanNumber; scanNumber++)
-            {
-                try
-                {
-                    // Get the scan filter for the spectrum
-                    var scanFilter = rawFile.GetFilterForScanNumber(firstScanNumber);  
-                    
-                    if (string.IsNullOrEmpty(scanFilter.ToString()))
-                    {
-                        continue;
-                    }
-
-                    // Get the scan from the RAW file.  This method uses the Scan.FromFile method which returns a
-                    // Scan object that contains both the segmented and centroid (label) data from an FTMS scan
-                    // or just the segmented data in non-FTMS scans.  The GetSpectrum method demonstrates an
-                    // alternative method for reading scans.
-                    var scan = Scan.FromFile(rawFile, scanNumber);
-                    
-                    // If that scan contains FTMS data then Centroid stream will be populated so check to see if it is present.
-                    int labelSize = 0;
-
-                    if (scan.HasCentroidStream)
-                    {
-                        labelSize = scan.CentroidScan.Length;
-                    }
-
-                    // For non-FTMS data, the preferred data will be populated
-                    int dataSize = scan.PreferredMasses.Length;
-
-                    if (outputData)
-                    {
-                        Console.WriteLine("Spectrum {0} - {1}: normal {2}, label {3} points", scanNumber, scanFilter.ToString(), dataSize, labelSize);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error reading spectrum {0} - {1}", scanNumber, ex.Message);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Read all spectra in the RAW file.
-        /// </summary>
-        /// <param name="rawFile">
-        /// The raw file.
-        /// </param>
-        /// <param name="firstScanNumber">
-        /// The first scan number.
-        /// </param>
-        /// <param name="lastScanNumber">
-        /// The last scan number.
-        /// </param>
-        /// <param name="outputData">
-        /// The output data flag.
-        /// </param>
-        [HandleProcessCorruptedStateExceptions]
-        private static void ReadAllSpectra(IRawDataPlus rawFile, int firstScanNumber, int lastScanNumber, bool outputData)
-        {
-            for (int scanNumber = firstScanNumber; scanNumber <= lastScanNumber; scanNumber++)
-            {
-                try
-                {
-                    // Get the scan filter for the spectrum
-                    var scanFilter = rawFile.GetFilterForScanNumber(firstScanNumber);  
-                    
-                    if (string.IsNullOrEmpty(scanFilter.ToString()))
-                    {
-                        continue;
-                    }
-
-                    // Get the scan from the RAW file.  This method uses the Scan.FromFile method which returns a
-                    // Scan object that contains both the segmented and centroid (label) data from an FTMS scan
-                    // or just the segmented data in non-FTMS scans.  The GetSpectrum method demonstrates an
-                    // alternative method for reading scans.
-                    var scan = Scan.FromFile(rawFile, scanNumber);
-                    
-                    // If that scan contains FTMS data then Centroid stream will be populated so check to see if it is present.
-                    int labelSize = 0;
-
-                    if (scan.HasCentroidStream)
-                    {
-                        labelSize = scan.CentroidScan.Length;
-                    }
-
-                    // For non-FTMS data, the preferred data will be populated
-                    int dataSize = scan.PreferredMasses.Length;
-
-                    if (outputData)
-                    {
-                        Console.WriteLine("Spectrum {0} - {1}: normal {2}, label {3} points", scanNumber, scanFilter.ToString(), dataSize, labelSize);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error reading spectrum {0} - {1}", scanNumber, ex.Message);
                 }
             }
         }
