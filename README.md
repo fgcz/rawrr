@@ -9,6 +9,14 @@ R interface for Thermo Fisher Scientifc raw files branched from [rawDiag](https:
 install.packages('http://fgcz-ms.uzh.ch/~cpanse/rawR_0.0.1.tar.gz')
 ```
 
+## System requirements
+
+### MS Windows
+
+### MacOS
+
+You need to have [Mono](https://www.mono-project.com) installed. Mono is an open source implementation of Microsoft's .NET Framework.
+
 ## .Net related R packages
 
 - https://CRAN.R-project.org/package=rDotNet 
