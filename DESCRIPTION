@@ -1,10 +1,12 @@
 Package: rawR
 Type: Package
-Title: Access Thermo Fisher raw files 
+Title: Access to Thermo Fisher Scientific raw files from R
 Version: 0.0.1
 Authors@R: c(person(given = "Christian", family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0003-1975-3064")),
-	person(given = "Tobias", family = "Kockmann", email = "Tobias.Kockmann@fgcz.ethz.ch", role = "aut"))
+    		comment = c(ORCID = "0000-0003-1975-3064")),
+	person(given = "Tobias", family = "Kockmann", email = "tobias.kockmann@fgcz.ethz.ch", role = "aut"),
+		comment = c(ORCID = "0000-0002-1847-885X")
+	)
 Depends: R (>= 4.0)
 Imports: 
 Suggests:
@@ -12,14 +14,7 @@ Suggests:
 	knitr,
 	lattice,
 	testthat
-Description: Helps with quality checks, visualizations 
-    and analysis of mass spectrometry data, coming from proteomics 
-    experiments. The package is developed, tested and used at the Functional 
-    Genomics Center Zurich 
-    (Trachsel C. (2018) <doi:10.1021/acs.jproteome.8b00173>).
-    We use this package mainly for prototyping, teaching, and having fun with
-    proteomics data. But it can also be used to do data analysis for small scale
-    data sets.
+Description: The package is developed, tested and used at the Functional Genomics Center Zurich, Switzerland.
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
