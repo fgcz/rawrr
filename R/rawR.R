@@ -106,8 +106,22 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
     source(tfo, local=TRUE)
     unlink(c(tfi, tfo, tfstdout))
     
-    return(lapply(e$PeakList,
-                  function(x){class(x) <- c(class(x), 'peaklist'); x}))
+    rv <- lapply(e$PeakList,
+                  function(x){class(x) <- c('spectrum'); x})
+    rv
+}
+
+validate_spectrum <- function(x){
+    values <- unclass(x)
+    
+    if (length(values$mZ) != length(values$intensity)){
+        stop(
+            "mZ values should have same length to the number of intensities.",
+            call. = FALSE
+        )
+    }
+    
+    x
 }
 
 
