@@ -1,5 +1,5 @@
 ﻿/*
-  adapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl 
+  aGetTrailerExtraInformationdapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl 
   see URL http://planetorbitrap.com/rawfilereader#.WjkqIUtJmL4
   the ThermoFisher library has to be manual downloaded and installed
   Please read the License document
@@ -260,6 +260,7 @@ namespace FGCZExtensions
                             file.WriteLine("\tmZ = c(" + string.Join(",", scan.SegmentedScan.Positions) + "),");
                             file.WriteLine("\tintensity = c(" + string.Join(",", scan.SegmentedScan.Intensities) + ")");
                         }
+			// ============= Instrument Data =============
                         // write scan Trailer
 			    var trailerValues = scanTrailer.Values;
 			    var trailerLabels = scanTrailer.Labels;
