@@ -2,11 +2,14 @@ Package: rawR
 Type: Package
 Title: Access to Thermo Fisher Scientific raw files from R
 Version: 0.0.1
-Authors@R: c(person(given = "Christian", family = "Panse", email = "cp@fgcz.ethz.ch", role = c("aut", "cre"),
-    		comment = c(ORCID = "0000-0003-1975-3064")),
-	person(given = "Tobias", family = "Kockmann", email = "tobias.kockmann@fgcz.ethz.ch", role = "aut"),
-		comment = c(ORCID = "0000-0002-1847-885X")
-	)
+Authors@R: c(person("Christian", "Panse",
+        email = "cp@fgcz.ethz.ch",
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0003-1975-3064")),
+        person("Tobias", "Kockmann",
+	email = "tobias.kockmann@fgcz.ethz.ch",
+	role = "aut",
+	comment = c(ORCID = "0000-0002-1847-885X")))
 Depends: R (>= 4.0)
 Imports: 
 Suggests:
