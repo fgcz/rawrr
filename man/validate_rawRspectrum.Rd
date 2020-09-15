@@ -7,7 +7,7 @@
 validate_rawRspectrum(x)
 }
 \arguments{
-\item{x}{}
+\item{x}{object to be tested}
 }
 \value{
 \code{rawRspectrum} object

@@ -150,6 +150,50 @@ namespace FGCZExtensions
                 Console.WriteLine("e$info$`Sample barcode` <- '{0}' ", rawFile.SampleInformation.Barcode);
 	}
 
+        public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
+        {
+                int scanNumber = 1;
+                var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
+
+		int idx_CHARGE = -1;
+                    try
+                    {
+                        idx_CHARGE = trailerFields
+                            .Select((item, index) => new
+                            {
+                                name = item.Label.ToString(),
+                                Position = index
+                            })
+                            .First(x => x.name.Contains("Charge State")).Position;
+                    }
+                    catch
+                    {
+		    }
+
+             	int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
+            	int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
+
+            using (System.IO.StreamWriter file =
+                new System.IO.StreamWriter(filename))
+            {
+             	for  (scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
+                    var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+                    var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                    var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+                    var reaction0 = scanEvent.GetReaction(0);
+                    int charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
+
+                    file.WriteLine("e$Spectrum[[{0}]] <- list(", scanNumber);
+                    file.WriteLine("\tscan = {0},", scanNumber);
+                    file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
+                    file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
+                    file.WriteLine("\tprecursorMass = {0},", reaction0.PrecursorMass);
+                    file.WriteLine("\tcharge = {0}", charge);
+                            file.WriteLine(")");
+		}
+	    }
+	}
+
         /// <summary>
         /// </summary>
         /// <param name="rawFile"></param>
@@ -452,11 +496,18 @@ namespace FGCZ_Raw
                     foreach (var line in File.ReadAllLines(scanfile))
                     {
 
+			try{
                         Int32.TryParse(line, out scanNumber);
-                        scans.Add(scanNumber);
+			if (scanNumber > 0)
+                        	scans.Add(scanNumber);
+			}
+			catch{}
                     }
 
-                    rawFile.WriteSpectrumAsRcode(args[3], scans);
+		    if (scans.Count == 0)
+                    	rawFile.WriteSpectrumAsRcode0(args[3]);
+		    else
+                    	rawFile.WriteSpectrumAsRcode(args[3], scans);
 
                     return;
 

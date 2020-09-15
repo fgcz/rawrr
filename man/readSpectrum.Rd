@@ -5,15 +5,19 @@
 \alias{plot.rawRSpectrum}
 \title{Read a Set of Spectra}
 \usage{
-readSpectrum(rawfile, scans, tmpdir = tempdir())
+readSpectrum(rawfile, scans = NULL, tmpdir = tempdir(), validate = FALSE)
 }
 \arguments{
 \item{rawfile}{the name of the Thermo Fisher Scietific raw file.}
 
-\item{scans}{a vector of requested scan numbers.}
+\item{scans}{a vector of requested scan numbers. if no scans are provided
+(default) the function returns a \code{data.frame} with the column names
+scanType, rtinseconds, precursorMass, and charge of all spectra.}
 
 \item{tmpdir}{a non-empty character vector giving the directory name; default
 uses \code{tempdir()}.}
+
+\item{validate}{boolean default is \code{FALSE}.}
 }
 \value{
 a list of \code{spectrum} objects.
@@ -33,12 +37,34 @@ S[[1]]
 
 names(S[[1]])
 
-plot.spectrum <- function(x, ...){
-  plot(x$mZ, x$intensity, type='h')
-  labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
-  legend("topright", paste(names(labels), labels, sep=": "), ...)
- }
+plot(S[[1]])
+
  
+\dontrun{
+# INPUT:
+GAG <- "GAGSSEPVTGLDAK"
+rawfile <- file.path(Sys.getenv("HOME"), "Downloads/20180220_14_autoQC01.raw")
+
+# list spectra metainformation
+S <- readSpectrum(rawfile)
+
+# determine precursor matches
+SS <- readSpectrum(rawfile, which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
+
+# query spectra with precursor matches
+rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})
+
+# determine spectra indices having the  max number of hits hits
+hit.max <- max(hits<-sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
+
+take the 1st one
+idx <- which(hits == hit.max)[1]
+
+# OUTPUT
+rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(y=y)})
+# https://www.proteomicsdb.org/use/
+cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
+}
 }
 \references{
 \itemize{

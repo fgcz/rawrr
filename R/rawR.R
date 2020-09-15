@@ -32,9 +32,12 @@
 #' Read a Set of Spectra
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
-#' @param scans a vector of requested scan numbers.
+#' @param scans a vector of requested scan numbers. if no scans are provided
+#' (default) the function returns a \code{data.frame} with the column names
+#' scanType, rtinseconds, precursorMass, and charge of all spectra.
 #' @param tmpdir a non-empty character vector giving the directory name; default
 #' uses \code{tempdir()}.
+#' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 #' 
 #' @description the function reads scan information, e.g., charge, mZ,
@@ -69,13 +72,35 @@
 #' 
 #' names(S[[1]])
 #' 
-#' plot.spectrum <- function(x, ...){
-#'   plot(x$mZ, x$intensity, type='h')
-#'   labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
-#'   legend("topright", paste(names(labels), labels, sep=": "), ...)
-#'  }
+#' plot(S[[1]])
+#' 
 #'  
-readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
+#' \dontrun{
+#' # INPUT:
+#' GAG <- "GAGSSEPVTGLDAK"
+#' rawfile <- file.path(Sys.getenv("HOME"), "Downloads/20180220_14_autoQC01.raw")
+#' 
+#' # list spectra metainformation
+#' S <- readSpectrum(rawfile)
+#' 
+#' # determine precursor matches
+#' SS <- readSpectrum(rawfile, which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
+#' 
+#' # query spectra with precursor matches
+#' rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})
+#' 
+#' # determine spectra indices having the  max number of hits hits
+#' hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
+#' 
+#' take the 1st one
+#' idx <- which(hits == hit.max)[1]
+#' 
+#' # OUTPUT
+#' rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(y=y)})
+#' # https://www.proteomicsdb.org/use/
+#' cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
+#' }
+readSpectrum <- function(rawfile, scans = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- file.path(path.package(package = "rawR"), "exec", "rawR.exe")
     
@@ -109,17 +134,23 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
     source(tfo, local=TRUE)
     unlink(c(tfi, tfo, tfstdout))
     
-    rv <- lapply(e$Spectrum,
-                  function(x){class(x) <- c('rawRspectrum'); x})
+    rv <- NULL
     
-    rv <- lapply(rv, validate_rawRspectrum)
-    
+    if (is.null(scans)){
+        rv <- do.call('rbind', lapply(e$Spectrum, as.data.frame))
+    }else{
+        rv <- lapply(e$Spectrum,
+                     function(x){class(x) <- c('rawRspectrum'); x})
+        if(validate){
+            rv <- lapply(rv, validate_rawRspectrum)
+        }
+    }
     rv
 }
 
 #' validate 
 #'
-#' @param x 
+#' @param x object to be tested
 #'
 #' @return \code{rawRspectrum} object
 #' @export validate_rawRspectrum
@@ -136,13 +167,14 @@ validate_rawRspectrum <- function(x){
     x
 }
 
+#' @importFrom stats  na.omit
+#' @importFrom graphics legend
 plot.rawRspectrum <- function(x, ...){
     x <- validate_rawRspectrum(x)
     plot(x$mZ, x$intensity, type='h')
     labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
     legend("topright", paste(names(labels), labels, sep=": "), ...)
 }
-
 
 #' read file header Information
 #'
@@ -220,7 +252,6 @@ readFileHeader <- function(rawfile,
     }
     NULL
 }
-
 
 #' Extracts Chromatogram (XIC)
 #'
