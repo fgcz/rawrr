@@ -2,6 +2,7 @@
 % Please edit documentation in R/rawR.R
 \name{readSpectrum}
 \alias{readSpectrum}
+\alias{plot.rawRSpectrum}
 \title{Read a Set of Spectra}
 \usage{
 readSpectrum(rawfile, scans, tmpdir = tempdir())
@@ -15,7 +16,7 @@ readSpectrum(rawfile, scans, tmpdir = tempdir())
 uses \code{tempdir()}.}
 }
 \value{
-peaklistSet, a nested list of \CRANpkg{protViz} peaklist objects.
+a list of \code{spectrum} objects.
 }
 \description{
 the function reads scan information, e.g., charge, mZ,
@@ -32,7 +33,7 @@ S[[1]]
 
 names(S[[1]])
 
-.plot.peaklist <- function(x, ...){
+plot.spectrum <- function(x, ...){
   plot(x$mZ, x$intensity, type='h')
   labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
   legend("topright", paste(names(labels), labels, sep=": "), ...)

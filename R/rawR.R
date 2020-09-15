@@ -50,11 +50,14 @@
 #' \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
 #' }
 #' 
-#' @aliases readSpectrum
+#' @aliases readSpectrum plot.rawRSpectrum
 #' 
 #' @export readSpectrum
+#' @exportClass rawRspectrum
+#' @exportS3Method plot rawRspectrum
 #' 
-#' @return  peaklistSet, a nested list of \CRANpkg{protViz} peaklist objects.
+#' 
+#' @return  a list of \code{spectrum} objects.
 #' 
 #' @examples
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
@@ -66,7 +69,7 @@
 #' 
 #' names(S[[1]])
 #' 
-#' .plot.peaklist <- function(x, ...){
+#' plot.spectrum <- function(x, ...){
 #'   plot(x$mZ, x$intensity, type='h')
 #'   labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
 #'   legend("topright", paste(names(labels), labels, sep=": "), ...)
@@ -107,14 +110,20 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
     unlink(c(tfi, tfo, tfstdout))
     
     rv <- lapply(e$Spectrum,
-                  function(x){class(x) <- c('spectrum'); x})
+                  function(x){class(x) <- c('rawRspectrum'); x})
     
-    rv <- lapply(rv, validate_spectrum)
+    rv <- lapply(rv, validate_rawRspectrum)
     
     rv
 }
 
-validate_spectrum <- function(x){
+#' validate 
+#'
+#' @param x 
+#'
+#' @return \code{rawRspectrum} object
+#' @export validate_rawRspectrum
+validate_rawRspectrum <- function(x){
     values <- unclass(x)
     
     if (length(values$mZ) != length(values$intensity)){
@@ -125,6 +134,13 @@ validate_spectrum <- function(x){
     }
     
     x
+}
+
+plot.rawRspectrum <- function(x, ...){
+    x <- validate_rawRspectrum(x)
+    plot(x$mZ, x$intensity, type='h')
+    labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
+    legend("topright", paste(names(labels), labels, sep=": "), ...)
 }
 
 
