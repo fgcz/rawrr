@@ -106,8 +106,11 @@ readSpectrum <- function(rawfile, scans, tmpdir=tempdir()){
     source(tfo, local=TRUE)
     unlink(c(tfi, tfo, tfstdout))
     
-    rv <- lapply(e$PeakList,
+    rv <- lapply(e$Spectrum,
                   function(x){class(x) <- c('spectrum'); x})
+    
+    rv <- lapply(rv, validate_spectrum)
+    
     rv
 }
 

@@ -161,7 +161,6 @@ namespace FGCZExtensions
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(filename))
             {
-                // file.WriteLine("e <- new.env(); e$PeakList <- list()");
                 foreach (int scanNumber in L)
                 {
 
@@ -211,7 +210,7 @@ namespace FGCZExtensions
 
                         var scan = Scan.FromFile(rawFile, scanNumber);
 
-                            file.WriteLine("e$PeakList[[{0}]] <- list(", count++);
+                            file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
                             file.WriteLine("\tscan = {0},", scanNumber);
                             file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
                             file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);

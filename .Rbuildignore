@@ -2,3 +2,4 @@
 ^.*rawR.cs$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+.*.rawR.xml$
