@@ -10,9 +10,7 @@ readSpectrum(rawfile, scans = NULL, tmpdir = tempdir(), validate = FALSE)
 \arguments{
 \item{rawfile}{the name of the Thermo Fisher Scietific raw file.}
 
-\item{scans}{a vector of requested scan numbers. if no scans are provided
-(default) the function returns a \code{data.frame} with the column names
-scanType, rtinseconds, precursorMass, and charge of all spectra.}
+\item{scans}{a vector of requested scan numbers.}
 
 \item{tmpdir}{a non-empty character vector giving the directory name; default
 uses \code{tempdir()}.}
@@ -46,7 +44,7 @@ GAG <- "GAGSSEPVTGLDAK"
 rawfile <- file.path(Sys.getenv("HOME"), "Downloads/20180220_14_autoQC01.raw")
 
 # list spectra metainformation
-S <- readSpectrum(rawfile)
+S <- readIndex(rawfile)
 
 # determine precursor matches
 SS <- readSpectrum(rawfile, which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
@@ -55,27 +53,28 @@ SS <- readSpectrum(rawfile, which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.
 rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})
 
 # determine spectra indices having the  max number of hits hits
-hit.max <- max(hits<-sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
+hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
 
-take the 1st one
+# take the 1st one
 idx <- which(hits == hit.max)[1]
 
 # OUTPUT
-rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(y=y)})
+rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
 # https://www.proteomicsdb.org/use/
 cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
 }
 }
 \references{
 \itemize{
+\item{Thermo Fisher NewRawfileReader C# code snippets
+\url{https://planetorbitrap.com/rawfilereader}}.
 \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-\item{the R function 1st appeared in
-\url{https://doi.org/10.1021/acs.jproteome.8b00173}}
+\item{This R function 1st appeared in
+\url{https://doi.org/10.1021/acs.jproteome.8b00173}}.
 }
 }
 \seealso{
-Thermo Fisher NewRawfileReader C# code snippets
-\url{https://planetorbitrap.com/rawfilereader}.
+\link[rawDiag]{readScans}
 }
 \author{
 Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020

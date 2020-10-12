@@ -3,6 +3,7 @@
 S3method(plot,rawRspectrum)
 export(readChromatogram)
 export(readFileHeader)
+export(readIndex)
 export(readSpectrum)
 export(validate_rawRspectrum)
 exportClasses(rawRspectrum)
