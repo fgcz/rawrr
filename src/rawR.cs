@@ -173,10 +173,6 @@ namespace FGCZExtensions
 
              	int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             	int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
-
-                Console.WriteLine("firstScanNumber = {0}", firstScanNumber);
-                Console.WriteLine("lastScanNumber = {0}", lastScanNumber);
-
 		    int charge = -1;
 		    double pc=-1;
 
