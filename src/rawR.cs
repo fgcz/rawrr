@@ -152,6 +152,7 @@ namespace FGCZExtensions
 
         public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
         {
+
                 int scanNumber = 1;
                 var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
 
@@ -173,6 +174,12 @@ namespace FGCZExtensions
              	int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             	int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
 
+                Console.WriteLine("firstScanNumber = {0}", firstScanNumber);
+                Console.WriteLine("lastScanNumber = {0}", lastScanNumber);
+
+		    int charge = -1;
+		    double pc=-1;
+
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(filename))
             {
@@ -180,14 +187,28 @@ namespace FGCZExtensions
                     var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                     var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
                     var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+
+		   
+		    try{
                     var reaction0 = scanEvent.GetReaction(0);
-                    int charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
+		    pc =  reaction0.PrecursorMass;
+		    }
+		    catch{
+			    pc = -1;
+		    }
+
+		    try{
+                    	charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
+                    }
+		    catch {
+			    charge=-1;
+		    }
 
                     file.WriteLine("e$Spectrum[[{0}]] <- list(", scanNumber);
                     file.WriteLine("\tscan = {0},", scanNumber);
                     file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
                     file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
-                    file.WriteLine("\tprecursorMass = {0},", reaction0.PrecursorMass);
+                    file.WriteLine("\tprecursorMass = {0},", pc);
                     file.WriteLine("\tcharge = {0}", charge);
                             file.WriteLine(")");
 		}
