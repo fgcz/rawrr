@@ -16,6 +16,7 @@ Suggests:
 	protViz (>= 0.6),
 	knitr,
 	lattice,
+	parallel,
 	testthat
 Description: The package is developed, tested and used at the Functional Genomics Center Zurich, Switzerland.
 License: GPL-3

@@ -42,9 +42,12 @@ The R code output is parsed by the function and a list object is returned.
 
 M <- readFileHeader(rawfile)
 }
-\seealso{
+\references{
 Thermo Fisher NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}.
+}
+\seealso{
+\link[rawDiag]{read.raw.info}
 }
 \author{
 Tobias Kockmann and Christian Panse 2018, 2019, 2020

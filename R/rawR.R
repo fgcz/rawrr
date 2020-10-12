@@ -1,3 +1,20 @@
+.writeRData <- function(rawfile, outputfile=paste0(rawfile, ".RData"), tmpdir=tempdir()){
+    
+    scanRange <- readFileHeader(rawfile)$`Scan range`
+    scanIdx <- seq(scanRange[1], scanRange[2], by=1)
+    
+    res <- lapply(scanIdx, function(x){
+        rv <- readSpectrum(rawfile, scans=x, tmpdir=tmpdir)[[1]]
+        list(scanType=rv$scanType, mZ=rv$mZ, intensity=rv$intensity, charge=rv$charge, rtinseconds=rv$rtinseconds)
+    })
+    e <- new.env()
+    objName <- paste("S",basename(rawfile), sep='')
+    assign(objName, res, envir = e)
+    
+    save(objName, file=outputfile, envir = e)
+
+} 
+
 .isMonoAssemblyWorking <- 
     function(exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
         if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
@@ -32,9 +49,7 @@
 #' Read a Set of Spectra
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
-#' @param scans a vector of requested scan numbers. if no scans are provided
-#' (default) the function returns a \code{data.frame} with the column names
-#' scanType, rtinseconds, precursorMass, and charge of all spectra.
+#' @param scans a vector of requested scan numbers. 
 #' @param tmpdir a non-empty character vector giving the directory name; default
 #' uses \code{tempdir()}.
 #' @param validate boolean default is \code{FALSE}.
@@ -44,13 +59,12 @@
 #' or intensity of a given set of scan numbers using a dot net interface and
 #' the ThermoFisher NewRawFileReader libraries.
 #'  
-#' @seealso Thermo Fisher NewRawfileReader C# code snippets
-#' \url{https://planetorbitrap.com/rawfilereader}.
-#' 
 #' @references \itemize{
+#' \item{Thermo Fisher NewRawfileReader C# code snippets
+#' \url{https://planetorbitrap.com/rawfilereader}}.
 #' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-#' \item{the R function 1st appeared in
-#' \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
+#' \item{the R function 1st appeared in 
+#' \url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
 #' }
 #' 
 #' @aliases readSpectrum plot.rawRSpectrum
@@ -61,6 +75,7 @@
 #' 
 #' 
 #' @return  a list of \code{spectrum} objects.
+#' @seealso \link[rawDiag]{readScans}
 #' 
 #' @examples
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
@@ -81,7 +96,7 @@
 #' rawfile <- file.path(Sys.getenv("HOME"), "Downloads/20180220_14_autoQC01.raw")
 #' 
 #' # list spectra metainformation
-#' S <- readSpectrum(rawfile)
+#' S <- readIndex(rawfile)
 #' 
 #' # determine precursor matches
 #' SS <- readSpectrum(rawfile, which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
@@ -92,11 +107,11 @@
 #' # determine spectra indices having the  max number of hits hits
 #' hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
 #' 
-#' take the 1st one
+#' # take the 1st one
 #' idx <- which(hits == hit.max)[1]
 #' 
 #' # OUTPUT
-#' rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(y=y)})
+#' rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
 #' # https://www.proteomicsdb.org/use/
 #' cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
 #' }
@@ -108,6 +123,10 @@ readSpectrum <- function(rawfile, scans = NULL, tmpdir=tempdir(), validate=FALSE
     if (!file.exists(rawfile)){
         warning('file not available. return.')
         return
+    }
+    
+    if (is.null(scans)){
+        return(NULL)
     }
     
     if (!.isMonoAssemblyWorking()){
@@ -130,23 +149,77 @@ readSpectrum <- function(rawfile, scans = NULL, tmpdir=tempdir(), validate=FALSE
                                       shQuote(tfo)))
     }
     
-    e <- new.env(); e$PeakList <- list()
+    e <- new.env()
+   
     source(tfo, local=TRUE)
     unlink(c(tfi, tfo, tfstdout))
     
-    rv <- NULL
     
-    if (is.null(scans)){
-        rv <- do.call('rbind', lapply(e$Spectrum, as.data.frame))
-    }else{
-        rv <- lapply(e$Spectrum,
-                     function(x){class(x) <- c('rawRspectrum'); x})
-        if(validate){
-            rv <- lapply(rv, validate_rawRspectrum)
-        }
+    rv <- lapply(e$Spectrum,
+                 function(x){class(x) <- c('rawRspectrum'); x})
+    if(validate){
+        rv <- lapply(rv, validate_rawRspectrum)
     }
+    
     rv
 }
+
+#' Read scan index
+#'
+#' @param rawfile the name of the Thermo Fisher Scietific raw file.
+#' @param scans a vector of requested scan numbers. 
+#' @param tmpdir a non-empty character vector giving the directory name; default
+#' uses \code{tempdir()}.
+#'
+#' @return returns a \code{data.frame} with the column names
+#' scanType, rtinseconds, precursorMass, and charge of all spectra.
+#' @export readIndex
+#' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
+#' @seealso \link[rawDiag]{read.raw}
+#'
+#' @examples
+#' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
+#'   'sample.raw'))
+#'   
+#' Idx <- readIndex(rawfile)
+#' table(Idx$scanType)
+#' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
+readIndex <- function(rawfile, scans = NULL, tmpdir=tempdir()){
+    mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+    exe <- file.path(path.package(package = "rawR"), "exec", "rawR.exe")
+    
+    if (!file.exists(rawfile)){
+        warning('file not available. return.')
+        return
+    }
+    
+    if (!.isMonoAssemblyWorking()){
+        return (NULL)
+    }
+    
+    tfi <- tempfile(tmpdir=tmpdir)
+    tfo <- tempfile(tmpdir=tmpdir)
+    tfstdout <- tempfile(tmpdir=tmpdir)
+    
+    cat(NULL, file = tfi, sep="\n")
+    
+    cmd <- exe
+    
+    if (mono){
+        rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile),
+                                                   "scans", shQuote(tfi), shQuote(tfo)))
+    }else{
+        rvs <- system2(exe, args = c( shQuote(rawfile), "scans", shQuote(tfi),
+                                      shQuote(tfo)))
+    }
+    e <- new.env()
+
+    source(tfo, local=TRUE)
+    unlink(c(tfi, tfo, tfstdout))
+
+    do.call('rbind', lapply(e$Spectrum, as.data.frame))
+}
+
 
 #' validate 
 #'
@@ -188,8 +261,10 @@ plot.rawRspectrum <- function(x, ...){
 #' @description The function extracts some meta information from a given rawfile.
 #' The R code output is parsed by the function and a list object is returned.
 #' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020
-#' @seealso Thermo Fisher NewRawfileReader C# code snippets
+#' @references Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
+#' 
+#' @seealso \link[rawDiag]{read.raw.info}
 #' 
 #' @return a list object
 #' @export readFileHeader
@@ -274,6 +349,7 @@ readFileHeader <- function(rawfile,
 #' }
 #' @author Christian Trachsel, Tobias Kockmann and
 #' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
+#' @seealso \link[rawDiag]{readXIC}
 #' @export readChromatogram 
 #' @examples
 #' 
