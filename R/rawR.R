@@ -96,8 +96,6 @@ validate_rawRspectrum <- function(x){
 #' intensities rather than absolute.
 #' @param ... function passes arbitrary additional arguments.
 #'
-#' @example 
-#'
 plot.rawRspectrum <- function(x, relative = FALSE, ...){
     stopifnot(class(x) == "rawRspectrum")
     plot(x = x$mZ, y = x$intensity, type = "h",
