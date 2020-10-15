@@ -74,7 +74,7 @@ validate_rawRspectrum <- function(x){
     
     if (length(values$mZ) != length(values$intensity)){
         stop(
-            "mZ values should have same length to the number of intensities.",
+            "mZ should have same length as intensities.",
             call. = FALSE
         )
     }
@@ -82,8 +82,22 @@ validate_rawRspectrum <- function(x){
     x
 }
 
-#' @importFrom stats  na.omit
-#' @importFrom graphics legend
+#' Basic plotting function for instances of \code{rawRspectrum}
+#'
+#' \code{plot.rawRspectrum} is a low level function that calls
+#' \code{base::plot} for plotting \code{rawRspectrum} objects. It passes all
+#' additional arguments to \code{plot()}
+#'
+#' @usage Is usually called by method dispatch.
+#'
+#' @param x A \code{rawRspectrum} object
+#'
+#' @param relative If set to \code{TRUE} enforces plotting of relative
+#' intensities rather than absolute.
+#' @param ... function passes arbitrary additional arguments.
+#'
+#' @example 
+#'
 plot.rawRspectrum <- function(x, relative = FALSE, ...){
     stopifnot(class(x) == "rawRspectrum")
     plot(x = x$mZ, y = x$intensity, type = "h",

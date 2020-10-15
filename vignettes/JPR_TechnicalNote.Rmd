@@ -68,7 +68,7 @@ plotting
 ```{r plot_spectrum}
 library(rawR)
 exampleData <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-S <- rawR::readSpectrum(rawfile = exampleData, scans = 1:10)
+S <- rawR::readSpectrum(rawfile = exampleData, scan = 1:10)
 plot(S[[1]])
 ```
 
