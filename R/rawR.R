@@ -97,7 +97,7 @@ validate_rawRspectrum <- function(x){
 #' @param ... function passes arbitrary additional arguments.
 #'
 plot.rawRspectrum <- function(x, relative = FALSE, ...){
-    stopifnot(class(x) == "rawRspectrum")
+    stopifnot(is.rawRspectrum(x))
     plot(x = x$mZ, y = x$intensity, type = "h",
          xlab = "m/z",
          ylab = "Intensity",
