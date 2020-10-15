@@ -5,12 +5,12 @@
 \alias{plot.rawRSpectrum}
 \title{Read a Set of Spectra}
 \usage{
-readSpectrum(rawfile, scans = NULL, tmpdir = tempdir(), validate = FALSE)
+readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
 }
 \arguments{
 \item{rawfile}{the name of the Thermo Fisher Scietific raw file.}
 
-\item{scans}{a vector of requested scan numbers.}
+\item{scan}{a vector of requested scan numbers.}
 
 \item{tmpdir}{a non-empty character vector giving the directory name; default
 uses \code{tempdir()}.}
@@ -29,7 +29,7 @@ the ThermoFisher NewRawFileReader libraries.
 (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
   'sample.raw'))
 
-S <- readSpectrum(rawfile, scans = 1:9)
+S <- readSpectrum(rawfile, scan = 1:9)
 
 S[[1]]
 
@@ -69,8 +69,8 @@ cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
 \item{Thermo Fisher NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}}.
 \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-\item{This R function 1st appeared in
-\url{https://doi.org/10.1021/acs.jproteome.8b00173}}.
+\item{the R function 1st appeared in 
+\url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
 }
 }
 \seealso{

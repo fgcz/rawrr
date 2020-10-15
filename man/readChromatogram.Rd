@@ -6,7 +6,7 @@
 \usage{
 readChromatogram(
   rawfile,
-  mass,
+  mass = NULL,
   tol = 10,
   filter = "ms",
   mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
@@ -20,7 +20,8 @@ readChromatogram(
 
 \item{tol}{tolerance in ppm.}
 
-\item{filter}{defines the scan filter, default is \code{filter="ms"}.}
+\item{filter}{defines the scan filter, default is \code{filter="ms"} if a
+wrong filter is set the function will return \code{NULL} and gives a warning.}
 
 \item{mono}{if the mono enviroment should be used.}
 

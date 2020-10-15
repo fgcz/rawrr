@@ -33,3 +33,12 @@ test_that("check readSpectrum 23.", {
   lapply(DF$m.z[DF$Flags == "E"] %in% S$mZ, expect_false)
 })
 
+
+test_that("check readSpectrum error.", {
+  rawfile <- "this file does not exists"
+  expect_error(S<-readSpectrum(rawfile))
+  
+  rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+  expect_error(S<-readSpectrum(rawfile))
+  expect_error(S<-readSpectrum(rawfile, scan = NULL))
+})

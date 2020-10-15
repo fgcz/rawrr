@@ -10,10 +10,27 @@ test_that("check readChromatogram", {
   rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
   X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
   
+  expect_equal(length(X), 2)
 
-  lapply(X, function(x)(
-    lapply(c("mass", "times", "intensities", "filename", "tol") %in% names(x),
-           expect_true)))
+  x <- X[[1]]
+  lapply(c("mass", "times", "intensities", "filename", "tol") %in% names(x),
+           expect_true)
+  
+  expect_warning(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
+                                       tol=1000, filter = "ms 3"))
+  expect_true(is.null(X))
+  
+  expect_warning(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
+                                       tol=1000, filter = "ms ms"))
+  expect_true(is.null(X))
 })
 
 
+test_that("check readChromatogram error.", {
+  rawfile <- "this file does not exists"
+  expect_error(S<-readChromatogram(rawfile))
+  
+  rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+  expect_error(S<-readChromatogram(rawfile))
+  expect_error(S<-readChromatogram(rawfile, mass = NULL))
+})

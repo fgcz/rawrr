@@ -1,12 +1,13 @@
 ---
-title: "rawR - Technical Note, Journal of Proteome Research, Second Biennial Special Issue on Software Tools and Resources in February 2021"
+title: rawR - Technical Note, Journal of Proteome Research, Second Biennial Special
+  Issue on Software Tools and Resources in February 2021
 author: "Tobias Kockmann / Christian Panse"
 date: "8/27/2020"
-output: pdf_document
-vignette: >
-  %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{rawR JPR Technical Note}
-  %\usepackage[utf8]{inputenc}
+output:
+  html_document:
+    df_print: paged
+vignette: |
+  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{rawR JPR Technical Note} %\usepackage[utf8]{inputenc}
 ---
 
 
