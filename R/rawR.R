@@ -69,11 +69,15 @@ validate_rawRspectrum <- function(x){
 
 #' @importFrom stats  na.omit
 #' @importFrom graphics legend
-plot.rawRspectrum <- function(x, ...){
-    x <- validate_rawRspectrum(x)
-    plot(x$mZ, x$intensity, type='h')
-    labels <- na.omit(lapply(x, function(y){if (length(y)==1){y}else{NA}}))
-    legend("topright", paste(names(labels), labels, sep=": "), ...)
+plot.rawRspectrum <- function(x, relative = FALSE, ...){
+    stopifnot(class(x) == "rawRspectrum")
+    plot(x = x$mZ, y = x$intensity, type = "h",
+         xlab = "m/z",
+         ylab = "Intensity",
+         frame.plot = FALSE, ...)
+    legend("topright",
+           paste(c("Scan:", "Scan Type: ", "RT [s]:"),
+                 c(x$scan, x$scanType, x$rtinseconds)), bty = "n")
 }
 
 #' read file header Information
