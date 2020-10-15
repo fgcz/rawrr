@@ -2,7 +2,7 @@
 % Please edit documentation in R/rawR.R
 \name{validate_rawRspectrum}
 \alias{validate_rawRspectrum}
-\title{validate}
+\title{Validate instance of class rawRSpectrum}
 \usage{
 validate_rawRspectrum(x)
 }
@@ -13,5 +13,5 @@ validate_rawRspectrum(x)
 \code{rawRspectrum} object
 }
 \description{
-validate
+Validate instance of class rawRSpectrum
 }

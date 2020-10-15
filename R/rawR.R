@@ -46,9 +46,24 @@
         TRUE
     }
 
+#' Test if object is instance of class \code{rawRspectrum}
+#'
+#' @param x object to be tested
+#'
+#' @return TRUE or FALSE
+#' @export is.rawRspectrum
+#'
+#' @examples
+#' 
+#' pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+#' S <- readSpectrum(pathToRawFile, scans = 1:10)
+#' is.rawRspectrum(S[[1]])
+is.rawRspectrum <- function(x){
+    class(x) == "rawRspectrum"
+}
 
 
-#' validate 
+#' Validate instance of class rawRSpectrum 
 #'
 #' @param x object to be tested
 #'
