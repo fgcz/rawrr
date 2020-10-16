@@ -3,6 +3,7 @@
 \name{readSpectrum}
 \alias{readSpectrum}
 \alias{plot.rawRSpectrum}
+\alias{rawRspectrum}
 \title{Read a Set of Spectra}
 \usage{
 readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
@@ -41,13 +42,15 @@ plot(S[[1]])
 \dontrun{
 # INPUT:
 GAG <- "GAGSSEPVTGLDAK"
-rawfile <- file.path(Sys.getenv("HOME"), "Downloads/20180220_14_autoQC01.raw")
+rawfile <- file.path(Sys.getenv("HOME"),
+  "Downloads/20180220_14_autoQC01.raw")
 
 # list spectra metainformation
 S <- readIndex(rawfile)
 
 # determine precursor matches
-SS <- readSpectrum(rawfile, which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
+SS <- readSpectrum(rawfile,
+  which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
 
 # query spectra with precursor matches
 rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})

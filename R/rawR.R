@@ -63,53 +63,6 @@ is.rawRspectrum <- function(x){
 }
 
 
-#' Validate instance of class rawRSpectrum 
-#'
-#' @param x object to be tested
-#'
-#' @return \code{rawRspectrum} object
-#' @export validate_rawRspectrum
-validate_rawRspectrum <- function(x){
-    values <- unclass(x)
-    
-    if (length(values$mZ) != length(values$intensity)){
-        stop(
-            "mZ should have same length as intensities.",
-            call. = FALSE
-        )
-    }
-    
-    x
-}
-
-#' Basic plotting function for instances of \code{rawRspectrum}
-#'
-#' \code{plot.rawRspectrum} is a low level function that calls
-#' \code{base::plot} for plotting \code{rawRspectrum} objects. It passes all
-#' additional arguments to \code{plot()}
-#'
-#' @usage Is usually called by method dispatch.
-#'
-#' @param x A \code{rawRspectrum} object
-#'
-#' @param relative If set to \code{TRUE} enforces plotting of relative
-#' intensities rather than absolute.
-#' @param ... function passes arbitrary additional arguments.
-#'
-plot.rawRspectrum <- function(x, relative = FALSE, ...){
-    stopifnot(is.rawRspectrum(x))
-    plot(x = x$mZ, y = x$intensity, type = "h",
-         xlab = "m/z",
-         ylab = "Intensity",
-         frame.plot = FALSE, ...)
-    
-    basePeak <- paste("(", paste(x$basePeak, collapse = ", "), ")", sep='')
-    legend("topright",
-           paste(c("Scan:", "Scan Type: ", "RT [s]:", "base peak:", "TIC:"),
-                 c(x$scan, x$scanType, x$rtinseconds, basePeak, x$TIC)),
-           bty = "n",
-           cex=0.75)
-}
 
 #' read file header Information
 #'
@@ -262,7 +215,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' \url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
 #' }
 #' 
-#' @aliases readSpectrum plot.rawRSpectrum
+#' @aliases readSpectrum plot.rawRSpectrum rawRspectrum
 #' 
 #' @export readSpectrum
 #' @exportClass rawRspectrum
@@ -288,13 +241,15 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' \dontrun{
 #' # INPUT:
 #' GAG <- "GAGSSEPVTGLDAK"
-#' rawfile <- file.path(Sys.getenv("HOME"), "Downloads/20180220_14_autoQC01.raw")
+#' rawfile <- file.path(Sys.getenv("HOME"),
+#'   "Downloads/20180220_14_autoQC01.raw")
 #' 
 #' # list spectra metainformation
 #' S <- readIndex(rawfile)
 #' 
 #' # determine precursor matches
-#' SS <- readSpectrum(rawfile, which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
+#' SS <- readSpectrum(rawfile,
+#'   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
 #' 
 #' # query spectra with precursor matches
 #' rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})
@@ -475,9 +430,58 @@ readChromatogram <- function(rawfile,
                      x$filename <- rawfile
                      x$tol <- tol
                      x$filter <- filter
-                     class(x) <- c(class(x), 'chromatogram');
+                     class(x) <- c(class(x), 'rawRchromatogram');
                      x})
     
-    class(rv) <- 'chromatogramSet'
+    class(rv) <- 'rawRchromatogramSet'
     rv
+}
+
+
+#' Validate instance of class rawRSpectrum 
+#'
+#' @param x object to be tested
+#'
+#' @return \code{rawRspectrum} object
+#' @export validate_rawRspectrum
+validate_rawRspectrum <- function(x){
+    values <- unclass(x)
+    
+    if (length(values$mZ) != length(values$intensity)){
+        stop(
+            "mZ should have same length as intensities.",
+            call. = FALSE
+        )
+    }
+    
+    x
+}
+
+#' Basic plotting function for instances of \code{rawRspectrum}
+#'
+#' \code{plot.rawRspectrum} is a low level function that calls
+#' \code{base::plot} for plotting \code{rawRspectrum} objects. It passes all
+#' additional arguments to \code{plot()}
+#'
+#' @usage Is usually called by method dispatch.
+#'
+#' @param x A \code{rawRspectrum} object
+#'
+#' @param relative If set to \code{TRUE} enforces plotting of relative
+#' intensities rather than absolute.
+#' @param ... function passes arbitrary additional arguments.
+#' @author Tobias Kockmann, 2020
+plot.rawRspectrum <- function(x, relative = FALSE, ...){
+    stopifnot(is.rawRspectrum(x))
+    plot(x = x$mZ, y = x$intensity, type = "h",
+         xlab = "m/z",
+         ylab = "Intensity",
+         frame.plot = FALSE, ...)
+    
+    basePeak <- paste("(", paste(x$basePeak, collapse = ", "), ")", sep='')
+    legend("topright",
+           paste(c("Scan:", "Scan Type: ", "RT [s]:", "base peak:", "TIC:"),
+                 c(x$scan, x$scanType, x$rtinseconds, basePeak, x$TIC)),
+           bty = "n",
+           cex=0.75)
 }
