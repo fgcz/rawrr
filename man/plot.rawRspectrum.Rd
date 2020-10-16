@@ -4,10 +4,10 @@
 \alias{plot.rawRspectrum}
 \title{Basic plotting function for instances of \code{rawRspectrum}}
 \usage{
-Is usually called by method dispatch.
+\method{plot}{rawRspectrum}(x, relative = FALSE, ...)
 }
 \arguments{
-\item{x}{A \code{rawRspectrum} object}
+\item{x}{an object of class \code{rawRspectrum}.}
 
 \item{relative}{If set to \code{TRUE} enforces plotting of relative
 intensities rather than absolute.}
@@ -15,9 +15,14 @@ intensities rather than absolute.}
 \item{...}{function passes arbitrary additional arguments.}
 }
 \description{
+Plot method for objects of class \code{rawRspectrum}.
+}
+\details{
 \code{plot.rawRspectrum} is a low level function that calls
 \code{base::plot} for plotting \code{rawRspectrum} objects. It passes all
 additional arguments to \code{plot()}
+
+Is usually called by method dispatch.
 }
 \author{
 Tobias Kockmann, 2020

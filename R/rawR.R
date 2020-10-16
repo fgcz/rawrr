@@ -463,9 +463,10 @@ validate_rawRspectrum <- function(x){
 #' \code{base::plot} for plotting \code{rawRspectrum} objects. It passes all
 #' additional arguments to \code{plot()}
 #'
-#' @usage Is usually called by method dispatch.
+#' @description Plot method for objects of class \code{rawRspectrum}.
+#' @details Is usually called by method dispatch.
 #'
-#' @param x A \code{rawRspectrum} object
+#' @param x an object of class \code{rawRspectrum}.
 #'
 #' @param relative If set to \code{TRUE} enforces plotting of relative
 #' intensities rather than absolute.
