@@ -500,7 +500,7 @@ print.rawRspectrum <- function(x, ...){
     cat("Base Peak Mass:\t", x$basePeak[1], fill = TRUE)
     cat("Scan Mode:\t", x$scanType, fill = TRUE)	
 
-    keys <- c("======= Instrument data =====  ^M:",
+    keys <- c("======= Instrument data =====   :",
               "Multiple Injection:",
               "Multi Inject Info:",
               "AGC:",
@@ -565,6 +565,12 @@ print.rawRspectrum <- function(x, ...){
               "Analog Input 2 (V):"
     )
     for (i in keys){
-        cat(paste(i, x[i],sep='\t'), fill = TRUE)
+        value <- x[i]
+       
+        if (value == "NULL"){
+            cat(i, "\t\n", fill = TRUE)
+        }else{
+            cat(paste(i, x[i],sep='\t'), fill = TRUE) 
+        }
     }
 }
