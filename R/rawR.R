@@ -488,7 +488,7 @@ plot.rawRspectrum <- function(x, relative = FALSE, ...){
            cex=0.75)
 }
 
-#' Basic print function faking freestyle output
+#' Basic print function faking the look and feel of freestyle's output 
 #' @author Tobias Kockmann, 2020
 print.rawRspectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
@@ -499,5 +499,72 @@ print.rawRspectrum <- function(x, ...){
     cat("Base Peak Intensity:\t", x$basePeak[2], fill = TRUE)	
     cat("Base Peak Mass:\t", x$basePeak[1], fill = TRUE)
     cat("Scan Mode:\t", x$scanType, fill = TRUE)	
-}
 
+    keys <- c("======= Instrument data =====  ^M:",
+              "Multiple Injection:",
+              "Multi Inject Info:",
+              "AGC:",
+              "Micro Scan Count:",
+              "Scan Segment:",
+              "Scan Event:",
+              "Master Index:",
+              "Charge State:",
+              "Monoisotopic M/Z:",
+              "Ion Injection Time (ms):",
+              "Max. Ion Time (ms):",
+              "FT Resolution:",
+              "MS2 Isolation Width:",
+              "MS2 Isolation Offset:",
+              "AGC Target:",
+              "HCD Energy:",
+              "Analyzer Temperature:",
+              "=== Mass Calibration:",
+              "Conversion Parameter B:",
+              "Conversion Parameter C:",
+              "Temperature Comp. (ppm):",
+              "RF Comp. (ppm):",
+              "Space Charge Comp. (ppm):",
+              "Resolution Comp. (ppm):",
+              "Number of Lock Masses:",
+              "Lock Mass #1 (m/z):",
+              "Lock Mass #2 (m/z):",
+              "Lock Mass #3 (m/z):",
+              "LM Search Window (ppm):",
+              "LM Search Window (mmu):",
+              "Number of LM Found:",
+              "Last Locking (sec):",
+              "LM m/z-Correction (ppm):",
+              "=== Ion Optics Settings:",
+              "S-Lens RF Level:",
+              "S-Lens Voltage (V):",
+              "Skimmer Voltage (V):",
+              "Inject Flatapole Offset (V):",
+              "Bent Flatapole DC (V):",
+              "MP2 and MP3 RF (V):",
+              "Gate Lens Voltage (V):",
+              "C-Trap RF (V):",
+              "====  Diagnostic Data:",
+              "Dynamic RT Shift (min):",
+              "Intens Comp Factor:",
+              "Res. Dep. Intens:",
+              "CTCD NumF:",
+              "CTCD Comp:",
+              "CTCD ScScr:",
+              "RawOvFtT:",
+              "LC FWHM parameter:",
+              "Rod:",
+              "PS Inj. Time (ms):",
+              "AGC PS Mode:",
+              "AGC PS Diag:",
+              "HCD Energy eV:",
+              "AGC Fill:",
+              "Injection t0:",
+              "t0 FLP:",
+              "Access Id:",
+              "Analog Input 1 (V):",
+              "Analog Input 2 (V):"
+    )
+    for (i in keys){
+        cat(paste(i, x[i],sep='\t'), fill = TRUE)
+    }
+}
