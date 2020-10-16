@@ -60,6 +60,14 @@ Mass spectrometry (MS) uses two basic building blocks (data items): 1. mass spec
 
 We therefore decided to implemented objects in R that closely resemble these basic building blocks. The spectrum object is technically a nested list (S3 class system). Apart from the peak list the spectrum object also stores meta information on how the scan was recorded and how it relates to other scans in the raw file. This meta information is grouped for better transparency. The chromatogram object ...
 
+
+|function|description|
+|--------|-----------|
+|readFileHeader|extracts some meta information from a given rawfile.|
+|readIndex|read scan index|
+|readSpectrum|reads scan information, e.g., charge, mZ, or intensity of a given set of scan numbers using a dot net interface and the ThermoFisher NewRawFileReader libraries.|
+|readChromatogram|extracts Chromatogram|
+
 ### Example data
 
 The binary example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/). Lions love raw meat!
@@ -70,7 +78,7 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 
 plotting
 
-```{r plot_spectrum}
+```{r plot.rawRspectrum, fig.cap="plot a single mass spectrum."}
 library(rawR)
 exampleData <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
 S <- rawR::readSpectrum(rawfile = exampleData, scan = 1:10)
