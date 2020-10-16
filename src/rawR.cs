@@ -277,6 +277,7 @@
                                 file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
                                 file.WriteLine("\tscan = {0},", scanNumber);
                                 file.WriteLine("\tbasePeak = c({0}, {1}),", basepeakMass, basepeakIntensity);
+                                file.WriteLine("\tTIC = {0},", scanStatistics.TIC.ToString());
                                 file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
                                 file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
                                 file.WriteLine("\tpepmass = c({0}, {1}),", pepmass, basepeakIntensity);
