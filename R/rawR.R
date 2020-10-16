@@ -311,7 +311,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
     rv
 }
 
-
+## test
 
 
 #' Extracts Chromatogram (XIC)
