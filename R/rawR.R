@@ -102,9 +102,13 @@ plot.rawRspectrum <- function(x, relative = FALSE, ...){
          xlab = "m/z",
          ylab = "Intensity",
          frame.plot = FALSE, ...)
+    
+    basePeak <- paste("(", paste(x$basePeak, collapse = ", "), ")", sep='')
     legend("topright",
-           paste(c("Scan:", "Scan Type: ", "RT [s]:"),
-                 c(x$scan, x$scanType, x$rtinseconds)), bty = "n")
+           paste(c("Scan:", "Scan Type: ", "RT [s]:", "base peak:"),
+                 c(x$scan, x$scanType, x$rtinseconds, basePeak)),
+           bty = "n",
+           cex=0.75)
 }
 
 #' read file header Information

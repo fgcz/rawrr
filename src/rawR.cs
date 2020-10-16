@@ -229,6 +229,7 @@
                         var pepmass = -1.0;
                         var charge = 0;
                         var monoisotopicMz = "NA";
+                        var basepeakMass = -1.0;
                         var basepeakIntensity = -1.0;
 
                         var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
@@ -256,6 +257,7 @@
                                 .First(x => x.name.Contains("Charge State")).Position;
 
                                 pepmass = reaction0.PrecursorMass;
+                                basepeakMass =  (scanStatistics.BasePeakMass);
                                 basepeakIntensity =  Math.Round(scanStatistics.BasePeakIntensity);
                                 charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
                                 monoisotopicMz = scanTrailer.Values.ToArray()[idx_PEPMASS];
@@ -264,6 +266,7 @@
                         {
                             // Console.WriteLine("catch");
                             pepmass = -1.0;
+                            basepeakMass = -1.0;
                             basepeakIntensity = -1.0;
                             charge = 0;
                             monoisotopicMz = "NA";
@@ -273,6 +276,7 @@
 
                                 file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
                                 file.WriteLine("\tscan = {0},", scanNumber);
+                                file.WriteLine("\tbasePeak = c({0}, {1}),", basepeakMass, basepeakIntensity);
                                 file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
                                 file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
                                 file.WriteLine("\tpepmass = c({0}, {1}),", pepmass, basepeakIntensity);
