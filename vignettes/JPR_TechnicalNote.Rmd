@@ -10,10 +10,10 @@ output:
     citation_package: natbib
   pdf_document: default
 vignette: |
-  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{rawR JPR Technical Note}
   %\usepackage[utf8]{inputenc}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{rawR JPR Technical Note}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 
@@ -31,7 +31,7 @@ Winterthurerstrasse 190, 8057 Zurich, Switzerland
 
 The Bioconductor project has shown that the R statistical environment is a
 highly valuable tool for genomics data analysis
-(https://www.nature.com/articles/nmeth.3252), but with respect to proteomics
+[@Huber2015], but with respect to proteomics
 we are still missing low level infrastructure to enable performant and robust
 analysis workflows in R. Fundamentally important are libraries that provide
 raw data access. Our R package rawDiag [@Trachsel2018]

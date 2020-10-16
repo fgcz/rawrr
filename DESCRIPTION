@@ -18,12 +18,13 @@ Suggests:
 	lattice,
 	parallel,
 	testthat
-Description: The package is developed, tested and used at the Functional Genomics Center Zurich, Switzerland.
+Description: The package is developed, tested and used at the Functional
+        Genomics Center Zurich, Switzerland.
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
 URL: https://github.com/fgcz/rawDiag/
-BugReports: https://github.com/cpanse/rawR/issues
+BugReports: https://github.com/fgcz/rawR/issues
 Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
