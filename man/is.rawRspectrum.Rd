@@ -18,6 +18,6 @@ Test if object is instance of class \code{rawRspectrum}
 \examples{
 
 pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-S <- readSpectrum(pathToRawFile, scans = 1:10)
+S <- readSpectrum(pathToRawFile, scan = 1:10)
 is.rawRspectrum(S[[1]])
 }

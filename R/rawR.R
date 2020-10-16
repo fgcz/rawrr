@@ -56,7 +56,7 @@
 #' @examples
 #' 
 #' pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-#' S <- readSpectrum(pathToRawFile, scans = 1:10)
+#' S <- readSpectrum(pathToRawFile, scan = 1:10)
 #' is.rawRspectrum(S[[1]])
 is.rawRspectrum <- function(x){
     class(x) == "rawRspectrum"
