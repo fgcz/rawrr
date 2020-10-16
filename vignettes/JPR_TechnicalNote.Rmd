@@ -3,12 +3,17 @@ title: rawR - Technical Note, Journal of Proteome Research, Second Biennial Spec
   Issue on Software Tools and Resources in February 2021
 author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
+bibliography: rawR.bib
 output:
   html_document:
     df_print: paged
+    citation_package: natbib
   pdf_document: default
 vignette: |
-  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{rawR JPR Technical Note} %\usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{rawR JPR Technical Note}
+  %\usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 
@@ -29,7 +34,7 @@ highly valuable tool for genomics data analysis
 (https://www.nature.com/articles/nmeth.3252), but with respect to proteomics
 we are still missing low level infrastructure to enable performant and robust
 analysis workflows in R. Fundamentally important are libraries that provide
-raw data access. Our R package rawDiag (doi:10.1021/acs.jproteome.8b00173)
+raw data access. Our R package rawDiag [@Trachsel2018]
 has provided the proof-of-principle how access to mass spectromerty raw files
 can be realized by wrapping vendor-provided APIs. Our novel package rawR now
 aims for complete, OS independent access to all spectral, chromatographic and
@@ -119,7 +124,7 @@ XIC, extracted ion chromatogram; fourier-transformed mass spectrum (FTMS);
 nano spray ionisation, NSI;
 
 
-## References
+# References
 
 
 
