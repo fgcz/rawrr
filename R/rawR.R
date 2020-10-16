@@ -472,6 +472,7 @@ validate_rawRspectrum <- function(x){
 #' intensities rather than absolute.
 #' @param ... function passes arbitrary additional arguments.
 #' @author Tobias Kockmann, 2020
+#' @importFrom graphics legend
 plot.rawRspectrum <- function(x, relative = FALSE, ...){
     stopifnot(is.rawRspectrum(x))
     plot(x = x$mZ, y = x$intensity, type = "h",
