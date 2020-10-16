@@ -220,7 +220,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @export readSpectrum
 #' @exportClass rawRspectrum
 #' @exportS3Method plot rawRspectrum
-#' 
+#' @exportS3Method print rawRspectrum
 #' 
 #' @return  a list of \code{spectrum} objects.
 #' @seealso \link[rawDiag]{readScans}
@@ -487,3 +487,17 @@ plot.rawRspectrum <- function(x, relative = FALSE, ...){
            bty = "n",
            cex=0.75)
 }
+
+#' Basic print function faking freestyle output
+#' @author Tobias Kockmann, 2020
+print.rawRspectrum <- function(x, ...){
+    cat("Total Ion Current:\t", x$TIC, fill = TRUE)
+    cat("Scan Low Mass:\t", x$massRange[1], fill = TRUE)
+    cat("Scan High Mass:\t", x$massRange[2], fill = TRUE)
+    cat("Scan Start Time (Min):\t", round(x$rtinseconds/60,2), fill = TRUE)
+    cat("Scan Number:\t", x$scan, fill=TRUE)
+    cat("Base Peak Intensity:\t", x$basePeak[2], fill = TRUE)	
+    cat("Base Peak Mass:\t", x$basePeak[1], fill = TRUE)
+    cat("Scan Mode:\t", x$scanType, fill = TRUE)	
+}
+
