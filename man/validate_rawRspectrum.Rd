@@ -7,11 +7,11 @@
 validate_rawRspectrum(x)
 }
 \arguments{
-\item{x}{object to be tested}
+\item{x}{object to be validated.}
 }
 \value{
-\code{rawRspectrum} object
+Validated \code{rawRspectrum} object
 }
 \description{
-Validate instance of class rawRSpectrum
+Checks the validity of \code{rawRspectrum} object attributes.
 }

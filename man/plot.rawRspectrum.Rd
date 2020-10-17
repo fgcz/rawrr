@@ -4,13 +4,15 @@
 \alias{plot.rawRspectrum}
 \title{Basic plotting function for instances of \code{rawRspectrum}}
 \usage{
-\method{plot}{rawRspectrum}(x, relative = FALSE, ...)
+\method{plot}{rawRspectrum}(x, relative = TRUE, legend = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class \code{rawRspectrum}.}
 
 \item{relative}{If set to \code{TRUE} enforces plotting of relative
 intensities rather than absolute.}
+
+\item{legend}{Should legend be printed?}
 
 \item{...}{function passes arbitrary additional arguments.}
 }

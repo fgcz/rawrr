@@ -311,8 +311,6 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
     rv
 }
 
-## test
-
 
 #' Extracts Chromatogram (XIC)
 #'
@@ -440,18 +438,62 @@ readChromatogram <- function(rawfile,
 
 #' Validate instance of class rawRSpectrum 
 #'
-#' @param x object to be tested
+#' @description Checks the validity of \code{rawRspectrum} object attributes. 
 #'
-#' @return \code{rawRspectrum} object
+#' @param x object to be validated.
+#'
+#' @usage validate_rawRspectrum(x)
+#' 
+#' @return Validated \code{rawRspectrum} object
 #' @export validate_rawRspectrum
 validate_rawRspectrum <- function(x){
     values <- unclass(x)
+    
+    if (values$scan < 1) {
+        stop("Scan values just be >= 1", call. = FALSE)
+    }
     
     if (length(values$mZ) != length(values$intensity)){
         stop(
             "mZ should have same length as intensities.",
             call. = FALSE
         )
+    }
+    
+    if (any(values$mZ < 0)) {
+        stop("All mZ values just be greater than zero", call. = FALSE)
+    }
+    
+    if (any(values$intensity < 0)) {
+        stop("All intensity values just be greater than zero", call. = FALSE)
+    }
+    
+    if (any(values$massRange < 0)) {
+        stop("All massRange values just be greater than zero", call. = FALSE)
+    }
+    
+    if (values$massRange[1] > values$massRange[2]) {
+        stop("massRange[1] must be smaller than massRange[2].", call. = FALSE)
+    }
+    
+    if (any(values$basePeak < 0)) {
+        stop("All basePeak values must be greater than zero.", call. = FALSE)
+    }
+    
+    ## still problems here: fails with sample data
+    
+    if (!values$basePeak[1] %in% values$mZ) {
+        stop("basePeak[1] (position) must be found in mZ", call. = FALSE)
+    }
+    
+    if (values$basePeak[2] != max(values$intensity)) {
+        stop("basePeak intensity is unequal max. intensity", call. = FALSE)
+    }
+    
+    ##
+    
+    if (values$rtinseconds > 0) {
+        stop("rtinseconds must be greater than zero", call. = FALSE)
     }
     
     x
@@ -470,22 +512,44 @@ validate_rawRspectrum <- function(x){
 #'
 #' @param relative If set to \code{TRUE} enforces plotting of relative
 #' intensities rather than absolute.
+#' 
+#' @param legend Should legend be printed?
+#' 
 #' @param ... function passes arbitrary additional arguments.
 #' @author Tobias Kockmann, 2020
 #' @importFrom graphics legend
-plot.rawRspectrum <- function(x, relative = FALSE, ...){
+plot.rawRspectrum <- function(x, relative = TRUE, legend = TRUE, ...){
     stopifnot(is.rawRspectrum(x))
-    plot(x = x$mZ, y = x$intensity, type = "h",
-         xlab = "m/z",
-         ylab = "Intensity",
-         frame.plot = FALSE, ...)
     
-    basePeak <- paste("(", paste(x$basePeak, collapse = ", "), ")", sep='')
-    legend("topright",
-           paste(c("Scan:", "Scan Type: ", "RT [s]:", "base peak:", "TIC:"),
-                 c(x$scan, x$scanType, x$rtinseconds, basePeak, x$TIC)),
-           bty = "n",
-           cex=0.75)
+    if (relative) {
+        
+        plot(x = x$mZ, y = x$intensity/x$basePeak[2], type = "h",
+             xlim = x$massRange,
+             xlab = "m/z",
+             ylab = "Relative Intensity",
+             frame.plot = FALSE, ...)
+        
+    } else {
+        
+        plot(x = x$mZ, y = x$intensity, type = "h",
+             xlim = x$massRange,
+             xlab = "m/z",
+             ylab = "Intensity",
+             frame.plot = FALSE, ...)
+        
+    }
+    
+    if (legend) {
+        
+        basePeak <- paste("(", paste(x$basePeak, collapse = ", "), ")", sep='')
+        legend("topright",
+               paste(c("Scan:", "Scan Type: ", "RT [s]:", "base peak:", "TIC:"),
+                     c(x$scan, x$scanType, x$rtinseconds, basePeak, x$TIC)),
+               bty = "n",
+               cex=0.75)
+        
+    }
+    
 }
 
 #' Basic print function faking the look and feel of freestyle's output 
