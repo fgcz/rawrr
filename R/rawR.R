@@ -435,6 +435,26 @@ readChromatogram <- function(rawfile,
     rv
 }
 
+new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
+                             scanType = character(), rtinseconds = numeric(),
+                             centroidStream = numeric(),
+                             mZ = numeric(), intensity = numeric()){
+    
+    stopifnot(is.numeric(scan))
+    stopifnot(is.numeric(massRange))
+    ## more type tests needed
+    
+    structure(list(scan = scan,
+                   basePeak = c(mZ[which.max(intensity)], intensity[which.max(intensity)]),
+                   TIC = sum(intensity), massRange = massRange,
+                   scanType = scanType, rtinseconds = rtinseconds,
+                   centroidStream = centroidStream,
+                   mZ = mZ, intensity = intensity),
+              class = "rawRspectrum")
+
+}
+
+
 
 #' Validate instance of class rawRSpectrum 
 #'
