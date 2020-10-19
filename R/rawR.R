@@ -435,14 +435,31 @@ readChromatogram <- function(rawfile,
     rv
 }
 
+#' Create instances of class \code{rawRspectrum}
+#' 
+#' Developer function.
+#'
+#' @param scan scan number
+#' @param massRange Mass range covered by spectrum
+#' @param scanType Character string describing the scan type.
+#' @param rtinseconds Retention time in seconds
+#' @param centroidStream Logical indicating if centroided data is available
+#' @param mZ m/z values
+#' @param intensity Intensity values
+#'
+#' @return Object of class \code{rawRspectrum}
+#' @export new_rawRspectrum
+#'
+#' @examples
 new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
                              scanType = character(), rtinseconds = numeric(),
-                             centroidStream = numeric(),
+                             centroidStream = logical(),
                              mZ = numeric(), intensity = numeric()){
     
-    stopifnot(is.numeric(scan))
-    stopifnot(is.numeric(massRange))
-    ## more type tests needed
+    stopifnot(is.numeric(scan), is.numeric(massRange), is.character(scanType),
+              is.numeric(rtinseconds), is.logical(centroidStream),
+              is.numeric(mZ), is.numeric(intensity)
+    )
     
     structure(list(scan = scan,
                    basePeak = c(mZ[which.max(intensity)], intensity[which.max(intensity)]),
@@ -462,7 +479,7 @@ new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
 #' 
 #' @usage \code{rawRspectrum(sim = "example_1")}
 #'
-#' @param sim either \code{example_1} or \code{TESTPEPTIDE}
+#' @param sim Either \code{example_1} or \code{TESTPEPTIDE}
 #'
 #' @return Function returns a validated \code{rawRspectrum} object
 #' @export rawRspectrum
