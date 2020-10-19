@@ -454,7 +454,57 @@ new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
 
 }
 
-
+#' Create \code{rawRspectrum} objects
+#' 
+#' @description High-level constructor for instances of class
+#' \code{rawRspectrum}, also named helper function. Currently, mainly to support
+#' testing and for demonstration.
+#' 
+#' @usage \code{rawRspectrum(sim = "example_1")}
+#'
+#' @param sim either \code{example_1} or \code{TESTPEPTIDE}
+#'
+#' @return Function returns a validated \code{rawRspectrum} object
+#' @export rawRspectrum
+#'
+#' @examples \code{plot(rawRspectrum(sim = "TESTPEPTIDE"))}
+#' \code{rawRspectrum(sim = "example_1")}
+#' 
+#' @author Tobias Kockmann
+rawRspectrum <- function(sim = character()) {
+    
+    stopifnot(is.character(sim))
+    
+    if (sim == "example_1") {
+        S <- new_rawRspectrum(scan = 1,
+                              massRange = c(90, 1510),
+                              rtinseconds = 1,
+                              scanType = "simulated",
+                              centroidStream = FALSE,
+                              mZ = 1:15*100,
+                              intensity = rep(100, times = 15)
+                              )
+    }
+    
+    if (sim == "TESTPEPTIDE") {
+        S <- new_rawRspectrum(scan = 1,
+                              massRange = c(90, 1510),
+                              rtinseconds = 1,
+                              scanType = "simulated",
+                              centroidStream = FALSE,
+                              mZ = c(148.0604, 263.0874, 376.1714, 477.2191,
+                                     574.2719, 703.3145, 800.3672, 901.4149,
+                                     988.4469, 1117.4895),
+                              intensity = rep(100, times = 10)
+        )
+        
+    }
+    
+    ## more examples?
+    
+    validate_rawRspectrum(S)
+    
+}
 
 #' Validate instance of class rawRSpectrum 
 #'
@@ -512,7 +562,7 @@ validate_rawRspectrum <- function(x){
     
     ##
     
-    if (values$rtinseconds > 0) {
+    if (values$rtinseconds < 0) {
         stop("rtinseconds must be greater than zero", call. = FALSE)
     }
     
