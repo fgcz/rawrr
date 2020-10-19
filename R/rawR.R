@@ -628,12 +628,22 @@ plot.rawRspectrum <- function(x, relative = TRUE, legend = TRUE, ...){
     
     if (legend) {
         
-        basePeak <- paste("(", paste(x$basePeak, collapse = ", "), ")", sep='')
+        #basePeak <- paste("(", paste(format(x$basePeak, nsmall = 4),
+        #                             collapse = ", "), ")", sep='')
         legend("topright",
-               paste(c("Scan:", "Scan Type: ", "RT [s]:", "base peak:", "TIC:"),
-                     c(x$scan, x$scanType, x$rtinseconds, basePeak, x$TIC)),
-               bty = "n",
-               cex=0.75)
+               paste(c("Scan#: ",
+                       "Scan Type: ",
+                       "RT [s]: ",
+                       "Base peak mass [m/z]: ",
+                       "Base peak intensity: ",
+                       "TIC: "),
+                     c(x$scan,
+                       x$scanType,
+                       x$rtinseconds,
+                       format(x$basePeak[1], nnsmall = 4),
+                       format(x$basePeak[2], scientific = TRUE),
+                       format(x$TIC, scientific = TRUE))
+                     ), bty = "n", cex=0.75)
         
     }
     
