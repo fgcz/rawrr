@@ -78,7 +78,7 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 
 plotting
 
-```{r plot.rawRspectrum, fig.cap="plot a single mass spectrum."}
+```{r plot.rawRspectrum, fig.cap="plot a mass spectrum."}
 library(rawR)
 exampleData <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
 S <- rawR::readSpectrum(rawfile = exampleData, scan = 1:10)
@@ -90,7 +90,13 @@ plot(S[[1]])
 
 ### Use Case II - Working with chromatograms - iRT regression
 
-...
+```{r plot.rawRchromatogram, fig.cap="plot a chromatogram (XIC)"}
+#library(rawR)
+#exampleData <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+C <- readChromatogram(exampleData, mass = 445.1181, tol = 10)
+plot.rawRchromatogram(C[[1]]) #still a problem with plot generic
+```
+
 
 
 ## Conclusions
