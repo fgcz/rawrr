@@ -736,10 +736,34 @@ print.rawRspectrum <- function(x, ...){
     }
 }
 
+#' Check if object is instance of class \code{rawRchromatogram}
+#'
+#' @param x The object to be tested.
+#'
+#' @usage is.rawRchromatogram(x)
+#'
+#' @return Boolean
+#' @export is.rawRchromatogram
+#'
+#' @examples pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+#' C <- readChromatogram(pathToRawFile, mass = 445.1181, tol = 10)
+#' is.rawRchromatogram(C[[1]])
 is.rawRchromatogram <- function(x){
     "rawRchromatogram" %in% class(x)
 }
 
+#' Plot \code{rawRchromatogram} objects
+#'
+#' @param x A \code{rawRchromatogram} object to be plotted.
+#' @param legend Should legend be printed?
+#' @param ... Passes additional arguments.
+#'
+#' @return
+#' @export plot.rawRchromatogram
+#'
+#' @examples pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+#' C <- readChromatogram(pathToRawFile, mass = 445.1181, tol = 10)
+#' plot.rawR(C[[1]])
 plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     stopifnot(is.rawRchromatogram(x))
     
