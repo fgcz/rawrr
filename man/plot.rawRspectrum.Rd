@@ -4,13 +4,17 @@
 \alias{plot.rawRspectrum}
 \title{Basic plotting function for instances of \code{rawRspectrum}}
 \usage{
-\method{plot}{rawRspectrum}(x, relative = TRUE, legend = TRUE, ...)
+\method{plot}{rawRspectrum}(x, relative = TRUE, centroid = FALSE, SN = FALSE, legend = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class \code{rawRspectrum}.}
 
 \item{relative}{If set to \code{TRUE} enforces plotting of relative
 intensities rather than absolute.}
+
+\item{centroid}{Should centroided data be used for plotting?}
+
+\item{SN}{Should Signal/Noise be used for plotting?}
 
 \item{legend}{Should legend be printed?}
 

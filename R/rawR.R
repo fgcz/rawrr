@@ -600,31 +600,69 @@ validate_rawRspectrum <- function(x){
 #' @param relative If set to \code{TRUE} enforces plotting of relative
 #' intensities rather than absolute.
 #' 
+#' @param centroid Should centroided data be used for plotting?
+#' 
+#' @param SN Should Signal/Noise be used for plotting?
+#' 
 #' @param legend Should legend be printed?
 #' 
 #' @param ... function passes arbitrary additional arguments.
 #' @author Tobias Kockmann, 2020
 #' @importFrom graphics legend
-plot.rawRspectrum <- function(x, relative = TRUE, legend = TRUE, ...){
+plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
+                              legend = TRUE, ...){
+    
     stopifnot(is.rawRspectrum(x))
     
-    if (relative) {
+    if (centroid) {
         
-        plot(x = x$mZ, y = x$intensity/x$basePeak[2], type = "h",
-             xlim = x$massRange,
-             xlab = "m/z",
-             ylab = "Relative Intensity",
-             frame.plot = FALSE, ...)
+        stopifnot(x$centroidStream)
+        
+        if (SN) {
+            
+            plot(x = x$centroid.mZ, y = x$centroid.intensity/x$noise,
+                 type = "h",
+                 xlim = x$massRange,
+                 xlab = "Centroid m/z",
+                 ylab = "Centroid Signal/Noise",
+                 frame.plot = FALSE, ...
+            )
+            
+        } else {
+            
+            plot(x = x$centroid.mZ, y = x$centroid.intensity,
+                 type = "h",
+                 xlim = x$massRange,
+                 xlab = "Centroid m/z",
+                 ylab = "Centroid Intensity",
+                 frame.plot = FALSE, ...
+            )
+            
+        }
+        
         
     } else {
         
-        plot(x = x$mZ, y = x$intensity, type = "h",
-             xlim = x$massRange,
-             xlab = "m/z",
-             ylab = "Intensity",
-             frame.plot = FALSE, ...)
+        if (relative) {
+            
+            plot(x = x$mZ, y = x$intensity/x$basePeak[2], type = "h",
+                 xlim = x$massRange,
+                 xlab = "m/z",
+                 ylab = "Relative Intensity",
+                 frame.plot = FALSE, ...)
+            
+        } else {
+            
+            plot(x = x$mZ, y = x$intensity, type = "h",
+                 xlim = x$massRange,
+                 xlab = "m/z",
+                 ylab = "Intensity",
+                 frame.plot = FALSE, ...)
+            
+        }
         
     }
+    
     
     if (legend) {
         
