@@ -610,7 +610,7 @@ validate_rawRspectrum <- function(x){
 #' @author Tobias Kockmann, 2020
 #' @importFrom graphics legend
 plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
-                              legend = TRUE, ...){
+                              legend = TRUE, diagnostic = FALSE, ...){
     
     stopifnot(is.rawRspectrum(x))
     
@@ -668,7 +668,7 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
         
         #basePeak <- paste("(", paste(format(x$basePeak, nsmall = 4),
         #                             collapse = ", "), ")", sep='')
-        legend("topright",
+        legend("topleft",
                paste(c("Scan#: ",
                        "Scan Type: ",
                        "RT [s]: ",
@@ -685,6 +685,18 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
         
     }
     
+    if (diagnostic) {
+        legend("left", legend = paste(c("Injection time [ms]: ",
+                                          "Max. Injection time [ms]",
+                                          "AGC target",
+                                          "Resolution: "),
+                                        c(x$`Ion Injection Time (ms)`,
+                                          x$`Max. Ion Time (ms)`,
+                                          x$`AGC Target`,
+                                          x$`FT Resolution`)),
+               bty = "n", cex = 0.75, text.col = "grey")
+    }
+
 }
 
 #' Basic print function faking the look and feel of freestyle's output 
