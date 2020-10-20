@@ -735,3 +735,25 @@ print.rawRspectrum <- function(x, ...){
         }
     }
 }
+
+is.rawRchromatogram <- function(x){
+    "rawRchromatogram" %in% class(x)
+}
+
+plot.rawRchromatogram <- function(x, legend = TRUE, ...){
+    stopifnot(is.rawRchromatogram(x))
+    
+    plot(x = x$times, y = x$intensities,
+         xlab = "RT",
+         ylab = "Intensity",
+         type = "l",
+         frame.plot = FALSE)
+    
+    if (legend) {
+        legend("topright",
+               legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
+                              c(basename(x$filename), x$filter, format(x$mass), x$ppm)),
+               bty = "n", cex = 0.75)
+    }
+    
+}
