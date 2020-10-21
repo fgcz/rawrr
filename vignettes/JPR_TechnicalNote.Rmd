@@ -5,10 +5,10 @@ author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 bibliography: rawR.bib
 output:
-  pdf_document: default
   html_document:
     df_print: paged
     citation_package: natbib
+  pdf_document: default
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
@@ -90,11 +90,24 @@ plot(S[[1]])
 
 ### Use Case II - Working with chromatograms - iRT regression
 
-```{r plot.rawRchromatogram, fig.cap="plot a chromatogram (XIC)"}
-#library(rawR)
-#exampleData <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-C <- readChromatogram(exampleData, mass = 445.1181, tol = 10)
-plot.rawRchromatogram(C[[1]]) #still a problem with plot generic
+<!---
+your comme
+scp fgcz-r-035:/srv/www/htdocs/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw ~/Downloads
+-->
+```{r plot.rawRchromatogram, fig.cap="plot a chromatogram (XIC)", error=TRUE}
+rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
+
+iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
+            683.8541, 699.3388, 726.8361, 776.9301)
+
+names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+                 "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
+                 "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
+                 "LFLQFGAQGSPFLK")
+
+C <- readChromatogram(rawfile, iRT)
+
+plot(C)
 ```
 
 
