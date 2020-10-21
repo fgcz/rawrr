@@ -5,10 +5,10 @@ author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 bibliography: rawR.bib
 output:
-  pdf_document: default
   html_document:
     df_print: paged
     citation_package: natbib
+  pdf_document: default
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
