@@ -5,10 +5,10 @@ author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 bibliography: rawR.bib
 output:
+  pdf_document: default
   html_document:
     df_print: paged
     citation_package: natbib
-  pdf_document: default
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
@@ -91,9 +91,9 @@ plot(S[[1]])
 ### Use Case II - Working with chromatograms - iRT regression
 
 <!---
-your comme
-scp fgcz-r-035:/srv/www/htdocs/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw ~/Downloads
+scp fgcz-r-035.uzh.ch:/srv/www/htdocs/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw ~/Downloads
 -->
+
 ```{r plot.rawRchromatogram, fig.cap="plot a chromatogram (XIC)", error=TRUE}
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
 
