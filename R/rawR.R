@@ -687,8 +687,8 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
     
     if (diagnostic) {
         legend("left", legend = paste(c("Injection time [ms]: ",
-                                          "Max. Injection time [ms]",
-                                          "AGC target",
+                                          "Max. Injection time [ms]: ",
+                                          "AGC target: ",
                                           "Resolution: "),
                                         c(x$`Ion Injection Time (ms)`,
                                           x$`Max. Ion Time (ms)`,
@@ -700,7 +700,7 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 }
 
 #' Basic print function faking the look and feel of freestyle's output 
-#' @author Tobias Kockmann, 2020
+#' @author Christian Panse & Tobias Kockmann, 2020
 print.rawRspectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", x$massRange[1], fill = TRUE)
@@ -826,7 +826,9 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     if (legend) {
         legend("topright",
                legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
-                              c(basename(x$filename), x$filter, format(x$mass), x$ppm)),
+                              c(basename(x$filename), x$filter, format(x$mass),
+                                x$ppm)
+                        ),
                bty = "n", cex = 0.75)
     }
     
