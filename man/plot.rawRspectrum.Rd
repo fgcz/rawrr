@@ -4,7 +4,15 @@
 \alias{plot.rawRspectrum}
 \title{Basic plotting function for instances of \code{rawRspectrum}}
 \usage{
-\method{plot}{rawRspectrum}(x, relative = TRUE, centroid = FALSE, SN = FALSE, legend = TRUE, ...)
+\method{plot}{rawRspectrum}(
+  x,
+  relative = TRUE,
+  centroid = FALSE,
+  SN = FALSE,
+  legend = TRUE,
+  diagnostic = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{an object of class \code{rawRspectrum}.}

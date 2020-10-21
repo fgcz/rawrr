@@ -336,6 +336,10 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 #' @seealso \link[rawDiag]{readXIC}
 #' @export readChromatogram 
+#' @exportClass rawRchromatogram
+#' @exportClass rawRchromatogramSet
+#' @exportS3Method plot rawRchromatogram
+#' @exportS3Method plot rawRchromatogramSet
 #' @examples
 #' 
 #' # Example 1: not meaning full but proof-of-concept
@@ -435,24 +439,6 @@ readChromatogram <- function(rawfile,
     rv
 }
 
-plot.rawRchromatogramSet <- function(x, ...){
-    plot(0, 0, type='n',
-         xlim=range(unlist(lapply(x, function(o){o$times}))),
-         ylim=range(unlist(lapply(x, function(o){o$intensities}))),
-         frame.plot = FALSE,
-         xlab='retention time [in min]',
-         ylab='intensities'
-         )
-
-    cm <- hcl.colors(length(x), "Set 2")
-    mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
-    legend("topleft",
-           as.character(sapply(X, function(o){o$mass})),
-           col=cm,
-           pch=16, 
-           title='target mass [m/z]',
-           bty='n',cex = 0.75)
-}
 
 #' Create instances of class \code{rawRspectrum}
 #' 
@@ -849,4 +835,29 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
                bty = "n", cex = 0.75)
     }
     
+}
+
+#' Plot \code{rawRchromatogramSet} objects
+#'
+#' @param x A \code{rawRchromatogramSet} object to be plotted.
+#' @param ... Passes additional arguments.
+#' 
+#' @export plot.rawRchromatogramSet
+plot.rawRchromatogramSet <- function(x, ...){
+    plot(0, 0, type='n',
+         xlim=range(unlist(lapply(x, function(o){o$times}))),
+         ylim=range(unlist(lapply(x, function(o){o$intensities}))),
+         frame.plot = FALSE,
+         xlab='retention time [in min]',
+         ylab='intensities', ...
+    )
+    
+    cm <- hcl.colors(length(x), "Set 2")
+    mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
+    legend("topleft",
+           as.character(sapply(x, function(o){o$mass})),
+           col=cm,
+           pch=16, 
+           title='target mass [m/z]',
+           bty='n',cex = 0.75)
 }
