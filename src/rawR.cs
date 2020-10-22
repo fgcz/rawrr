@@ -374,6 +374,7 @@
                         {"infoR", "print the raw file's meta data as R code."},
                         {"chromatogram", "base peak chromatogram."},
                         {"xic", "prints xic unfiltered."},
+                        {"tic", "prints xic unfiltered."},
                         {"scans", "print spectrum of scanid as Rcode."}
                     };
 
@@ -504,7 +505,13 @@
                     if (mode == "chromatogram")
                     {
                         // Get the BasePeak chromatogram for the MS data
-                        GetChromatogram(rawFile, firstScanNumber, lastScanNumber, true);
+			string filter = "ms";
+			try {
+			    filter = args[2];
+			}
+			catch{
+			}
+                        GetChromatogram(rawFile, firstScanNumber, lastScanNumber, true, filter);
                         Environment.Exit(0);
                     }
 
@@ -557,7 +564,7 @@
                                     massList.Add(Convert.ToDouble(line));
                                 }
 
-                                ExtractChromatogram(rawFile, -1, -1, massList, ppmError, outputFilename, filter);
+                                ExtractIonChromatogramAsRcode(rawFile, -1, -1, massList, ppmError, outputFilename, filter);
                             }
 
                             return;
@@ -602,28 +609,41 @@
             /// <param name="outputData">
             /// The output data flag.
             /// </param>
-            private static void GetChromatogram(IRawDataPlus rawFile, int startScan, int endScan, bool outputData)
+            private static void GetChromatogram(IRawDataPlus rawFile, int startScan, int endScan, bool outputData, string filter = "ms")
             {
+	        if (IsValidFilter(rawFile, filter) == false){
+                    Console.WriteLine("# '{0}' is not a valid filter string.", filter);
+		    return;
+	        }
+
                 // Define the settings for getting the Base Peak chromatogram
-                ChromatogramTraceSettings settings = new ChromatogramTraceSettings(TraceType.BasePeak);
+                ChromatogramTraceSettings settingsTIC = new ChromatogramTraceSettings(TraceType.TIC){Filter=filter};
+                ChromatogramTraceSettings settingsBasePeak = new ChromatogramTraceSettings(TraceType.BasePeak){Filter=filter};
+                ChromatogramTraceSettings settingsMassRange = new ChromatogramTraceSettings(TraceType.MassRange){Filter=filter};
 
                 // Get the chromatogram from the RAW file. 
-                var data = rawFile.GetChromatogramData(new IChromatogramSettings[] {settings}, startScan, endScan);
+                var dataTIC = rawFile.GetChromatogramData(new IChromatogramSettings[] {settingsTIC}, startScan, endScan);
+                var dataMassRange = rawFile.GetChromatogramData(new IChromatogramSettings[] {settingsMassRange}, startScan, endScan);
+                var dataBasePeak = rawFile.GetChromatogramData(new IChromatogramSettings[] {settingsBasePeak}, startScan, endScan);
 
                 // Split the data into the chromatograms
-                var trace = ChromatogramSignal.FromChromatogramData(data);
+                var traceTIC = ChromatogramSignal.FromChromatogramData(dataTIC);
+                var traceMassRange = ChromatogramSignal.FromChromatogramData(dataMassRange);
+                var traceBasePeak = ChromatogramSignal.FromChromatogramData(dataBasePeak);
 
-                if (trace[0].Length > 0)
+                if (traceBasePeak[0].Length > 0)
                 {
                     // Print the chromatogram data (time, intensity values)
-                    Console.WriteLine("# Base Peak chromatogram ({0} points)", trace[0].Length);
+                    Console.WriteLine("# TIC chromatogram ({0} points)", traceTIC[0].Length);
+                    Console.WriteLine("# Base Peak chromatogram ({0} points)", traceBasePeak[0].Length);
+                    Console.WriteLine("# MassRange chromatogram ({0} points)", traceMassRange[0].Length);
 
-                    Console.WriteLine("scan,rt,intensity");
+                    Console.WriteLine("scan,rt,intensity.BasePeak,intensity.TIC,intensity.MassRange");
                     if (outputData)
                     {
-                        for (int i = 0; i < trace[0].Length; i++)
+                        for (int i = 0; i < traceBasePeak[0].Length; i++)
                         {
-                            Console.WriteLine("{0},{1:F3},{2:F0}", i, trace[0].Times[i], trace[0].Intensities[i]);
+                            Console.WriteLine("{0},{1:F3},{2:F0},{3:F0},{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
                         }
                     }
                 }
@@ -638,7 +658,7 @@
 		    return true; 
 	    }
 
-            private static void ExtractChromatogram(IRawDataPlus rawFile, int startScan, int endScan, List<double> massList,
+            private static void ExtractIonChromatogramAsRcode(IRawDataPlus rawFile, int startScan, int endScan, List<double> massList,
                 double ppmError, string filename, string filter = "ms")
             {
 

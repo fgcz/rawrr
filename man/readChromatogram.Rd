@@ -9,6 +9,7 @@ readChromatogram(
   mass = NULL,
   tol = 10,
   filter = "ms",
+  type = "xic",
   mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
   exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")
 )
@@ -22,6 +23,9 @@ readChromatogram(
 
 \item{filter}{defines the scan filter, default is \code{filter="ms"} if a
 wrong filter is set the function will return \code{NULL} and gives a warning.}
+
+\item{type}{xic for extracted ion chromatogram otherwise the function returns
+a \code{data.frame} with total ion chromatogram and a base peak chromatogram.}
 
 \item{mono}{if the mono enviroment should be used.}
 

@@ -319,6 +319,8 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @param tol tolerance in ppm.
 #' @param filter defines the scan filter, default is \code{filter="ms"} if a
 #' wrong filter is set the function will return \code{NULL} and gives a warning.
+#' @param type xic for extracted ion chromatogram otherwise the function returns
+#' a \code{data.frame} with total ion chromatogram and a base peak chromatogram.
 #' @param mono if the mono enviroment should be used. 
 #' @param exe the exe file user by mono.
 #' 
@@ -369,74 +371,83 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' }
 #' 
 readChromatogram <- function(rawfile,
-     mass = NULL,
-     tol = 10,
-     filter = "ms",
-     mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-     exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
-
+                             mass = NULL,
+                             tol = 10,
+                             filter = "ms",
+                             type = 'xic',
+                             mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
+                             exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
+    
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
     }
-    if (is.null(mass)){
-        stop('no mass vector is proived.')
-    }
+   
     if (!.isMonoAssemblyWorking()){
         stop('the mono assembly are not available.')
     }
 
+    tfstdout <- tempfile()
     tfi <- tempfile()
     tfo <- tempfile()
-    tfstdout <- tempfile()
-    
-    cat(mass, file=tfi, sep="\n")
-    
-    cmd <- exe
-    
-    if (mono){
-        rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic",
-                shQuote(tfi), tol, shQuote(tfo), shQuote(filter)))
+    if(type == 'xic'){
+        if (is.null(mass)){
+            stop('no mass vector is proived.')
+        }
+        cat(mass, file=tfi, sep="\n")
+        
+        cmd <- exe
+        
+        if (mono){
+            rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic",
+                                            shQuote(tfi), tol, shQuote(tfo), shQuote(filter)))
+        }else{
+            rvs <- system2(exe, args = c(shQuote(rawfile), "xic", shQuote(tfi), tol,
+                                         shQuote(tfo), shQuote(filter)))
+        }
+        
+        rv <- try({
+            e <- new.env();
+            e$chromatogram <- list()
+            source(tfo, local = TRUE)
+            
+            
+            if ('warning' %in% names(e)){
+                warning(e$warning)
+            }
+            
+            if ('message' %in% names(e)){
+                message(e$message)
+            }
+            
+            if ('error' %in% names(e)){
+                warning(e$error)
+                return(NULL)
+            } 
+            
+            e$chromatogram
+        }, NULL)
+        
+        
+        #message(paste(c(tfi, tfo, tfstdout), collapse = ",\n"))
+        #message(length(rv))
+        rv <- lapply(rv,
+                     function(x){
+                         x$filename <- rawfile
+                         x$tol <- tol
+                         x$filter <- filter
+                         x$times.max <- x$times[x$intensities==max(x$intensities)][1]
+                         class(x) <- c(class(x), 'rawRchromatogram');
+                         x})
+        class(rv) <- 'rawRchromatogramSet'
     }else{
-        rvs <- system2(exe, args = c(shQuote(rawfile), "xic", shQuote(tfi), tol,
-                                     shQuote(tfo), shQuote(filter)))
+        if (mono){
+            rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
+        }else{
+            rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)),stdout=tfstdout)
+        }
+        rv <- read.csv(tfstdout, header = TRUE, comment.char = "#")
     }
-    
-    
-    rv <- try({
-        e <- new.env();
-        e$chromatogram <- list()
-        source(tfo, local = TRUE)
-        
-        
-        if ('warning' %in% names(e)){
-            warning(e$warning)
-        }
-        
-        if ('message' %in% names(e)){
-            message(e$message)
-        }
-        
-        if ('error' %in% names(e)){
-            warning(e$error)
-            return(NULL)
-        } 
-        
-        e$chromatogram
-    }, NULL)
     unlink(c(tfi, tfo, tfstdout))
-    
-    #message(paste(c(tfi, tfo, tfstdout), collapse = ",\n"))
-    #message(length(rv))
-    rv <- lapply(rv,
-                 function(x){
-                     x$filename <- rawfile
-                     x$tol <- tol
-                     x$filter <- filter
-                     x$times.max <- x$times[x$intensities==max(x$intensities)][1]
-                     class(x) <- c(class(x), 'rawRchromatogram');
-                     x})
-    
-    class(rv) <- 'rawRchromatogramSet'
     rv
 }
 
