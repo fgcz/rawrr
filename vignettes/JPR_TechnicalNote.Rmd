@@ -84,20 +84,21 @@ using biognosys iRT peptides [@Escher2012]
 ```{r plot.rawRspectrum, fig.cap="plot a mass spectrum.", error=TRUE}
 # http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
 # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
-rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
+rawfile <- file.path(Sys.getenv('HOME'),
+                     "Downloads", "20181113_010_autoQC01.raw")
 
 library(rawR)
 
-S <- rawR::readSpectrum(rawfile, scan =c(9594, 11113, 11884, 12788, 12677, 13204,
+S <- rawR::readSpectrum(rawfile, scan=c(9594, 11113, 11884, 12788, 12677, 13204,
                                          13868, 14551, 16136, 17193, 17612))
 plot(S[[1]])
 ```
 
-other recent application examples are descibed in [@Panse2020], [@protViz] and [@Gehrig2020].
+other recent application examples are descibed in [@Panse2020], [@protViz]
+and [@Gehrig2020].
 
 
 ### Use Case II - Working with chromatograms - iRT regression
-
 
 ```{r plot.rawRchromatogram, fig.cap="plot a chromatogram (XIC)", error=TRUE}
 iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
@@ -114,13 +115,13 @@ plot(C)
 ```
 
 
-```{r iRTscoreFit}
+```{r iRTscoreFit, error=TRUE}
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
 rt <- sapply(C, function(x) x$times.max)
 fit <- lm(rt ~ score )
 ```
 
-```{r iRTscoreFitPlot, echo=FALSE}
+```{r iRTscoreFitPlot, echo=FALSE, error=TRUE}
 plot(rt ~ score, pch=16,frame.plot = FALSE,asp=1); abline(fit, col='grey')
 text(score, rt,  substr(names(iRT),1,3),pos=3)
 text(score, rt,  iRT,pos=1,cex=0.5)
@@ -129,8 +130,9 @@ text(score, rt,  iRT,pos=1,cex=0.5)
 ## Conclusions
 
 ... next 
-*[@Schmidt2020] 
-*[@biocspectra]
+
+- [@Schmidt2020] 
+- [@biocspectra]
 
 
 
