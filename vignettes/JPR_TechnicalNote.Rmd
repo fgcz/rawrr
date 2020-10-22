@@ -128,7 +128,10 @@ text(score, rt,  iRT,pos=1,cex=0.5)
 
 ## Conclusions
 
-...
+... next 
+*[@Schmidt2020] 
+*[@biocspectra]
+
 
 
 ## Author information
