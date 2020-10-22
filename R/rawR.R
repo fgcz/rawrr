@@ -432,6 +432,7 @@ readChromatogram <- function(rawfile,
                      x$filename <- rawfile
                      x$tol <- tol
                      x$filter <- filter
+                     x$times.max <- x$times[x$intensities==max(x$intensities)][1]
                      class(x) <- c(class(x), 'rawRchromatogram');
                      x})
     

@@ -5,10 +5,10 @@ author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 bibliography: rawR.bib
 output:
-  pdf_document: default
   html_document:
     df_print: paged
     citation_package: natbib
+  pdf_document: default
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
@@ -75,28 +75,31 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 ## Results
 
 ### Use Case I - Analyzing orbi trap spectra
+<!---
+scp r35:/export/lv_iduzh06/projects/p1000/Proteomics/QEXACTIVEHF_2/tobiasko_20181113/20181113_010_autoQC01.raw ~/Downloads/
+-->
 
 plotting
+using biognosys iRT peptides [@Escher2012] 
+```{r plot.rawRspectrum, fig.cap="plot a mass spectrum.", error=TRUE}
+# http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
+# MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
+rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
 
-```{r plot.rawRspectrum, fig.cap="plot a mass spectrum."}
 library(rawR)
-exampleData <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-S <- rawR::readSpectrum(rawfile = exampleData, scan = 1:10)
+
+S <- rawR::readSpectrum(rawfile, scan =c(9594, 11113, 11884, 12788, 12677, 13204,
+                                         13868, 14551, 16136, 17193, 17612))
 plot(S[[1]])
 ```
 
-
+other recent application examples are descibed in [@Panse2020], [@protViz] and [@Gehrig2020].
 
 
 ### Use Case II - Working with chromatograms - iRT regression
 
-<!---
-scp fgcz-r-035.uzh.ch:/srv/www/htdocs/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw ~/Downloads
--->
 
 ```{r plot.rawRchromatogram, fig.cap="plot a chromatogram (XIC)", error=TRUE}
-rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
-
 iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
@@ -111,6 +114,17 @@ plot(C)
 ```
 
 
+```{r iRTscoreFit}
+score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
+rt <- sapply(C, function(x) x$times.max)
+fit <- lm(rt ~ score )
+```
+
+```{r iRTscoreFitPlot, echo=FALSE}
+plot(rt ~ score, pch=16,frame.plot = FALSE,asp=1); abline(fit, col='grey')
+text(score, rt,  substr(names(iRT),1,3),pos=3)
+text(score, rt,  iRT,pos=1,cex=0.5)
+```
 
 ## Conclusions
 
