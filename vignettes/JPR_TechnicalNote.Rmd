@@ -111,9 +111,9 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 
 C <- readChromatogram(rawfile, iRT, tol=10)
 
-par(mfrow=c(2, 1))
+par(mfrow=c(2, 1), mar=c(4, 4, 1, 1))
 plot(C)
-plot(readChromatogram(rawfile, type='bpc')
+plot(readChromatogram(rawfile, type='bpc'))
 ```
 
 

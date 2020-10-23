@@ -912,7 +912,7 @@ plot.rawRchromatogramSet <- function(x, ...){
                c('bpc','tic'),
                col=c('red','black'),
                pch=16, 
-               title='target mass [m/z]',
+               title='types',
                bty='n',cex = 0.75)
     }
 }
