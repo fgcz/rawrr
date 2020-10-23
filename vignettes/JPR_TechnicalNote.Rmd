@@ -61,6 +61,17 @@ Mass spectrometry (MS) uses two basic building blocks (data items): 1. mass spec
 We therefore decided to implemented objects in R that closely resemble these basic building blocks. The spectrum object is technically a nested list (S3 class system). Apart from the peak list the spectrum object also stores meta information on how the scan was recorded and how it relates to other scans in the raw file. This meta information is grouped for better transparency. The chromatogram object ...
 
 
+### Example data
+
+<!---
+TODO(cp): add to man page
+The binary example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/). Lions love raw meat!
+-->
+
+## Results
+
+
+
 |function|description|
 |--------|-----------|
 |readFileHeader|extracts some meta information from a given rawfile.|
@@ -68,11 +79,6 @@ We therefore decided to implemented objects in R that closely resemble these bas
 |readSpectrum|reads scan information, e.g., charge, mZ, or intensity of a given set of scan numbers using a dot net interface and the ThermoFisher NewRawFileReader libraries.|
 |readChromatogram|extracts Chromatogram|
 
-### Example data
-
-The binary example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/). Lions love raw meat!
-
-## Results
 
 ### Use Case I - Analyzing orbi trap spectra
 <!---
@@ -92,6 +98,10 @@ library(rawR)
 S <- rawR::readSpectrum(rawfile, scan=c(9594, 11113, 11884, 12788, 12677, 13204,
                                          13868, 14551, 16136, 17193, 17612))
 plot(S[[1]])
+
+
+y <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791, 803.4006,
+       860.4221, 973.5061)
 ```
 
 other recent application examples are descibed in [@Panse2020], [@protViz]
@@ -114,11 +124,6 @@ plot(C)
 ```
 
 
-```{r plotBasePeak}
-plot(CC<-readChromatogram(rawfile, type='bpc'))
-```
-
-
 ```{r iRTscoreFit, error=TRUE}
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
 rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
@@ -132,6 +137,8 @@ plot(rt ~ score,
 text(score, rt,  substr(names(iRT),1,3),pos=3)
 text(score, rt,  iRT,pos=1,cex=0.5)
 ```
+
+
 
 ## Conclusions
 
