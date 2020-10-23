@@ -183,6 +183,7 @@
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                         var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+			var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
 
 		       
 		        try{
@@ -205,6 +206,7 @@
                         file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
                         file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
                         file.WriteLine("\tprecursorMass = {0},", pc);
+			file.WriteLine("\tMSOrder = '{0}',", scanFilter.MSOrder.ToString());
                         file.WriteLine("\tcharge = {0}", charge);
                                 file.WriteLine(")");
 		    }
