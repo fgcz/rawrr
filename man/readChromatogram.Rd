@@ -42,7 +42,7 @@ Extracts Chromatogram (XIC)
 # Example 1: not meaning full but proof-of-concept
 (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
 
-X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
+C <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 
 # Example 2: extract iRT peptides
 iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",

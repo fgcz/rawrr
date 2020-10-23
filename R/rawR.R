@@ -381,11 +381,11 @@ readChromatogram <- function(rawfile,
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
     }
-   
+    
     if (!.isMonoAssemblyWorking()){
         stop('the mono assembly are not available.')
     }
-
+    
     tfstdout <- tempfile()
     tfi <- tempfile()
     tfo <- tempfile()
@@ -432,23 +432,36 @@ readChromatogram <- function(rawfile,
         #message(length(rv))
         rv <- lapply(rv,
                      function(x){
-                         x$type <- type
-                         x$filename <- rawfile
-                         x$tol <- tol
-                         x$filter <- filter
-                         # x$times.max <- x$times[which.max(x$intensities)][1]
                          class(x) <- c(class(x), 'rawRchromatogram');
                          x})
-       
+        
     }else{
         if (mono){
             rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
         }else{
             rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)),stdout=tfstdout)
         }
-        rv <- read.csv(tfstdout, header = TRUE, comment.char = "#")
+        DF <- read.csv(tfstdout, header = TRUE, comment.char = "#")
+        
+        rv <- list(bpc = list(times=DF$rt,
+                              intensities=DF$intensity.BasePeak),
+                   
+                   tic = list(times=DF$rt,
+                              intensities=DF$intensity.TIC),
+                   massRange = list(times=DF$rt,
+                                    intensities=DF$intensity.MassRange))
     }
     unlink(c(tfi, tfo, tfstdout))
+    
+    attr(rv, 'filter') <- filter
+    attr(rv, 'filename') <- rawfile
+    
+    if (type=='xic'){
+        attr(rv, 'type') <- 'xic'
+        attr(rv, 'tol') <- tol
+    }else{
+        attr(rv, 'type') <- 'bpc'
+    }
     class(rv) <- 'rawRchromatogramSet'
     rv
 }
@@ -865,20 +878,41 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
 #' 
 #' @export plot.rawRchromatogramSet
 plot.rawRchromatogramSet <- function(x, ...){
-    plot(0, 0, type='n',
-         xlim=range(unlist(lapply(x, function(o){o$times}))),
-         ylim=range(unlist(lapply(x, function(o){o$intensities}))),
-         frame.plot = FALSE,
-         xlab='retention time [in min]',
-         ylab='intensities', ...
-    )
-    
-    cm <- hcl.colors(length(x), "Set 2")
-    mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
-    legend("topleft",
-           as.character(sapply(x, function(o){o$mass})),
-           col=cm,
-           pch=16, 
-           title='target mass [m/z]',
-           bty='n',cex = 0.75)
+    if(attr(x, 'type')=='xic'){
+        
+        
+        plot(0, 0, type='n',
+             xlim=range(unlist(lapply(x, function(o){o$times}))),
+             ylim=range(unlist(lapply(x, function(o){o$intensities}))),
+             frame.plot = FALSE,
+             xlab='retention time [in min]',
+             ylab='intensities', ...
+        )
+        
+        cm <- hcl.colors(length(x), "Set 2")
+        mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
+        legend("topleft",
+               as.character(sapply(x, function(o){o$mass})),
+               col=cm,
+               pch=16, 
+               title='target mass [m/z]',
+               bty='n',cex = 0.75)
+    }else{
+        plot(0, 0, type='n',
+             xlim = range(c(x$bpc$times, x$tic$times)),
+             ylim = range(c(x$bpc$intensities, x$tic$intensities)),
+             frame.plot = FALSE,
+             xlab = 'retention time [in min]',
+             ylab = 'intensities', ...
+        )
+        lines(x$bpc$times, x$bpc$intensities, col='red')
+        lines(x$tic$times, x$tic$intensities)
+        
+        legend("topleft",
+               c('bpc','tic'),
+               col=c('red','black'),
+               pch=16, 
+               title='target mass [m/z]',
+               bty='n',cex = 0.75)
+    }
 }
