@@ -110,10 +110,9 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "LFLQFGAQGSPFLK")
 
 C <- readChromatogram(rawfile, iRT, tol=10)
+plot(C)
 ```
 
-par(mfrow=c(2, 1), mar=c(4, 4, 1, 1))
-plot(C)
 
 ```{r plotBasePeak}
 plot(CC<-readChromatogram(rawfile, type='bpc'))

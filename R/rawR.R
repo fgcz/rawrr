@@ -449,8 +449,8 @@ readChromatogram <- function(rawfile,
         
         if (type == 'tic'){
             rv <- list(
-                tic = list(times=DF$rt,
-                           intensities=DF$intensity.TIC))
+                times=DF$rt,
+                intensities=DF$intensity.TIC)
         }else{
             # expect bpc
             rv <- list(times=DF$rt,
