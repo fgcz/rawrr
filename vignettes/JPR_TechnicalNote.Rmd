@@ -123,9 +123,11 @@ fit <- lm(rt ~ score )
 
 ```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="graphs the retention time verus the retention time scores."}
 plot(rt ~ score,
-     ylab='retention time [in min]',
-     pch=16,frame.plot = FALSE,asp=1); abline(fit, col='grey')
-text(score, rt,  substr(names(iRT),1,3),pos=3)
+     ylab = 'Retention time [min]',
+     xlab = "iRT score",
+     pch=16,frame.plot = FALSE)
+abline(fit, col='grey')
+#text(score, rt,  substr(names(iRT),1,3),pos=3)
 text(score, rt,  iRT,pos=1,cex=0.5)
 ```
 
