@@ -117,7 +117,7 @@ plot(C)
 
 ```{r iRTscoreFit, error=TRUE}
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
-rt <- sapply(C, function(x) x$times.max)
+rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
 fit <- lm(rt ~ score )
 ```
 
