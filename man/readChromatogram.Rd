@@ -17,22 +17,23 @@ readChromatogram(
 \arguments{
 \item{rawfile}{the file name.}
 
-\item{mass}{a vector of mass values.}
+\item{mass}{a vector of mass values iff \code{type = 'xic'}.}
 
-\item{tol}{tolerance in ppm.}
+\item{tol}{mass tolerance in ppm iff \code{type = 'xic'}.}
 
 \item{filter}{defines the scan filter, default is \code{filter="ms"} if a
-wrong filter is set the function will return \code{NULL} and gives a warning.}
+wrong filter is set the function will return \code{NULL} and draws a warning.}
 
-\item{type}{xic for extracted ion chromatogram otherwise the function returns
-a \code{data.frame} with total ion chromatogram and a base peak chromatogram.}
+\item{type}{\code{c(xic, bpc, tic)} for extracted ion , base peak or
+total ion chromatogram.}
 
 \item{mono}{if the mono enviroment should be used.}
 
 \item{exe}{the exe file user by mono.}
 }
 \value{
-nested list of chromatogram objects.
+chromatogram object(s) containing of a vector of \code{times} and a
+vector of \code{intensities} of the same length.
 }
 \description{
 Extracts Chromatogram (XIC)
@@ -42,7 +43,7 @@ Extracts Chromatogram (XIC)
 # Example 1: not meaning full but proof-of-concept
 (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
 
-X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
+C <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 
 # Example 2: extract iRT peptides
 iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",

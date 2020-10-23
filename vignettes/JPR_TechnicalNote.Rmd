@@ -110,14 +110,19 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "LFLQFGAQGSPFLK")
 
 C <- readChromatogram(rawfile, iRT, tol=10)
+```
 
+par(mfrow=c(2, 1), mar=c(4, 4, 1, 1))
 plot(C)
+
+```{r plotBasePeak}
+plot(CC<-readChromatogram(rawfile, type='bpc'))
 ```
 
 
 ```{r iRTscoreFit, error=TRUE}
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
-rt <- sapply(C, function(x) x$times.max)
+rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
 fit <- lm(rt ~ score )
 ```
 
@@ -137,6 +142,8 @@ text(score, rt,  iRT,pos=1,cex=0.5)
 
 - [@Schmidt2020] 
 - [@biocspectra]
+
+
 
 
 

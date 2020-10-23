@@ -315,19 +315,20 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' Extracts Chromatogram (XIC)
 #'
 #' @param rawfile the file name. 
-#' @param mass a vector of mass values. 
-#' @param tol tolerance in ppm.
+#' @param mass a vector of mass values iff \code{type = 'xic'}. 
+#' @param tol mass tolerance in ppm iff \code{type = 'xic'}.
 #' @param filter defines the scan filter, default is \code{filter="ms"} if a
-#' wrong filter is set the function will return \code{NULL} and gives a warning.
-#' @param type xic for extracted ion chromatogram otherwise the function returns
-#' a \code{data.frame} with total ion chromatogram and a base peak chromatogram.
+#' wrong filter is set the function will return \code{NULL} and draws a warning.
+#' @param type \code{c(xic, bpc, tic)} for extracted ion , base peak or
+#' total ion chromatogram.
 #' @param mono if the mono enviroment should be used. 
 #' @param exe the exe file user by mono.
 #' 
 #' @seealso Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #' 
-#' @return nested list of chromatogram objects.
+#' @return chromatogram object(s) containing of a vector of \code{times} and a
+#' vector of \code{intensities} of the same length.
 #' 
 #' @references \itemize{
 #' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
@@ -347,7 +348,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' # Example 1: not meaning full but proof-of-concept
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
 #' 
-#' X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
+#' C <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 #' 
 #' # Example 2: extract iRT peptides
 #' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
@@ -381,11 +382,11 @@ readChromatogram <- function(rawfile,
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
     }
-   
+    
     if (!.isMonoAssemblyWorking()){
         stop('the mono assembly are not available.')
     }
-
+    
     tfstdout <- tempfile()
     tfi <- tempfile()
     tfo <- tempfile()
@@ -432,22 +433,47 @@ readChromatogram <- function(rawfile,
         #message(length(rv))
         rv <- lapply(rv,
                      function(x){
-                         x$filename <- rawfile
-                         x$tol <- tol
-                         x$filter <- filter
-                         x$times.max <- x$times[x$intensities==max(x$intensities)][1]
-                         class(x) <- c(class(x), 'rawRchromatogram');
+                         attr(x , 'filename') <- rawfile
+                         attr(x, 'type') <- 'xic'
+                         class(x) <- 'rawRchromatogram';
                          x})
-        class(rv) <- 'rawRchromatogramSet'
+        
     }else{
         if (mono){
             rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
         }else{
             rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)),stdout=tfstdout)
         }
-        rv <- read.csv(tfstdout, header = TRUE, comment.char = "#")
+        DF <- read.csv(tfstdout, header = TRUE, comment.char = "#")
+        
+        
+        if (type == 'tic'){
+            rv <- list(
+                tic = list(times=DF$rt,
+                           intensities=DF$intensity.TIC))
+        }else{
+            # expect bpc
+            rv <- list(times=DF$rt,
+                       intensities=DF$intensity.BasePeak)
+        }
     }
     unlink(c(tfi, tfo, tfstdout))
+    
+    attr(rv, 'filter') <- filter
+    attr(rv, 'filename') <- rawfile
+    
+    if (type=='xic'){
+        attr(rv, 'type') <- 'xic'
+        attr(rv, 'tol') <- tol
+        class(rv) <- 'rawRchromatogramSet'
+    }else if (type=='tic'){
+        attr(rv, 'type') <- 'tic'
+        class(rv) <- 'rawRchromatogram'
+    }else{
+        attr(rv, 'type') <- 'bpc'
+        class(rv) <- 'rawRchromatogram'
+    }
+    
     rv
 }
 
@@ -840,20 +866,32 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     stopifnot(is.rawRchromatogram(x))
     
     plot(x = x$times, y = x$intensities,
-         xlab = "RT",
+         xlab = "retention time",
          ylab = "Intensity",
          type = "l",
          frame.plot = FALSE)
     
-    if (legend) {
-        legend("topright",
-               legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
-                              c(basename(x$filename), x$filter, format(x$mass),
-                                x$ppm)
-                        ),
-               bty = "n", cex = 0.75)
-    }
     
+    if (legend) {
+        if(attr(x, 'type') == 'xic'){
+            legend("topright",
+                   legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
+                                  c(basename(attr(x, 'filename')), 
+                                    x$filter, 
+                                    x$mass,
+                                    x$ppm)
+                   ),
+                   bty = "n",
+                   title = attr(x, 'type'),
+                   cex = 0.75)
+        }else{
+            legend("topright",
+                   legend = paste(c("File:"), c(basename(attr(x, 'filename')))),
+                   bty = "n",
+                   title = attr(x, 'type'),
+                   cex = 0.75)
+        }
+    }
 }
 
 #' Plot \code{rawRchromatogramSet} objects
@@ -863,20 +901,22 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
 #' 
 #' @export plot.rawRchromatogramSet
 plot.rawRchromatogramSet <- function(x, ...){
-    plot(0, 0, type='n',
-         xlim=range(unlist(lapply(x, function(o){o$times}))),
-         ylim=range(unlist(lapply(x, function(o){o$intensities}))),
-         frame.plot = FALSE,
-         xlab='retention time [in min]',
-         ylab='intensities', ...
-    )
-    
-    cm <- hcl.colors(length(x), "Set 2")
-    mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
-    legend("topleft",
-           as.character(sapply(x, function(o){o$mass})),
-           col=cm,
-           pch=16, 
-           title='target mass [m/z]',
-           bty='n',cex = 0.75)
+    if(attr(x, 'type')=='xic'){
+        plot(0, 0, type='n',
+             xlim=range(unlist(lapply(x, function(o){o$times}))),
+             ylim=range(unlist(lapply(x, function(o){o$intensities}))),
+             frame.plot = FALSE,
+             xlab='retention time [in min]',
+             ylab='intensities', ...
+        )
+        
+        cm <- hcl.colors(length(x), "Set 2")
+        mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
+        legend("topleft",
+               as.character(sapply(x, function(o){o$mass})),
+               col=cm,
+               pch=16, 
+               title='target mass [m/z]',
+               bty='n',cex = 0.75)
+    }
 }
