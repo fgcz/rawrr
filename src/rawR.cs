@@ -609,6 +609,9 @@
             /// <param name="outputData">
             /// The output data flag.
             /// </param>
+            /// <param name="filter">
+            /// The chromatic filter flag.
+            /// </param>
             private static void GetChromatogram(IRawDataPlus rawFile, int startScan, int endScan, bool outputData, string filter = "ms")
             {
 	        if (IsValidFilter(rawFile, filter) == false){
@@ -616,10 +619,18 @@
 		    return;
 	        }
 
+		// TODO(tk@fgcz.ethz.ch): check mass interval for chromatograms and its dep for diff MS detector types
+		// TODO(cp@fgcz.ethz.ch): return mass intervals to the R enviroment
                 // Define the settings for getting the Base Peak chromatogram
                 ChromatogramTraceSettings settingsTIC = new ChromatogramTraceSettings(TraceType.TIC){Filter=filter};
-                ChromatogramTraceSettings settingsBasePeak = new ChromatogramTraceSettings(TraceType.BasePeak){Filter=filter};
-                ChromatogramTraceSettings settingsMassRange = new ChromatogramTraceSettings(TraceType.MassRange){Filter=filter};
+                ChromatogramTraceSettings settingsBasePeak = new ChromatogramTraceSettings(TraceType.BasePeak){
+			Filter=filter,
+                        MassRanges = new[] {ThermoFisher.CommonCore.Data.Business.Range.Create(100, 1805)}
+			};
+                ChromatogramTraceSettings settingsMassRange = new ChromatogramTraceSettings(TraceType.MassRange){
+        		Filter=filter,
+                        MassRanges = new[] {ThermoFisher.CommonCore.Data.Business.Range.Create(50, 2000000)}
+			};
 
                 // Get the chromatogram from the RAW file. 
                 var dataTIC = rawFile.GetChromatogramData(new IChromatogramSettings[] {settingsTIC}, startScan, endScan);
@@ -638,12 +649,12 @@
                     Console.WriteLine("# Base Peak chromatogram ({0} points)", traceBasePeak[0].Length);
                     Console.WriteLine("# MassRange chromatogram ({0} points)", traceMassRange[0].Length);
 
-                    Console.WriteLine("scan,rt,intensity.BasePeak,intensity.TIC,intensity.MassRange");
+                    Console.WriteLine("rt,intensity.BasePeak,intensity.TIC,intensity.MassRange");
                     if (outputData)
                     {
                         for (int i = 0; i < traceBasePeak[0].Length; i++)
                         {
-                            Console.WriteLine("{0},{1:F3},{2:F0},{3:F0},{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
+                            Console.WriteLine("{1:F3},{2:F0},{3:F0},{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
                         }
                     }
                 }

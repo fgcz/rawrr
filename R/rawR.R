@@ -347,7 +347,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' # Example 1: not meaning full but proof-of-concept
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
 #' 
-#' X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
+#' C <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 #' 
 #' # Example 2: extract iRT peptides
 #' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
@@ -432,13 +432,14 @@ readChromatogram <- function(rawfile,
         #message(length(rv))
         rv <- lapply(rv,
                      function(x){
+                         x$type <- type
                          x$filename <- rawfile
                          x$tol <- tol
                          x$filter <- filter
                          # x$times.max <- x$times[which.max(x$intensities)][1]
                          class(x) <- c(class(x), 'rawRchromatogram');
                          x})
-        class(rv) <- 'rawRchromatogramSet'
+       
     }else{
         if (mono){
             rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
@@ -448,6 +449,7 @@ readChromatogram <- function(rawfile,
         rv <- read.csv(tfstdout, header = TRUE, comment.char = "#")
     }
     unlink(c(tfi, tfo, tfstdout))
+    class(rv) <- 'rawRchromatogramSet'
     rv
 }
 
