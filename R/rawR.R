@@ -315,19 +315,20 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' Extracts Chromatogram (XIC)
 #'
 #' @param rawfile the file name. 
-#' @param mass a vector of mass values. 
-#' @param tol tolerance in ppm.
+#' @param mass a vector of mass values iff \code{type = 'xic'}. 
+#' @param tol mass tolerance in ppm iff \code{type = 'xic'}.
 #' @param filter defines the scan filter, default is \code{filter="ms"} if a
-#' wrong filter is set the function will return \code{NULL} and gives a warning.
-#' @param type xic for extracted ion chromatogram otherwise the function returns
-#' a \code{data.frame} with total ion chromatogram and a base peak chromatogram.
+#' wrong filter is set the function will return \code{NULL} and draws a warning.
+#' @param type \code{c(xic, bpc, tic)} for extracted ion , base peak or
+#' total ion chromatogram.
 #' @param mono if the mono enviroment should be used. 
 #' @param exe the exe file user by mono.
 #' 
 #' @seealso Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #' 
-#' @return nested list of chromatogram objects.
+#' @return chromatogram object(s) containing of a vector of \code{times} and a
+#' vector of \code{intensities} of the same length.
 #' 
 #' @references \itemize{
 #' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
@@ -432,7 +433,9 @@ readChromatogram <- function(rawfile,
         #message(length(rv))
         rv <- lapply(rv,
                      function(x){
-                         class(x) <- c(class(x), 'rawRchromatogram');
+                         attr(x , 'filename') <- rawfile
+                         attr(x, 'type') <- 'xic'
+                         class(x) <- 'rawRchromatogram';
                          x})
         
     }else{
@@ -443,13 +446,16 @@ readChromatogram <- function(rawfile,
         }
         DF <- read.csv(tfstdout, header = TRUE, comment.char = "#")
         
-        rv <- list(bpc = list(times=DF$rt,
-                              intensities=DF$intensity.BasePeak),
-                   
-                   tic = list(times=DF$rt,
-                              intensities=DF$intensity.TIC),
-                   massRange = list(times=DF$rt,
-                                    intensities=DF$intensity.MassRange))
+        
+        if (type == 'tic'){
+            rv <- list(
+                tic = list(times=DF$rt,
+                           intensities=DF$intensity.TIC))
+        }else{
+            # expect bpc
+            rv <- list(times=DF$rt,
+                       intensities=DF$intensity.BasePeak)
+        }
     }
     unlink(c(tfi, tfo, tfstdout))
     
@@ -459,10 +465,15 @@ readChromatogram <- function(rawfile,
     if (type=='xic'){
         attr(rv, 'type') <- 'xic'
         attr(rv, 'tol') <- tol
+        class(rv) <- 'rawRchromatogramSet'
+    }else if (type=='tic'){
+        attr(rv, 'type') <- 'tic'
+        class(rv) <- 'rawRchromatogram'
     }else{
         attr(rv, 'type') <- 'bpc'
+        class(rv) <- 'rawRchromatogram'
     }
-    class(rv) <- 'rawRchromatogramSet'
+    
     rv
 }
 
@@ -855,20 +866,32 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     stopifnot(is.rawRchromatogram(x))
     
     plot(x = x$times, y = x$intensities,
-         xlab = "RT",
+         xlab = "retention time",
          ylab = "Intensity",
          type = "l",
          frame.plot = FALSE)
     
-    if (legend) {
-        legend("topright",
-               legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
-                              c(basename(x$filename), x$filter, format(x$mass),
-                                x$ppm)
-                        ),
-               bty = "n", cex = 0.75)
-    }
     
+    if (legend) {
+        if(attr(x, 'type') == 'xic'){
+            legend("topright",
+                   legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
+                                  c(basename(attr(x, 'filename')), 
+                                    x$filter, 
+                                    x$mass,
+                                    x$ppm)
+                   ),
+                   bty = "n",
+                   title = attr(x, 'type'),
+                   cex = 0.75)
+        }else{
+            legend("topright",
+                   legend = paste(c("File:"), c(basename(attr(x, 'filename')))),
+                   bty = "n",
+                   title = attr(x, 'type'),
+                   cex = 0.75)
+        }
+    }
 }
 
 #' Plot \code{rawRchromatogramSet} objects
@@ -879,8 +902,6 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
 #' @export plot.rawRchromatogramSet
 plot.rawRchromatogramSet <- function(x, ...){
     if(attr(x, 'type')=='xic'){
-        
-        
         plot(0, 0, type='n',
              xlim=range(unlist(lapply(x, function(o){o$times}))),
              ylim=range(unlist(lapply(x, function(o){o$intensities}))),
@@ -896,23 +917,6 @@ plot.rawRchromatogramSet <- function(x, ...){
                col=cm,
                pch=16, 
                title='target mass [m/z]',
-               bty='n',cex = 0.75)
-    }else{
-        plot(0, 0, type='n',
-             xlim = range(c(x$bpc$times, x$tic$times)),
-             ylim = range(c(x$bpc$intensities, x$tic$intensities)),
-             frame.plot = FALSE,
-             xlab = 'retention time [in min]',
-             ylab = 'intensities', ...
-        )
-        lines(x$bpc$times, x$bpc$intensities, col='red')
-        lines(x$tic$times, x$tic$intensities)
-        
-        legend("topleft",
-               c('bpc','tic'),
-               col=c('red','black'),
-               pch=16, 
-               title='types',
                bty='n',cex = 0.75)
     }
 }
