@@ -89,7 +89,7 @@ plotting
 
 using biognosys iRT peptides
 
-```{r plot.rawRspectrum, fig.cap="graphs a tandem mass spectrum of the LGGNEQVTR peptide. The grey lines indicate the in-silico computed y-ions of the peptide sequence.", error=TRUE}
+```{r plot.rawRspectrum, fig.cap="graphs a tandem mass spectrum of the LGGNEQVTR peptide. The vertical grey lines indicate the in-silico computed y-ions of the peptide sequence.", error=TRUE}
 # http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
 # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 rawfile <- file.path(Sys.getenv('HOME'),
@@ -105,7 +105,7 @@ plot(S[[1]], centroid=TRUE)
 # derived using  https://CRAN.R-project.org/package=protViz
 yion <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791, 803.4006,
        860.4221, 973.5061)
-abline(v = yion, col='#88888888', lwd=5)
+abline(v = yion, col='#DDDDDD88', lwd=5)
 axis(3, yion, paste0("y",seq(1,length(yion))))
 ```
 
