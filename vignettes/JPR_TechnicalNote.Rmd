@@ -80,7 +80,9 @@ scp fgcz-r-035.uzh.ch:/export/lv_iduzh06/projects/p1000/Proteomics/QEXACTIVEHF_2
 -->
 
 plotting
-using biognosys iRT peptides [@Escher2012] 
+
+using biognosys iRT peptides
+
 ```{r plot.rawRspectrum, fig.cap="graphs a tandem mass spectrum of the LGGNEQVTR peptide.", error=TRUE}
 # http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
 # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
@@ -98,9 +100,11 @@ other recent application examples are descibed in [@Panse2020], [@protViz]
 and [@Gehrig2020].
 
 
-### Use Case II - Working with chromatograms - iRT regression
+### Use Case II - iRT regression
 
-```{r plot.rawRchromatogram, fig.cap="plots chromatograms (XIC) for a list of given target mass ranges. ", error=TRUE}
+By applying linear regression one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values (iRTs) and *vice versa* [@Escher2012]. In addition, fitted iRT regression models provide highly valuable information about LC-MS run performance. In this example we show how easy it is to perform iRT regression in R by just using the raw measurement data, our package rawR, and well known base R functions supporting linear modeling. The first step is to estimate the empirical RTs of a peptide set with known iRT scores from a raw file. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide ions, given they were spiked into the sample matrix prior to data acquisition. Code chunk X demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawRchromatogram` object. This object is printed for visual inspection. 
+
+```{r plot.rawRchromatogram, fig.cap="XICs iRT peptides", error=TRUE}
 iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
@@ -109,15 +113,11 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
                  "LFLQFGAQGSPFLK")
 
-C <- readChromatogram(rawfile, iRT, tol=10)
+C <- readChromatogram(rawfile, mass = iRT, tol = 10, type = "xic", filter = "ms")
 plot(C)
 ```
 
-
-```{r plotBasePeak}
-plot(CC<-readChromatogram(rawfile, type='bpc'))
-```
-
+For regression, we now extract the RTs at the maximum of intensity traces stored in the chromatogram object and fit a linear model of the form $$rt = a*score+b$$. 
 
 ```{r iRTscoreFit, error=TRUE}
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
