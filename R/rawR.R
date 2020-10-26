@@ -708,7 +708,9 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                  y = x$centroid.intensity[i],
                  pos = 3,
                  labels = paste(format(x$centroid.mZ[i], nsmall = 4),
-                                "\nz = ", x$charges[i], "\nR = "), cex = 0.5)
+                                "\nz = ", x$charges[i], "\nR = ",
+                                x$resolutions[i]),
+                 cex = 0.5)
         
         }
         

@@ -305,6 +305,7 @@
                                 file.WriteLine("\tmZ = c(" + string.Join(", ", centroidStream.Masses) + "),");
                                 file.WriteLine("\tintensity = c(" + string.Join(", ", centroidStream.Intensities) + "),");
                                 file.WriteLine("\tnoises = c(" + string.Join(", ", centroidStream.Noises) + "),");
+				file.WriteLine("\tresolutions = c(" + string.Join(", ", centroidStream.Resolutions.ToArray()) + "),");
                                 file.WriteLine("\tcharges = c(" + string.Join(", ", centroidStream.Charges) + "),");
                                 file.WriteLine("\tbaselines = c(" + string.Join(", ", centroidStream.Baselines) + "),");
 
