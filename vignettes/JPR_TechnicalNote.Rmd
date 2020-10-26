@@ -5,7 +5,8 @@ author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 bibliography: rawR.bib
 output:
-  pdf_document: default
+  pdf_document:
+    keep_tex:  true
   html_document:
     df_print: paged
     citation_package: natbib
