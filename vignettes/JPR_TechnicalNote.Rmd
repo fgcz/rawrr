@@ -4,8 +4,8 @@ title: rawR - Technical Note, Journal of Proteome Research, Second Biennial Spec
 author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    keep_tex: true
+  pdf_document: 
+    keep_tex: yes
   html_document:
     df_print: paged
     citation_package: natbib
@@ -85,34 +85,34 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 ### Use Case I - Analyzing orbi trap spectra
 <!---
 scp fgcz-r-035.uzh.ch:/export/lv_iduzh06/projects/p1000/Proteomics/QEXACTIVEHF_2/tobiasko_20181113/20181113_010_autoQC01.raw ~/Downloads/
+
+http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
+MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
+
 -->
 
-plotting
+Text
+cite [@protViz]
 
-using biognosys iRT peptides
-
-```{r plot.rawRspectrum, fig.cap="graphs a tandem mass spectrum of the LGGNEQVTR peptide. The vertical grey lines indicate the in-silico computed y-ions of the peptide sequence.", error=TRUE}
-# http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
-# MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
-rawfile <- file.path(Sys.getenv('HOME'),
-                     "Downloads", "20181113_010_autoQC01.raw")
-
+```{r plot.rawRspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a scan resolution of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor.", error=TRUE}
 library(rawR)
-
-S <- rawR::readSpectrum(rawfile, scan=c(9594, 11113, 11884, 12788, 12677, 13204,
-                                         13868, 14551, 16136, 17193, 17612))
+rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
+## scan numbers (PSMs) derived from DB search
+i <- c(9594, 11113, 11884, 12788, 12677, 13204, 13868, 14551, 16136, 17193, 17612)
+S <- rawR::readSpectrum(rawfile = rawfile, scan = i)
 plot(S[[1]], centroid=TRUE)
-
-
-# derived using  https://CRAN.R-project.org/package=protViz
-yion <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791, 803.4006,
-       860.4221)
-abline(v = yion, col='#DDDDDD88', lwd=5)
-axis(3, yion, paste0("y",seq(1,length(yion))))
+## y ion series m/z values calculated using the CRAN package protViz
+yIonSeries <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791,
+                803.4006, 860.4221)
+names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
+abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
+axis(3, yIonSeries, names(yIonSeries))
 ```
 
-other recent application examples are descibed in [@Panse2020], [@protViz]
-and [@Gehrig2020].
+Another recent `rawR` application example is descibed in [@Gehrig2020]. Here, marker ions ...
+
+small molecule, UVPD dissociation
+[@Panse2020]
 
 
 ### Use Case II - iRT regression
