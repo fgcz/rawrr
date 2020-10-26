@@ -104,7 +104,7 @@ plot(S[[1]], centroid=TRUE)
 
 # derived using  https://CRAN.R-project.org/package=protViz
 yion <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791, 803.4006,
-       860.4221, 973.5061)
+       860.4221)
 abline(v = yion, col='#DDDDDD88', lwd=5)
 axis(3, yion, paste0("y",seq(1,length(yion))))
 ```

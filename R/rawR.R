@@ -694,16 +694,16 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
             plot(x = x$centroid.mZ, y = x$centroid.intensity,
                  type = "h",
                  xlim = x$massRange,
-                 ylim = c(0,1.1 *  max(x$centroid.intensity)),
+                 ylim = c(0, 1.2 *  max(x$centroid.intensity)),
                  xlab = "Centroid m/z",
                  ylab = "Centroid Intensity",
                  frame.plot = FALSE, ...
             )
             # ylim = c(0, 1.1*max(x$ x$centroid.intensity))
             # TODO(cp): label top 10 with z=, R=
-            i  <- order(x$centroid.intensity, decreasing = TRUE)[1:10]
-            
-          
+            n <- length(x$centroid.intensity)
+            if (n > 10) n <- 10
+            i  <- order(x$centroid.intensity, decreasing = TRUE)[1:n]
             text(x = x$centroid.mZ[i],
                  y = x$centroid.intensity[i],
                  pos = 3,
@@ -753,7 +753,9 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                        format(x$basePeak[1], nnsmall = 4),
                        format(x$basePeak[2], scientific = TRUE),
                        format(x$TIC, scientific = TRUE))
-                     ), bty = "n", cex=0.75)
+                     ),
+               bty = "n",
+               cex=0.5)
         
     }
     
