@@ -117,20 +117,24 @@ C <- readChromatogram(rawfile, mass = iRT, tol = 10, type = "xic", filter = "ms"
 plot(C)
 ```
 
-For regression, we now extract the RTs at the maximum of intensity traces stored in the chromatogram object and fit a linear model of the form $$rt = a*score+b$$. 
+To perform regression, we now extract the RT values at the maximum of the intensity traces stored in the chromatogram object and fit a linear model of the form $$rt = a*score+b$$. 
 
 ```{r iRTscoreFit, error=TRUE}
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
 rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
-fit <- lm(rt ~ score )
+fit <- lm(rt ~ score)
+summary(fit)
 ```
+
+
 
 ```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="graphs the retention time verus the retention time scores."}
 plot(rt ~ score,
      ylab = 'Retention time [min]',
      xlab = "iRT score",
      pch=16,frame.plot = FALSE)
-abline(fit, col='grey')
+abline(fit, col = 'grey')
+legend("topleft", legend = "regression line", bty = "n", cex = 0.75)
 #text(score, rt,  substr(names(iRT),1,3),pos=3)
 text(score, rt,  iRT,pos=1,cex=0.5)
 ```
