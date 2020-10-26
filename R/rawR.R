@@ -699,19 +699,23 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                  ylab = "Centroid Intensity",
                  frame.plot = FALSE, ...
             )
-            # ylim = c(0, 1.1*max(x$ x$centroid.intensity))
-            # TODO(cp): label top 10 with z=, R=
-            n <- length(x$centroid.intensity)
-            if (n > 10) n <- 10
-            i  <- order(x$centroid.intensity, decreasing = TRUE)[1:n]
-            text(x = x$centroid.mZ[i],
-                 y = x$centroid.intensity[i],
-                 pos = 3,
-                 labels = paste(format(x$centroid.mZ[i], nsmall = 4),
-                                "\nz = ", x$charges[i], "\nR = ",
-                                x$resolutions[i]),
-                 cex = 0.5)
-        
+            if (all(c('charges', 'resolutions') %in% names(x))){
+                # ylim = c(0, 1.1*max(x$ x$centroid.intensity))
+                # TODO(cp): label top 10 with z=, R=
+                n <- length(x$centroid.intensity)
+                if (n > 10) n <- 10
+                i  <- order(x$centroid.intensity, decreasing = TRUE)[1:n]
+                
+                
+                text(x = x$centroid.mZ[i],
+                     y = x$centroid.intensity[i],
+                     pos = 3,
+                     labels = paste(format(x$centroid.mZ[i], nsmall = 4),
+                                    "\nz = ", x$charges[i], "\nR = ",
+                                    x$resolutions[i]),
+                     cex = 0.5)
+            }
+            
         }
         
         

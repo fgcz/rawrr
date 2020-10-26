@@ -128,7 +128,7 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
                  "LFLQFGAQGSPFLK")
 
-C <- readChromatogram(rawfile, mass = iRT, tol = 10, type = "xic", filter = "ms")
+C <- rawR::readChromatogram(rawfile, mass = iRT, tol = 10, type = "xic", filter = "ms")
 plot(C)
 ```
 
