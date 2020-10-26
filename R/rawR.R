@@ -207,6 +207,17 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' or intensity of a given set of scan numbers using a dot net interface and
 #' the ThermoFisher NewRawFileReader libraries.
 #'  
+#'  
+#' @details 
+#' The binary example file sample.raw contains 574 fourier-transformed orbi trap
+#' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
+#' mass spectrometer was operated in line with a nano electrospray source (NSI)
+#' in positive mode (+). All spectra were written to disk after applying
+#' centroiding (c) and lock mass correction. Additional raw data for
+#' demonstration and extended testing is available through the
+#' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
+#' Lions love raw meat!
+#' 
 #' @references \itemize{
 #' \item{Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}}.
@@ -215,7 +226,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' \url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
 #' }
 #' 
-#' @aliases readSpectrum plot.rawRSpectrum rawRspectrum
+#' @aliases readSpectrum plot.rawRSpectrum rawRspectrum rawR sample.raw
 #' 
 #' @export readSpectrum
 #' @exportClass rawRspectrum
@@ -225,7 +236,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @return  a list of \code{spectrum} objects.
 #' @seealso \link[rawDiag]{readScans}
 #' 
-#' @examples
+#' @example
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
 #'   'sample.raw'))
 #' 
@@ -348,7 +359,14 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' # Example 1: not meaning full but proof-of-concept
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
 #' 
-#' C <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
+#' XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
+#' plot(XIC)
+#' 
+#' BPC <- readChromatogram(rawfile, type='bpc')
+#' plot(BPC)
+#' 
+#' TIC <- readChromatogram(rawfile, type='tic')
+#' plot(TIC)
 #' 
 #' # Example 2: extract iRT peptides
 #' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
@@ -676,15 +694,21 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
             plot(x = x$centroid.mZ, y = x$centroid.intensity,
                  type = "h",
                  xlim = x$massRange,
+                 ylim = c(0,1.1 *  max(x$centroid.intensity)),
                  xlab = "Centroid m/z",
                  ylab = "Centroid Intensity",
                  frame.plot = FALSE, ...
             )
+            # ylim = c(0, 1.1*max(x$ x$centroid.intensity))
+            # TODO(cp): label top 10 with z=, R=
+            i  <- order(x$centroid.intensity, decreasing = TRUE)[1:10]
             
-            i <- which.max(x$centroid.intensity)
-            text(x = x$centroid.mZ[i], y = x$centroid.intensity[i], pos = 4,
+          
+            text(x = x$centroid.mZ[i],
+                 y = x$centroid.intensity[i],
+                 pos = 3,
                  labels = paste(format(x$centroid.mZ[i], nsmall = 4),
-                                "\nz = ", x$charges[i], "\nR = "), cex = 0.75)
+                                "\nz = ", x$charges[i], "\nR = "), cex = 0.5)
         
         }
         

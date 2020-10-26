@@ -4,6 +4,8 @@
 \alias{readSpectrum}
 \alias{plot.rawRSpectrum}
 \alias{rawRspectrum}
+\alias{rawR}
+\alias{sample.raw}
 \title{Read a Set of Spectra}
 \usage{
 readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
@@ -26,46 +28,15 @@ the function reads scan information, e.g., charge, mZ,
 or intensity of a given set of scan numbers using a dot net interface and
 the ThermoFisher NewRawFileReader libraries.
 }
-\examples{
-(rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
-  'sample.raw'))
-
-S <- readSpectrum(rawfile, scan = 1:9)
-
-S[[1]]
-
-names(S[[1]])
-
-plot(S[[1]])
-
- 
-\dontrun{
-# INPUT:
-GAG <- "GAGSSEPVTGLDAK"
-rawfile <- file.path(Sys.getenv("HOME"),
-  "Downloads/20180220_14_autoQC01.raw")
-
-# list spectra metainformation
-S <- readIndex(rawfile)
-
-# determine precursor matches
-SS <- readSpectrum(rawfile,
-  which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
-
-# query spectra with precursor matches
-rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})
-
-# determine spectra indices having the  max number of hits hits
-hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
-
-# take the 1st one
-idx <- which(hits == hit.max)[1]
-
-# OUTPUT
-rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
-# https://www.proteomicsdb.org/use/
-cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
-}
+\details{
+The binary example file sample.raw contains 574 fourier-transformed orbi trap
+spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
+mass spectrometer was operated in line with a nano electrospray source (NSI)
+in positive mode (+). All spectra were written to disk after applying
+centroiding (c) and lock mass correction. Additional raw data for
+demonstration and extended testing is available through the
+\href{tartare package}{https://bioconductor.org/packages/tartare/}.
+Lions love raw meat!
 }
 \references{
 \itemize{
