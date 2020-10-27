@@ -218,13 +218,6 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
 #' Lions love raw meat!
 #' 
-#' @references \itemize{
-#' \item{Thermo Fisher NewRawfileReader C# code snippets
-#' \url{https://planetorbitrap.com/rawfilereader}}.
-#' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-#' \item{the R function 1st appeared in 
-#' \url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
-#' }
 #' 
 #' @aliases readSpectrum plot.rawRSpectrum rawRspectrum rawR sample.raw
 #' 
@@ -236,7 +229,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @return  a list of \code{spectrum} objects.
 #' @seealso \link[rawDiag]{readScans}
 #' 
-#' @example
+#' @examples
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
 #'   'sample.raw'))
 #' 
@@ -275,6 +268,13 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
 #' # https://www.proteomicsdb.org/use/
 #' cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
+#' }
+#' @references \itemize{
+#' \item{Thermo Fisher NewRawfileReader C# code snippets
+#' \url{https://planetorbitrap.com/rawfilereader}}.
+#' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
+#' \item{the R function 1st appeared in 
+#' \url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE

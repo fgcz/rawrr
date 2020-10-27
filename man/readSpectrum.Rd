@@ -38,6 +38,47 @@ demonstration and extended testing is available through the
 \href{tartare package}{https://bioconductor.org/packages/tartare/}.
 Lions love raw meat!
 }
+\examples{
+(rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
+  'sample.raw'))
+
+S <- readSpectrum(rawfile, scan = 1:9)
+
+S[[1]]
+
+names(S[[1]])
+
+plot(S[[1]])
+
+ 
+\dontrun{
+# INPUT:
+GAG <- "GAGSSEPVTGLDAK"
+rawfile <- file.path(Sys.getenv("HOME"),
+  "Downloads/20180220_14_autoQC01.raw")
+
+# list spectra metainformation
+S <- readIndex(rawfile)
+
+# determine precursor matches
+SS <- readSpectrum(rawfile,
+  which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
+
+# query spectra with precursor matches
+rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})
+
+# determine spectra indices having the  max number of hits hits
+hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
+
+# take the 1st one
+idx <- which(hits == hit.max)[1]
+
+# OUTPUT
+rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
+# https://www.proteomicsdb.org/use/
+cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
+}
+}
 \references{
 \itemize{
 \item{Thermo Fisher NewRawfileReader C# code snippets

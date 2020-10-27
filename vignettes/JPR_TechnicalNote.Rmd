@@ -44,6 +44,8 @@ aims for complete, OS independent access to all spectral, chromatographic and
 meta data logged in Thermo Fisher Scientific raw files. rawR interoperates with
 other R packages for proteomics data visualisation (protViz) and will ...
 
+**Availability**: https://github.com/fgcz/rawR
+
 ## Keywords
 
 computational mass spectrometry, software, R package
