@@ -175,23 +175,23 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
     tfo <- tempfile(tmpdir=tmpdir)
     tfstdout <- tempfile(tmpdir=tmpdir)
     
-    cat(NULL, file = tfi, sep="\n")
-    
     cmd <- exe
     
     if (mono){
-        rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile),
-                                                   "scans", shQuote(tfi), shQuote(tfo)))
+        rvs <- system2(Sys.which("mono"),
+                       args = c(shQuote(exe), shQuote(rawfile),
+                                "index", shQuote(tfstdout)),
+                       stdout=tfstdout)
     }else{
-        rvs <- system2(exe, args = c( shQuote(rawfile), "scans", shQuote(tfi),
-                                      shQuote(tfo)))
+        rvs <- system2(exe,
+                       args = c( shQuote(rawfile), "index", shQuote(tfstdout)),
+                       stdout=tfstdout)
     }
-    e <- new.env()
     
-    source(tfo, local=TRUE)
+    DF <- read.csv(tfstdout, header = TRUE, comment.char = "#")
+    
     unlink(c(tfi, tfo, tfstdout))
-    
-    do.call('rbind', lapply(e$Spectrum, as.data.frame))
+    DF
 }
 
 #' Read a Set of Spectra

@@ -63,7 +63,7 @@ Therefore, it can read the proprietary vendor files and provide nested S3 class
 R objects.
 The source code and the precompiled `C#` code is shipped with the package and
 runs on Linux, Microsoft Windows, and MacOSX on the X86_64 hardware architecture.
-The wrapper can benefit from Rs multicore utilities [Figure 3,@Trachsel2018].
+
 
 ### R
 
@@ -190,10 +190,7 @@ text(score, rt,  iRT,pos=1,cex=0.5)
 ... next 
 
 - [@Schmidt2020] 
-- [@biocspectra]
-
-
-
+- [@biocspectra] The wrapper can benefit from Rs multicore utilities [Figure 3,@Trachsel2018]. 
 
 
 ## Author information
