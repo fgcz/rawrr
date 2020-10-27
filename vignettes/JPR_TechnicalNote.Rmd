@@ -54,10 +54,16 @@ computational mass spectrometry, software, R package
 
 ## Implementation
 
-### C# code
-rawR utilizes the NewRawFileReader .Net assembly provided by ThermoFisherScitific [@RFR].
-The rawR wrapper interfaces the vendor libraries, and it provides R parsable output [@R].
-Therefore, it can read the proprietary vendor files and provide nested S3 class R objects. The precompiled C# code is shipped with the package and runs on Linux, Microsoft Windows, and MacOSX on X86_64 compute architecture. The wrapper can benefit from Rs multicore utilities [Figure 3,@Trachsel2018].
+### `C#` code
+
+rawR utilizes the NewRawFileReader .Net assembly provided by
+Thermo Fisher Scientific [@RFR]. The rawR wrapper interfaces the vendor
+libraries, and it provides R parsable output [@R].
+Therefore, it can read the proprietary vendor files and provide nested S3 class
+R objects.
+The source code and the precompiled `C#` code is shipped with the package and
+runs on Linux, Microsoft Windows, and MacOSX on the X86_64 hardware architecture.
+The wrapper can benefit from Rs multicore utilities [Figure 3,@Trachsel2018].
 
 ### R
 

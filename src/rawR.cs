@@ -150,10 +150,45 @@
                     Console.WriteLine("e$info$`Sample barcode` <- '{0}' ", rawFile.SampleInformation.Barcode);
 	    }
 
-            public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
-            {
+            public static void GetIndex(this IRawDataPlus rawFile){
+             	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
+            	    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
 
-                    int scanNumber = 1;
+		    int idx_CHARGE = rawFile.GetChargeIdx();
+
+                    double charge, precursorMass;
+
+                    Console.WriteLine("scan,scanType,rtinseconds,precursorMass,MSOrder,charge");
+
+             	    for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
+                        var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+                        var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                        var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+			var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
+
+		        try{
+                        	var reaction0 = scanEvent.GetReaction(0);
+		        	precursorMass =  reaction0.PrecursorMass;
+		        } catch{
+			        precursorMass = -1;
+		        }
+
+		        try{
+                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
+                        } catch {
+			        charge = -1;
+		        }
+		    
+                    Console.WriteLine("{0},{1},{2},{3},{4},{5}", scanNumber,
+		    	scanStatistics.ScanType.ToString(),
+			Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
+			precursorMass,
+			scanFilter.MSOrder.ToString(),
+			charge);
+		    }
+	    }
+
+	    private static int GetChargeIdx(this IRawDataPlus rawFile){
                     var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
 
 		    int idx_CHARGE = -1;
@@ -170,7 +205,14 @@
                         catch
                         {
 		        }
+			return (idx_CHARGE);
+	    }
 
+            public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
+            {
+
+
+		    int idx_CHARGE = rawFile.GetChargeIdx();
              	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             	    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
 		        int charge = -1;
@@ -179,7 +221,7 @@
                 using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(filename))
                 {
-             	    for  (scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
+             	    for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                         var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
@@ -378,7 +420,8 @@
                         {"chromatogram", "base peak chromatogram."},
                         {"xic", "prints xic unfiltered."},
                         {"tic", "prints xic unfiltered."},
-                        {"scans", "print spectrum of scanid as Rcode."}
+                        {"scans", "print spectrum of scanid as Rcode."},
+                        {"index", "print index as csv of all scans."}
                     };
 
                     if (args.Length > 0)
@@ -518,6 +561,11 @@
                         Environment.Exit(0);
                     }
 
+
+                    if (mode == "index"){
+                    	    rawFile.GetIndex();
+			    return;
+		    }
 
                     if (mode == "scans")
                     {
