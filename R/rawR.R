@@ -898,7 +898,7 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     stopifnot(is.rawRchromatogram(x))
     
     plot(x = x$times, y = x$intensities,
-         xlab = "retention time",
+         xlab = "Retention Time [min]",
          ylab = "Intensity",
          type = "l",
          frame.plot = FALSE)
@@ -906,7 +906,7 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     
     if (legend) {
         if(attr(x, 'type') == 'xic'){
-            legend("topright",
+            legend("topleft",
                    legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
                                   c(basename(attr(x, 'filename')), 
                                     x$filter, 
@@ -914,13 +914,13 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
                                     x$ppm)
                    ),
                    bty = "n",
-                   title = attr(x, 'type'),
+                   title = toupper(attr(x, 'type')),
                    cex = 0.75)
         }else{
-            legend("topright",
+            legend("topleft",
                    legend = paste(c("File:"), c(basename(attr(x, 'filename')))),
                    bty = "n",
-                   title = attr(x, 'type'),
+                   title = toupper(attr(x, 'type')),
                    cex = 0.75)
         }
     }
@@ -930,16 +930,23 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
 #'
 #' @param x A \code{rawRchromatogramSet} object to be plotted.
 #' @param ... Passes additional arguments.
+#' @param diagnostic Show diagnostic legend?
 #' 
 #' @export plot.rawRchromatogramSet
-plot.rawRchromatogramSet <- function(x, ...){
-    if(attr(x, 'type')=='xic'){
+plot.rawRchromatogramSet <- function(x, diagnostic = FALSE, ...){
+    
+    #should become is.Class function in the future
+    stopifnot(attr(x, "class") == "rawRchromatogramSet")
+    
+    ## so far only XIC branch available
+    
+    if (attr(x, 'type') == 'xic') {
         plot(0, 0, type='n',
              xlim=range(unlist(lapply(x, function(o){o$times}))),
              ylim=range(unlist(lapply(x, function(o){o$intensities}))),
              frame.plot = FALSE,
-             xlab='retention time [in min]',
-             ylab='intensities', ...
+             xlab='Retention Time [min]',
+             ylab='Intensities', ...
         )
         
         cm <- hcl.colors(length(x), "Set 2")
@@ -949,6 +956,21 @@ plot.rawRchromatogramSet <- function(x, ...){
                col=cm,
                pch=16, 
                title='target mass [m/z]',
-               bty='n',cex = 0.75)
+               bty='n', cex = 0.75)
+    
+        if (diagnostic) {
+            legend("topright", legend = paste(c("File: ",
+                                                "Filter: ",
+                                                "Type: ",
+                                                "Tolerance: "
+                                          ),
+                                          c(basename(attr(x, "file")),
+                                            attr(x, "filter"),
+                                            attr(x, "type"),
+                                            attr(x, "tol")
+                                          )
+                                    ),
+                   bty = "n", cex = 0.75, text.col = "black")    
+        }
     }
 }
