@@ -42,9 +42,9 @@ has provided the proof-of-principle how access to mass spectromerty raw files
 can be realized by wrapping vendor-provided APIs. Our novel package rawR now
 aims for complete, OS independent access to all spectral, chromatographic and
 meta data logged in Thermo Fisher Scientific raw files. rawR interoperates with
-other R packages for proteomics data visualisation (protViz) and will ...
+other R packages for proteomics data visualisation ([protViz](https://CRAN.R-project.org/package=protViz)) and will ...
 
-**Availability**: https://github.com/fgcz/rawR
+**Availability**: <https://github.com/fgcz/rawR>
 
 ## Keywords
 
@@ -241,7 +241,6 @@ We thank Lilly van de Venn for designing the rawR package logo.
 MS, mass spectromerty; TIC, total ion chromatogram;
 XIC, extracted ion chromatogram; fourier-transformed mass spectrum (FTMS);
 nano spray ionisation, NSI;
-
 
 # References
 <div id="refs"></div>

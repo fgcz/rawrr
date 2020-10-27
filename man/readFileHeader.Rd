@@ -30,11 +30,18 @@ readFileHeader(
 \item{method}{instrument vendor}
 }
 \value{
-a list object
+a list object containing the following entries: RAW file version,
+Creation date, Operator, Number of instruments, Description,
+Instrument model, Instrument name, Serial number, Software version,
+Firmware version, Units, Mass resolution, Number of scans,
+Number of ms2 scans, Scan range, Time range, Mass range,
+Scan filter (first scan), Scan filter (last scan), Total number of filters,
+Sample name, Sample id, Sample type, Sample comment, Sample vial,
+Sample volume, Sample injection volume, Sample row number,
+Sample dilution factor, or Sample barcode.
 }
 \description{
-The function extracts some meta information from a given rawfile.
-The R code output is parsed by the function and a list object is returned.
+The function extracts meta information from a given rawfile.
 }
 \examples{
 (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
@@ -50,5 +57,5 @@ Thermo Fisher NewRawfileReader C# code snippets
 \link[rawDiag]{read.raw.info}
 }
 \author{
-Tobias Kockmann and Christian Panse 2018, 2019, 2020
+Tobias Kockmann and Christian Panse 2018, 2019, 2020.
 }
