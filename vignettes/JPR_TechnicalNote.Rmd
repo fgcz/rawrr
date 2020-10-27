@@ -101,17 +101,51 @@ MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 
 -->
 
-Text
+The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HR-AM) data on a time scale that is compatible with chromatographic analysis (LC-MS). It is therefore heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data transformation to exchange formats like mz(X)ML. This use case shows how easy it is to work directly with the binary raw data, after installing our R package `rawR` that applies vendor APIs for data access. For demonstration purposes we use a complete LC-MS run recorded on a
+
+```{r, echo=FALSE}
+library(rawR)
+rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
+H <- rawR::readFileHeader(rawfile = rawfile)
+H$`Instrument model`
+```
+The
+```{r, echo=FALSE}
+H$`Time range`[2]
+```
+
+min run resulted in 
+```{r, echo=FALSE}
+H$`Number of scans`
+```
+
+scans that were written to disc. Already typing the above lines uses `rawR` functionality, since the instrument model, the time range of data acquisition, and the number of scans is extracted from the binary file header. The respective function is called `readFileHeader()` and returns a simple `R` object of type `list`.
+
+Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawRspectrum` object or `rawRspectrumSet`. Our package of course also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Fig. 1 shows the resulting plot for scan 9594:
+
 cite [@protViz]
 
-```{r plot.rawRspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a scan resolution of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor.", error=TRUE}
+```{r plot.rawRspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawR)
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
 ## scan numbers (PSMs) derived from DB search
 i <- c(9594, 11113, 11884, 12788, 12677, 13204, 13868, 14551, 16136, 17193, 17612)
 S <- rawR::readSpectrum(rawfile = rawfile, scan = i)
+class(S[[1]])
+print(S[[1]]) #comment this line if necessary to save space
+
 plot(S[[1]], centroid=TRUE)
-## y ion series m/z values calculated using the CRAN package protViz
+```
+
+The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \propto charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Fig. 2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
+
+```{r, eval = TRUE, fig.cap = "Spectrum plot using Signal/Noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++."}
+plot(S[[1]], centroid=TRUE, SN = TRUE)
+
+## S/N threshold indicator
+abline(h = 5, lty = 2, col = "blue")
+
+## decorate plot with y-ion series of target peptide
 yIonSeries <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791,
                 803.4006, 860.4221)
 names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
@@ -119,10 +153,8 @@ abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
-Another recent `rawR` application example is descibed in [@Gehrig2020]. Here, marker ions ...
 
-small molecule, UVPD dissociation
-[@Panse2020]
+More sophisticated analysis workflows applying `rawR` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross compared at different collision energies. You may have notices that such things become relatively simple, since the `rawRspectrum` object provides easy access to normalized and absolute collision energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
 
 
 ### Use Case II - iRT regression for system suitability monitoring
@@ -136,8 +168,6 @@ plot(rawR::readChromatogram(rawfile = rawfile, type = "tic"))
 ```{r BPC, fig.cap="BPC", eval=FALSE}
 plot(rawR::readChromatogram(rawfile = rawfile, type = "bpc"))
 ```
-
-
 
 The initial step of iRT regression is now to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, given they were spiked into the sample matrix prior to data acquisition. Luckily ;-), our example data is iRT peptides in a tyrptic digest of BSA. The code chunk below demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawRchromatogramSet` object of the type `xic`. This object is plotted for visual inspection. 
 
