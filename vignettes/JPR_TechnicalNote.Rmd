@@ -8,9 +8,10 @@ output:
     keep_tex: true
   html_document:
     df_print: paged
-    citation_package: natbib
   word_document: default
+  citation_package: natbib
 bibliography: rawR.bib
+csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
@@ -54,10 +55,16 @@ computational mass spectrometry, software, R package
 
 ## Implementation
 
-### C# code
-rawR utilizes the NewRawFileReader .Net assembly provided by ThermoFisherScitific [@RFR].
-The rawR wrapper interfaces the vendor libraries, and it provides R parsable output [@R].
-Therefore, it can read the proprietary vendor files and provide nested S3 class R objects. The precompiled C# code is shipped with the package and runs on Linux, Microsoft Windows, and MacOSX on X86_64 compute architecture. The wrapper can benefit from Rs multicore utilities [Figure 3,@Trachsel2018].
+### `C#` code
+
+rawR utilizes the NewRawFileReader .Net assembly provided by
+Thermo Fisher Scientific [@RFR]. The rawR wrapper interfaces the vendor
+libraries, and it provides R parsable output [@R].
+Therefore, it can read the proprietary vendor files and provide nested S3 class
+R objects.
+The source code and the precompiled `C#` code is shipped with the package and
+runs on Linux, Microsoft Windows, and MacOSX on the X86_64 hardware architecture.
+
 
 ### R
 
@@ -199,10 +206,7 @@ We (the FGCZ) use these iRT regression models to automatically monitor the perfo
 ... next 
 
 - [@Schmidt2020] 
-- [@biocspectra]
-
-
-
+- [@biocspectra] The wrapper can benefit from Rs multicore utilities [Figure 3,@Trachsel2018]. 
 
 
 ## Author information
@@ -240,6 +244,10 @@ nano spray ionisation, NSI;
 
 
 # References
+<div id="refs"></div>
 
+# Appendix
 
-
+```{r sessionInfo}
+sessionInfo()
+```
