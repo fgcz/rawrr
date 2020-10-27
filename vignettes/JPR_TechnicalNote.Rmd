@@ -59,12 +59,10 @@ computational mass spectrometry, software, R package
 
 ### `C#` code
 
-rawR utilizes the NewRawFileReader .Net assembly provided by
-Thermo Fisher Scientific [@RFR]. The rawR wrapper interfaces the vendor
-libraries, and it provides R parsable output [@R].
-Therefore, it can read the proprietary vendor files and provide nested S3 class
-R objects.
-The source code and the precompiled `C#` code is shipped with the package and
+The `base::system2` R function invokes the `rawR.exe`  .NET application. `rawR.exe` utilizes the NewRawFileReader .Net assembly provided by Thermo Fisher Scientific [@RFR]. 
+Therefore, it can read the proprietary vendor files and provide R code for nested S3 class R [@R] objects as output.
+`rawR.exe` takes input arguments as the raw file name and option for extracting spectra or chromatographic information. 
+The `C#` source code and a precompiled binary is shipped with the released R package and
 runs on Linux, Microsoft Windows, and MacOSX on the X86_64 hardware architecture.
 
 
@@ -249,6 +247,11 @@ nano spray ionisation, NSI;
 <div id="refs"></div>
 
 # Appendix
+
+```{r monoInfo, message=TRUE, echo=TRUE}
+system2("mcs", "--version", stdout = TRUE)
+system2("mono", "-V", stdout = TRUE)
+```
 
 ```{r sessionInfo}
 sessionInfo()
