@@ -2,7 +2,7 @@
 % Please edit documentation in R/rawR.R
 \name{readChromatogram}
 \alias{readChromatogram}
-\title{Extracts Chromatogram (XIC)}
+\title{Extracts Chromatograms}
 \usage{
 readChromatogram(
   rawfile,
@@ -33,10 +33,10 @@ total ion chromatogram.}
 }
 \value{
 chromatogram object(s) containing of a vector of \code{times} and a
-vector of \code{intensities} of the same length.
+corresponding vector of \code{intensities}.
 }
 \description{
-Extracts Chromatogram (XIC)
+Extracts Chromatograms
 }
 \examples{
 
@@ -76,9 +76,9 @@ X <- readChromatogram(rawfile, mZ)
 }
 \references{
 \itemize{
-\item{\url{https://doi.org/10.5281/zenodo.2640013}}
-\item{the R function 1st appeared in
-\url{https://doi.org/10.1021/acs.jproteome.8b00173}}
+  \item{\url{https://doi.org/10.5281/zenodo.2640013}}
+  \item{the R function 1st appeared in
+    \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
 }
 }
 \seealso{
@@ -89,5 +89,5 @@ Thermo Fisher NewRawfileReader C# code snippets
 }
 \author{
 Christian Trachsel, Tobias Kockmann and
-Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
+Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020.
 }

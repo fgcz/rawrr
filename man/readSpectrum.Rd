@@ -21,14 +21,17 @@ uses \code{tempdir()}.}
 \item{validate}{boolean default is \code{FALSE}.}
 }
 \value{
-a list of \code{spectrum} objects.
+a nested list of \code{rawRspectrum} objects containing more than 50 
+values of scan information, e.g., the charge state, two vectors containing
+the mZ and its corresponding intensity values or the AGC information, 
+mass calibration, ion optics \ldots
 }
 \description{
-the function reads scan information, e.g., charge, mZ,
-or intensity of a given set of scan numbers using a dot net interface and
-the ThermoFisher NewRawFileReader libraries.
+the function derives spectra of a given rawfile and a given 
+vector of scan numbers.
 }
 \details{
+\section{\code{sample.raw}}
 The binary example file sample.raw contains 574 fourier-transformed orbi trap
 spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 mass spectrometer was operated in line with a nano electrospray source (NSI)
@@ -38,13 +41,55 @@ demonstration and extended testing is available through the
 \href{tartare package}{https://bioconductor.org/packages/tartare/}.
 Lions love raw meat!
 }
+\examples{
+(rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
+  'sample.raw'))
+
+S <- readSpectrum(rawfile, scan = 1:9)
+
+S[[1]]
+
+names(S[[1]])
+
+plot(S[[1]])
+
+ 
+\dontrun{
+# INPUT:
+GAG <- "GAGSSEPVTGLDAK"
+rawfile <- file.path(Sys.getenv("HOME"),
+  "Downloads/20180220_14_autoQC01.raw")
+
+# list spectra metainformation
+IDX <- readIndex(rawfile)
+
+# determine precursor matches
+S <- readSpectrum(rawfile,
+  which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001))
+
+# query spectra with precursor matches
+rv <-lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
+
+# determine spectra indices having the  max number of hits hits
+hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
+
+# take the 1st one
+idx <- which(hits == hit.max)[1]
+
+# OUTPUT
+rv <- protViz::peakplot(GAG,  (S[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
+# https://www.proteomicsdb.org/use/
+cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
+}
+}
 \references{
 \itemize{
-\item{Thermo Fisher NewRawfileReader C# code snippets
-\url{https://planetorbitrap.com/rawfilereader}}.
-\item{\url{https://doi.org/10.5281/zenodo.2640013}}
-\item{the R function 1st appeared in 
-\url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
+  \item{Thermo Fisher NewRawfileReader C# code snippets
+    \url{https://planetorbitrap.com/rawfilereader}}.
+  \item{\url{https://doi.org/10.5281/zenodo.2640013}}
+  \item{the R function 1st appeared in 
+    \url{https://doi.org/10.1021/acs.jproteome.8b00173}.
+  }
 }
 }
 \seealso{

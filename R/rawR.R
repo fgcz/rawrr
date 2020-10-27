@@ -73,15 +73,23 @@ is.rawRspectrum <- function(x){
 #' @param argv arguments, default.
 #' @param system2_call system2 call, default.
 #' @param method instrument vendor
-#' @description The function extracts some meta information from a given rawfile.
-#' The R code output is parsed by the function and a list object is returned.
-#' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020
+#' @description The function extracts meta information from a given rawfile.
+#' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020.
 #' @references Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #' 
 #' @seealso \link[rawDiag]{read.raw.info}
 #' 
-#' @return a list object
+#' @return a list object containing the following entries: RAW file version,
+#' Creation date, Operator, Number of instruments, Description,
+#' Instrument model, Instrument name, Serial number, Software version,
+#' Firmware version, Units, Mass resolution, Number of scans,
+#' Number of ms2 scans, Scan range, Time range, Mass range,
+#' Scan filter (first scan), Scan filter (last scan), Total number of filters,
+#' Sample name, Sample id, Sample type, Sample comment, Sample vial,
+#' Sample volume, Sample injection volume, Sample row number,
+#' Sample dilution factor, or Sample barcode.
+#' 
 #' @export readFileHeader
 #'
 #' @examples
@@ -203,12 +211,13 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 #' 
-#' @description the function reads scan information, e.g., charge, mZ,
-#' or intensity of a given set of scan numbers using a dot net interface and
-#' the ThermoFisher NewRawFileReader libraries.
+#' @description the function derives spectra of a given rawfile and a given 
+#' vector of scan numbers.
 #'  
 #'  
 #' @details 
+#' 
+#' \section{\code{sample.raw}}
 #' The binary example file sample.raw contains 574 fourier-transformed orbi trap
 #' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 #' mass spectrometer was operated in line with a nano electrospray source (NSI)
@@ -218,13 +227,6 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
 #' Lions love raw meat!
 #' 
-#' @references \itemize{
-#' \item{Thermo Fisher NewRawfileReader C# code snippets
-#' \url{https://planetorbitrap.com/rawfilereader}}.
-#' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-#' \item{the R function 1st appeared in 
-#' \url{https://doi.org/10.1021/acs.jproteome.8b00173}.}
-#' }
 #' 
 #' @aliases readSpectrum plot.rawRSpectrum rawRspectrum rawR sample.raw
 #' 
@@ -233,10 +235,14 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @exportS3Method plot rawRspectrum
 #' @exportS3Method print rawRspectrum
 #' 
-#' @return  a list of \code{spectrum} objects.
+#' @return a nested list of \code{rawRspectrum} objects containing more than 50 
+#' values of scan information, e.g., the charge state, two vectors containing
+#' the mZ and its corresponding intensity values or the AGC information, 
+#' mass calibration, ion optics \ldots
+#' 
 #' @seealso \link[rawDiag]{readScans}
 #' 
-#' @example
+#' @examples
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
 #'   'sample.raw'))
 #' 
@@ -256,14 +262,14 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #'   "Downloads/20180220_14_autoQC01.raw")
 #' 
 #' # list spectra metainformation
-#' S <- readIndex(rawfile)
+#' IDX <- readIndex(rawfile)
 #' 
 #' # determine precursor matches
-#' SS <- readSpectrum(rawfile,
-#'   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - S$precursorMass) < 0.001))
+#' S <- readSpectrum(rawfile,
+#'   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001))
 #' 
 #' # query spectra with precursor matches
-#' rv <-lapply(SS, function(x){protViz::psm(GAG, x, plot=FALSE)})
+#' rv <-lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
 #' 
 #' # determine spectra indices having the  max number of hits hits
 #' hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
@@ -272,9 +278,17 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' idx <- which(hits == hit.max)[1]
 #' 
 #' # OUTPUT
-#' rv <- protViz::peakplot(GAG,  (SS[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
+#' rv <- protViz::peakplot(GAG,  (S[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
 #' # https://www.proteomicsdb.org/use/
-#' cat(paste(SS[[idx]]$mZ[rv$idx], "\t", SS[[idx]]$intensity[rv$idx]), sep = "\n")
+#' cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
+#' }
+#' @references \itemize{
+#'   \item{Thermo Fisher NewRawfileReader C# code snippets
+#'     \url{https://planetorbitrap.com/rawfilereader}}.
+#'   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
+#'   \item{the R function 1st appeared in 
+#'     \url{https://doi.org/10.1021/acs.jproteome.8b00173}.
+#'   }
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
@@ -323,7 +337,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 }
 
 
-#' Extracts Chromatogram (XIC)
+#' Extracts Chromatograms
 #'
 #' @param rawfile the file name. 
 #' @param mass a vector of mass values iff \code{type = 'xic'}. 
@@ -339,15 +353,17 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #' 
 #' @return chromatogram object(s) containing of a vector of \code{times} and a
-#' vector of \code{intensities} of the same length.
+#' corresponding vector of \code{intensities}.
 #' 
-#' @references \itemize{
-#' \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-#' \item{the R function 1st appeared in
-#' \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
+#' @references
+#' \itemize{
+#'   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
+#'   \item{the R function 1st appeared in
+#'     \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
 #' }
+#' 
 #' @author Christian Trachsel, Tobias Kockmann and
-#' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
+#' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020.
 #' @seealso \link[rawDiag]{readXIC}
 #' @export readChromatogram 
 #' @exportClass rawRchromatogram
