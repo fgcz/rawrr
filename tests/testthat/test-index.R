@@ -10,7 +10,7 @@ test_that("check readIndex.", {
 
   S <- readIndex(rawfile)
 
-  expect_equivalent(dim(S) == c(573, 5), c(TRUE, TRUE))
+  expect_equivalent(dim(S) == c(573, 6), c(TRUE, TRUE))
 })
 
 

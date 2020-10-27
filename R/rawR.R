@@ -893,7 +893,7 @@ is.rawRchromatogram <- function(x){
 #'
 #' @examples pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
 #' C <- readChromatogram(pathToRawFile, mass = 445.1181, tol = 10)
-#' plot.rawR(C[[1]])
+#' plot(C[[1]])
 plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     stopifnot(is.rawRchromatogram(x))
     

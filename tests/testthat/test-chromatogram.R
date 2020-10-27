@@ -13,7 +13,7 @@ test_that("check readChromatogram", {
   expect_equal(length(X), 2)
 
   x <- X[[1]]
-  lapply(c("mass", "times", "intensities", "filename", "tol") %in% names(x),
+  lapply(c("mass", "times", "intensities", "filter", "ppm") %in% names(x),
            expect_true)
   
   expect_warning(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
