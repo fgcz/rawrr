@@ -8,9 +8,10 @@ output:
     keep_tex: true
   html_document:
     df_print: paged
-    citation_package: natbib
   word_document: default
+  citation_package: natbib
 bibliography: rawR.bib
+csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
@@ -228,6 +229,10 @@ nano spray ionisation, NSI;
 
 
 # References
+<div id="refs"></div>
 
+# Appendix
 
-
+```{r sessionInfo}
+sessionInfo()
+```
