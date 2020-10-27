@@ -127,11 +127,23 @@ small molecule, UVPD dissociation
 [@Panse2020]
 
 
-### Use Case II - iRT regression
+### Use Case II - iRT regression for system suitability monitoring
 
-By applying linear regression one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values (iRTs) and *vice versa* [@Escher2012]. In addition, fitted iRT regression models provide highly valuable information about LC-MS run performance. In this example we show how easy it is to perform iRT regression in `R` by just using the raw measurement data, our package `rawR`, and well known `base R` functions supporting linear modeling. The first step is to estimate the empirical RTs of a peptide set with known iRT scores from a raw file. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide ions, given they were spiked into the sample matrix prior to data acquisition. Code chunk `plot.rawRchromatogram` demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawRchromatogram` object of the type `xic`. This object is plotted for visual inspection. 
+By applying linear regression one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values (iRTs) and *vice versa* [@Escher2012]. This can be used for retention time calibration/prediction. In addition, fitted iRT regression models provide highly valuable information about LC-MS run performance. In this example we show how easy it is to perform iRT regression in `R` by just using the raw measurement data, our package `rawR`, and well known `base R` functions supporting linear modeling. To get a first impression of the data we calculate a TIC using the `readChromatogram()` function. Plotting the TIC shows chromatographic peaks between 15 and 28 min that could be of peptidic origin (Hint: There is also a `type = "bpc"` option if your prefer a BPC):
 
-```{r plot.rawRchromatogram, fig.cap="XICs iRT peptides", error=TRUE}
+```{r TIC, fig.cap="TIC"}
+plot(rawR::readChromatogram(rawfile = rawfile, type = "tic"))
+```
+
+```{r BPC, fig.cap="BPC", eval=FALSE}
+plot(rawR::readChromatogram(rawfile = rawfile, type = "bpc"))
+```
+
+
+
+The initial step of iRT regression is now to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, given they were spiked into the sample matrix prior to data acquisition. Luckily ;-), our example data is iRT peptides in a tyrptic digest of BSA. The code chunk below demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawRchromatogramSet` object of the type `xic`. This object is plotted for visual inspection. 
+
+```{r plot.rawRchromatogram, fig.cap="XICs for iRT peptides precursors. Each XIC was calculated using a tolerance of 10 ppm around the target mass and using only MS1 scans.", error=TRUE}
 iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
@@ -141,27 +153,27 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "LFLQFGAQGSPFLK")
 
 C <- rawR::readChromatogram(rawfile, mass = iRT, tol = 10, type = "xic", filter = "ms")
-plot(C)
+plot(C, diagnostic = TRUE)
 ```
 
 Be reminded that the intensity traces are not computed within `R` for instance by reading all scans of a raw file and subsequently iterating over a scan subset (This would be a greedy, but slow solution!). Instead, traces are directly calculated by a `C#` method (reference method code) that calls the vendor API. The API takes care of the filtering process (checks filter validity and applies the filter). On the `R` level there is no need to know *a priori* which scans match the filter rule, or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawRchromatogram` objects. By changing the filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++:
 
-```{r fragmentIonTraces}
+```{r fragmentIonTraces, fig.cap="XICs for LGGNEQVTR++ fragment ions y6 to y8"}
 plot(rawR::readChromatogram(rawfile = rawfile,
       mass = yIonSeries[c("y6", "y7", "y8")],
       type = 'xic', tol = 10,
       filter = "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
 ```
 
-You will immediately recognize that this means our example data was actually recorded using parallel reaction monitoring (PRM), since 487.2567 was targeted in regular spaced intervals. You could confirm this by using the `readIndex()` function which returns a `data.frame` that indexes all scans found in a raw file and subsetting it for the scans of interest.
+You will immediately recognize that this means our example data was actually recorded using parallel reaction monitoring (PRM), since 487.2567 was targeted in regular spaced intervals. You could confirm this by using the `readIndex()` function which returns a `data.frame` that indexes all scans found in a raw file and subsetting it for the scans of interest. The delta between consecutive scans is always 22 scans:
+
 
 ```{r}
 I <- rawR::readIndex(rawfile = rawfile)
 head(subset(I, scanType == "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
 ```
-The delta between consecutive scans is always 22 scans. 
 
-For regression, we now extract the RTs at the maximum of the intensity traces stored in the chromatogram object and fit a linear model of the form: $$rt = a + b\cdot score$$ In theory, we could do this at the precursor or fragment ion level. For simplicity we show only the first option. The fitted model can than be inspected using std. procedures. 
+For regression, we now extract the RTs at the maximum of the intensity traces stored in the chromatogram object and fit a linear model of the form: $$rt = a + b\cdot score$$ In theory, we could do this at the precursor or fragment ion level. For simplicity we show only the first option.  
 
 ```{r iRTscoreFit, error=TRUE}
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
@@ -169,9 +181,11 @@ rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
 fit <- lm(rt ~ score)
 ```
 
-Code chunk `iRTscoreFitPlot` shows a visual inspection by plotting observed RTs as a function of iRT score together with the model regression line. The corresponding R squared indicates that the RTs behave highly linear! This is expected since, the iRT peptides were separated on a 20 min linear gradient from 5 %B to 35 %B using C18 RP material. 
 
-```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="graphs the retention time verus the retention time scores."}
+The fitted model can than be inspected using std. procedures. Code chunk `iRTscoreFitPlot` shows a visual inspection by plotting observed RTs as a function of iRT score together with the  fitted model regression line. The corresponding R squared indicates that the RTs behave highly linear! This is expected since, the iRT peptides were separated on a 20 min linear gradient from 5 %B to 35 %B using C18 RP material (the change rate is therefore 1.5 %B / min). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide GAGSSEPVTGLDAK, since it was defined to have a zero score on the iRT scale.
+
+
+```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="iRT regression"}
 plot(rt ~ score,
      ylab = 'Retention time [min]',
      xlab = "iRT score",
@@ -186,6 +200,7 @@ legend("topleft", legend = paste("Regression line: ", "rt =",
 text(score, rt,  iRT,pos=1,cex=0.5)
 ```
 
+We (the FGCZ) use these iRT regression models to automatically monitor the performance of our LC-MS systems on a longitudinal level. The basic idea is that parameter estimates from individual raw files should behave like a random variable.
 
 
 ## Conclusions
