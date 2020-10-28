@@ -72,14 +72,14 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 
 ## Results
 
+|Function Name|Description|Return value|
+|-------------|-----------|------------|
+|`readFileHeader`|Reads meta information from a rawfile header.|`list`|
+|`readIndex`|Reads scan index from a rawfile.|`data.frame`|
+|`readSpectrum`|Reads spectral data from a rawfile|`rawRspectrum(Set)`|
+|`readChromatogram`|Extracts chromatograms (TIC, BPC, or XIC) from a rawfile|`rawRchromatogram(Set)`|
 
-|function|description|
-|--------|-----------|
-|`readFileHeader`|extracts meta information from a given rawfile.|
-|`readIndex`|read scan index|
-|`readSpectrum`|reads scan information, e.g., charge, mZ, or intensity of a given set of scan numbers using a dot net interface and the ThermoFisher NewRawFileReader libraries.|
-|`readChromatogram`|extracts Chromatogram|
-
+Table 1. lists the most important `rawR` package functions connected to reading functionality. More details can be found in the package documentation.
 
 ### Use Case I - Analyzing orbi trap spectra
 <!---
@@ -95,9 +95,7 @@ rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw
 H <- rawR::readFileHeader(rawfile = rawfile)
 ```
 
-The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HR-AM) data on a time scale that is compatible with chromatographic analysis (LC-MS). It is therefore heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data transformation to exchange formats like mz(X)ML. This use case shows how easy it is to work directly with the binary raw data, after installing our R package `rawR` that applies vendor APIs for data access. For demonstration purposes we use a complete LC-MS run recorded on a `r H$"Instrument model"`.
-The `r H$"Time range"[2]` min run resulted in `r H$"Number of scans"`
-scans that were written to disc. Already type setting the above lines uses `rawR` functionality, since the instrument model, the time range of data acquisition, and the number of scans is extracted from the binary file header. The respective function is called `readFileHeader()` and returns a simple `R` object of type `list`.
+The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HR-AM) data on a time scale that is compatible with chromatographic analysis (LC-MS). It is therefore heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data transformation to exchange formats like mz(X)ML. This use case shows how easy it is to work directly with the binary raw data, after installing our `R` package `rawR` that applies vendor APIs for data access. For demonstration purposes we use a complete LC-MS run recorded on a `r H$"Instrument model"`. The `r H$"Time range"[2]` min run resulted in `r H$"Number of scans"` scans that were written to disc. Already type setting the above lines uses `rawR` functionality, since the instrument model, the time range of data acquisition, and the number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader()` and returns a simple `R` object of type `list` (see Table 1).
 
 Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawRspectrum` object or `rawRspectrumSet`. Our package of course also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Fig. 1 shows the resulting plot for scan `9594`:
 
@@ -113,7 +111,7 @@ print(S[[1]]) #comment this line if necessary to save space
 plot(S[[1]], centroid=TRUE)
 ```
 
-The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \propto charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure~2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
+The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \sim charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure~2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
 
 ```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using Signal/Noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the protViz package [@protViz]."}
 plot(S[[1]], centroid=TRUE, SN = TRUE)
@@ -209,7 +207,7 @@ We (the FGCZ) use these iRT regression models to automatically monitor the perfo
 
 ## Conclusions
 
-... next 
+Our R package `rawR` provides direct access to spectral data stored in vendor-specific binary raw files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (spectrum & chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use doesn't impair performance. We also emphasized that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawR` to the BioC project and align further efforts with the R for Mass Spectromerty initiative. In particular, we hope to extend `rawR` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
 
 - [@Schmidt2020] 
 - [@biocspectra] The wrapper can benefit from Rs multicore utilities [Figure 3,@Trachsel2018]. 
