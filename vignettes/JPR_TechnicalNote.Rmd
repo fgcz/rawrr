@@ -14,7 +14,8 @@ csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{rawR JPR Technical Note}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{rawR JPR Technical Note}
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
