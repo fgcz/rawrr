@@ -3,7 +3,7 @@ title: rawR - Direct access to raw mass spectrometry data in R
 author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: 
+  pdf_document:
     keep_tex: true
   html_document:
     df_print: paged
@@ -75,7 +75,7 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 
 |function|description|
 |--------|-----------|
-|`readFileHeader`|extracts some meta information from a given rawfile.|
+|`readFileHeader`|extracts meta information from a given rawfile.|
 |`readIndex`|read scan index|
 |`readSpectrum`|reads scan information, e.g., charge, mZ, or intensity of a given set of scan numbers using a dot net interface and the ThermoFisher NewRawFileReader libraries.|
 |`readChromatogram`|extracts Chromatogram|
@@ -89,28 +89,17 @@ http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
 MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 
 -->
-
-The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HR-AM) data on a time scale that is compatible with chromatographic analysis (LC-MS). It is therefore heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data transformation to exchange formats like mz(X)ML. This use case shows how easy it is to work directly with the binary raw data, after installing our R package `rawR` that applies vendor APIs for data access. For demonstration purposes we use a complete LC-MS run recorded on a
-
 ```{r, echo=FALSE}
 library(rawR)
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
 H <- rawR::readFileHeader(rawfile = rawfile)
-H$`Instrument model`
-```
-The
-```{r, echo=FALSE}
-H$`Time range`[2]
 ```
 
-min run resulted in 
-```{r, echo=FALSE}
-H$`Number of scans`
-```
-
+The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HR-AM) data on a time scale that is compatible with chromatographic analysis (LC-MS). It is therefore heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data transformation to exchange formats like mz(X)ML. This use case shows how easy it is to work directly with the binary raw data, after installing our R package `rawR` that applies vendor APIs for data access. For demonstration purposes we use a complete LC-MS run recorded on a `r H$"Instrument model"`.
+The `r H$"Time range"[2]` min run resulted in `r H$"Number of scans"`
 scans that were written to disc. Already type setting the above lines uses `rawR` functionality, since the instrument model, the time range of data acquisition, and the number of scans is extracted from the binary file header. The respective function is called `readFileHeader()` and returns a simple `R` object of type `list`.
 
-Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawRspectrum` object or `rawRspectrumSet`. Our package of course also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Fig. 1 shows the resulting plot for scan 9594:
+Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawRspectrum` object or `rawRspectrumSet`. Our package of course also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Fig. 1 shows the resulting plot for scan `9594`:
 
 ```{r plot.rawRspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawR)
@@ -124,9 +113,9 @@ print(S[[1]]) #comment this line if necessary to save space
 plot(S[[1]], centroid=TRUE)
 ```
 
-The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \propto charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Fig. 2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
+The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \propto charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure~2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
 
-```{r, eval = TRUE, fig.cap = "Spectrum plot using Signal/Noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the protViz package [@protViz]."}
+```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using Signal/Noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the protViz package [@protViz]."}
 plot(S[[1]], centroid=TRUE, SN = TRUE)
 
 ## S/N threshold indicator
