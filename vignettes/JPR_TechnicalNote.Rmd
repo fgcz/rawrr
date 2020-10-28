@@ -162,7 +162,7 @@ plot(C, diagnostic = TRUE)
 
 Be reminded that the intensity traces are not computed within `R` for instance by reading all scans of a raw file and subsequently iterating over a scan subset (This would be a greedy, but slow solution!). Instead, traces are directly calculated by a `C#` method (reference method code) that calls the vendor API. The API takes care of the filtering process (checks filter validity and applies the filter). On the `R` level there is no need to know *a priori* which scans match the filter rule, or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawRchromatogram` objects. By changing the filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++:
 
-```{r fragmentIonTraces, fig.cap="XICs for LGGNEQVTR++ fragment ions y6 to y8"}
+```{r fragmentIonTraces, fig.cap="XICs for LGGNEQVTR++ fragment ions y6 to y8", fig.retina=3}
 plot(rawR::readChromatogram(rawfile = rawfile,
       mass = yIonSeries[c("y6", "y7", "y8")],
       type = 'xic', tol = 10,
