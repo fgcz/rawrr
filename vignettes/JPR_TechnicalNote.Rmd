@@ -72,7 +72,7 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 
 ## Results
 
-The following sections are inspired by real-life research/infrastructure projects, but have been stripped down to the bare scientific essentials in order to put more weight on the software application. We display source code in grey shaded boxes including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package.
+The following sections are inspired by real-life research/infrastructure projects, but have been stripped down to the bare scientific essentials in order to put more weight on the software application. We display source code in grey shaded boxes including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package. 
 
 |Function Name|Description|Return value|
 |-------------|-----------|------------|
