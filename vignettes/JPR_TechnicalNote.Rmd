@@ -68,7 +68,7 @@ We therefore decided to implemented objects in R that closely resemble these bas
 
 <!---
 TODO(cp): add to man page
-The binary example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/). Lions love raw meat!
+The binary example file sample.raw contains 574 fourier-transformed orbi trap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/) [@tartare]. Lions love raw meat!
 -->
 
 ## Results
@@ -92,7 +92,7 @@ http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
 MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 
 -->
-```{r, echo=FALSE}
+```{r readFileHeader, echo=FALSE}
 library(rawR)
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
 H <- rawR::readFileHeader(rawfile = rawfile)
@@ -116,7 +116,7 @@ plot(S[[1]], centroid=TRUE)
 
 The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \sim charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure~2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
 
-```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using Signal/Noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the protViz package [@protViz]."}
+```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using Signal/Noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]."}
 plot(S[[1]], centroid=TRUE, SN = TRUE)
 
 ## S/N threshold indicator
@@ -125,6 +125,7 @@ abline(h = 5, lty = 2, col = "blue")
 ## decorate plot with y-ion series of target peptide
 yIonSeries <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791,
                 803.4006, 860.4221)
+
 names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
 abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
@@ -173,7 +174,7 @@ plot(rawR::readChromatogram(rawfile = rawfile,
 You will immediately recognize that this means our example data was actually recorded using parallel reaction monitoring (PRM), since 487.2567 was targeted in regular spaced intervals. You could confirm this by using the `readIndex()` function which returns a `data.frame` that indexes all scans found in a raw file and subsetting it for the scans of interest. The delta between consecutive scans is always 22 scans:
 
 
-```{r}
+```{r readIndex}
 I <- rawR::readIndex(rawfile = rawfile)
 head(subset(I, scanType == "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
 ```

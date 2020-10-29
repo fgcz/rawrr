@@ -1,5 +1,5 @@
 .monoInfo <-function(){
-    system2("mcs", "--version", stdout = TRUE)
+    # system2("mcs", "--version", stdout = TRUE)
     system2("mono", "-V", stdout = TRUE)
 }
 
