@@ -1,0 +1,163 @@
+---
+title: rawR - Functional test using raw files (autoQC01) from different LC-MS systems
+author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
+date: "`r Sys.time()`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+---
+
+
+# Libraries
+
+```{r}
+library(protViz)
+library(rawR)
+library(parallel)
+```
+
+# Input 
+
+```{r input}
+input <- scan("input.txt", as.character())
+```
+
+# Parameters
+
+```{r}
+options(mc.cores = 24)
+```
+
+The script processes recent orbitrap files of each instrument at the FGCZ using the latest R development and the [rawR](https://github.com/fgcz/rawR) package version.
+
+
+# Check read functions
+
+## File Header 
+
+```{r fileHeader}
+H <- mclapply(FUN=rawR::readFileHeader, input)
+```
+
+```{r results='asis'}
+DF <- do.call('rbind',
+  lapply(strsplit(input, "/") ,
+    function(x) data.frame(instument=x[7],
+      path=paste(x[c(8:9)], collapse="/"))))
+DF$InstrumentModel <- sapply(H, function(x)x$`Instrument model`)
+knitr::kable(DF)
+```
+
+## Index and spectrum
+
+```{r defineIrtMass}
+iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
+            683.8541, 699.3388, 726.8361, 776.9301)
+
+names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+                 "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
+		 "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
+		 "LFLQFGAQGSPFLK")
+```
+
+
+
+```{r define-aggregatePeptideSpectrumMatch}
+.aggregatePeptideSpectrumMatch <- function(filename="20181220_013_autoQC01.raw", peptide="LGGNEQVTR", error = 0.1){
+
+        mass <- (protViz::parentIonMass(peptide)[1] + 1.008 )/2
+        ions <- protViz::fragmentIon(peptide)[[1]]$y[1:nchar(peptide)-1]
+
+        idx <- rawR::readIndex(filename)
+        scan <- which(abs(idx$precursorMass - mass) < 0.01)
+
+        message(paste0("extract scans for ", peptide, " in ", filename, " reading ", length(scan), " spectra ..."))
+
+        if (length(scan) == 0) return(NULL)
+
+        S <- readSpectrum(filename, scan)
+
+        SS <- lapply(S, function(x){
+                if(length(x$mZ) > 0){
+                    nn <- findNN(ions, x$mZ, check=TRUE)
+                    mZ <- ions[abs(ions - x$mZ[nn]) < error]
+                    intensity <- nn[abs(ions - x$mZ[nn]) < error]
+
+                    if (length(mZ) > 0){
+                        DF <- data.frame(mZ=mZ, intensity=intensity)
+                        return(DF)
+                    }
+                }
+               NULL
+               })
+
+    try({
+        DF <- do.call('rbind', SS)
+    }, {NULL})
+
+    if(is.null(DF)) return(NULL)
+    if(nrow(DF) == 0) return(NULL)
+
+    aggregate(DF$intensity ~ DF$mZ, FUN=length)
+}
+
+```
+
+```{r runSpectraMatches, message=FALSE}
+start_time <- Sys.time()
+rv <- lapply(names(iRT), function(p){
+  rv <- mclapply(X=input, FUN=.aggregatePeptideSpectrumMatch, peptide=p);
+  DF <- do.call('rbind', rv);
+  names(DF) <- c('mZ', 'intensities');
+  aggregate(DF$intensities ~ DF$mZ, FUN=sum);
+})
+end_time <- Sys.time()
+end_time - start_time
+```
+
+```{r plotMatches, fig.height=12, fig.retina=3}
+op <- par(mfrow=c(4,3));
+res <- mapply(FUN=function(peptide, x){
+	plot(x, sub=peptide, pch=16, xlab='m/z', ylab='count')
+        ions <- protViz::fragmentIon(peptide)[[1]]$y[1:nchar(peptide)-1]
+	axis(3, ions, paste0("y", 1:length(ions)))
+	}, peptide=names(iRT), x=rv)
+```
+
+## Chromatograms
+```{r readChromatogram}
+start_time <- Sys.time()
+C <- mclapply(X=input, FUN=rawR::readChromatogram, mass = iRT, tol = 10, type = "xic", filter = "ms")
+end_time <- Sys.time()
+end_time - start_time
+```
+
+```{r plotChromatogram, fig.retina=3}
+score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
+
+rv <- mapply(FUN=function(x, i){
+	par(mfrow=c(1,2))
+
+	plot(x); legend("topright", legend=i, title='Instrument Model', bty = "n", cex=0.75)
+
+	rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
+	fit <- lm(rt ~ score)
+plot(rt ~ score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
+abline(fit, col = 'grey')
+abline(v = 0, col = "grey", lty = 2)
+legend("topleft", legend = paste("Regression line: ", "rt =", format(coef(fit)[1], digits = 4), " + ", format(coef(fit)[2], digits = 2), "score", "\nR2: ", format(summary(fit)$r.squared, digits = 2)), bty = "n", cex = 0.75)
+text(score, rt,  iRT,pos=1,cex=0.5)
+	}, x=C, i=DF$InstrumentModel)
+```
+
+
+# System information
+
+```{r monoInfo, message=TRUE, echo=TRUE}
+rawR:::.monoInfo()
+```
+
+```{r sessionInfo}
+sessionInfo()
+```
