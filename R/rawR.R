@@ -1,3 +1,9 @@
+.monoInfo <-function(){
+    # system2("mcs", "--version", stdout = TRUE)
+    system2("mono", "-V", stdout = TRUE)
+}
+
+
 .writeRData <- function(rawfile, outputfile=paste0(rawfile, ".RData"), tmpdir=tempdir()){
     
     scanRange <- readFileHeader(rawfile)$`Scan range`
