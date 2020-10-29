@@ -94,12 +94,7 @@ scp fgcz-r-035.uzh.ch:/export/lv_iduzh06/projects/p1000/Proteomics/QEXACTIVEHF_2
 http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
 MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 -->
-<<<<<<< HEAD
-
-```{r, echo=FALSE}
-=======
 ```{r readFileHeader, echo=FALSE}
->>>>>>> 1fa8bb5fca5fdf0406745a279bdcbda252f4be6f
 library(rawR)
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
 H <- rawR::readFileHeader(rawfile = rawfile)
@@ -213,7 +208,9 @@ legend("topleft", legend = paste("Regression line: ", "rt =",
 text(score, rt,  iRT,pos=1,cex=0.5)
 ```
 
-We (the FGCZ) use these iRT regression models to automatically monitor the performance of our LC-MS systems on a longitudinal level. The basic idea is that parameter estimates from individual raw files should behave like a random variable.
+### Extension
+
+An extended version of the above use cases can be found at [link](). The web page displays spectra and iRT regression models obtained over a set of rawfiles recorded approx. every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are not on duty anymore). In order to find the high-scoring MS2 scan for `r names(iRT)[1]`++ per file, we now use a simple scoring function, implemented directly in `R` (it actually counts the number of matching y-ions), instead of running an external search engine. The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the source code is executed in a full parallel fashion (each core processes one rawfile) on a Linux server! This shows, how scalable analysis pipelines can be constructed starting from basic building blocks (code chunks). It also demonstrates that (i) data access works for all types of instrument models and (ii) over network attached storage.
 
 
 ## Conclusions
