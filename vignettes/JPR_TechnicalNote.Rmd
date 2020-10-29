@@ -14,7 +14,8 @@ csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{rawR JPR Technical Note}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{rawR JPR Technical Note}
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -72,14 +73,16 @@ The binary example file sample.raw contains 574 fourier-transformed orbi trap sp
 
 ## Results
 
+The following sections are inspired by real-life research/infrastructure projects, but have been stripped down to the bare scientific essentials in order to put more weight on the software application. We display source code in grey shaded boxes including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package.
+
 |Function Name|Description|Return value|
-|-------------|-----------|------------|
+|:------------|-------------------------------|:------------------|
 |`readFileHeader`|Reads meta information from a rawfile header.|`list`|
 |`readIndex`|Reads scan index from a rawfile.|`data.frame`|
 |`readSpectrum`|Reads spectral data from a rawfile|`rawRspectrum(Set)`|
 |`readChromatogram`|Extracts chromatograms (TIC, BPC, or XIC) from a rawfile|`rawRchromatogram(Set)`|
 
-Table 1. lists the most important `rawR` package functions connected to reading functionality. More details can be found in the package documentation.
+Table: lists the most important `rawR` package functions connected to reading functionality. More details can be found in the package documentation.
 
 ### Use Case I - Analyzing orbi trap spectra
 <!---
@@ -234,7 +237,7 @@ Any funds used to support the research of the manuscript should be placed here (
 
 ## Acknowledgements
 
-We thank Lilly van de Venn for designing the rawR package logo. We are grateful to Jim Shofstahl for providing the `RawFileReader` .NET assembly, `C# example code, and for answering questions during the development process of `rawR`.
+We thank Lilly van de Venn for designing the `rawR` package logo. We are grateful to Jim Shofstahl for providing the `RawFileReader` .NET assembly, `C#` example code, and for answering questions during the development process of `rawR`.
 
 
 ## Abbreveations
@@ -246,11 +249,10 @@ nano spray ionisation, NSI;
 # References
 <div id="refs"></div>
 
-# Appendix
+# Supplements
 
 ```{r monoInfo, message=TRUE, echo=TRUE}
-system2("mcs", "--version", stdout = TRUE)
-system2("mono", "-V", stdout = TRUE)
+rawR:::.monoInfo()
 ```
 
 ```{r sessionInfo}
