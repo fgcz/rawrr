@@ -15,6 +15,7 @@ output:
 library(protViz)
 library(rawR)
 library(parallel)
+library(lattice)
 ```
 
 # Input 
@@ -41,12 +42,12 @@ H <- mclapply(FUN=rawR::readFileHeader, input)
 ```
 
 ```{r results='asis'}
-DF <- do.call('rbind',
+DF.instrument <- do.call('rbind',
   lapply(strsplit(input, "/") ,
     function(x) data.frame(instument=x[7],
       path=paste(x[c(8:9)], collapse="/"))))
-DF$InstrumentModel <- sapply(H, function(x)x$`Instrument model`)
-knitr::kable(DF)
+DF.instrument$InstrumentModel <- sapply(H, function(x)x$`Instrument model`)
+knitr::kable(DF.instrument)
 ```
 
 ## Index and spectrum
@@ -82,7 +83,7 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                 if(length(x$mZ) > 0){
                     nn <- findNN(ions, x$mZ, check=TRUE)
                     mZ <- ions[abs(ions - x$mZ[nn]) < error]
-                    intensity <- nn[abs(ions - x$mZ[nn]) < error]
+                    intensity <- x$intensity[nn[abs(ions - x$mZ[nn]) < error]] / max(x$intensity)
 
                     if (length(mZ) > 0){
                         DF <- data.frame(mZ=mZ, intensity=intensity)
@@ -99,30 +100,37 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
     if(is.null(DF)) return(NULL)
     if(nrow(DF) == 0) return(NULL)
 
-    aggregate(DF$intensity ~ DF$mZ, FUN=length)
+    rv <- aggregate(DF$intensity ~ DF$mZ, FUN=median)
+    H <- readFileHeader(filename)
+    rv$instrument <- H$`Instrument model`
+    rv$peptide <- peptide
+    names(rv) <- c('mZ', 'intensities', 'instrument', 'peptide');
+    rv
 }
 
 ```
 
 ```{r runSpectraMatches, message=FALSE}
-start_time <- Sys.time()
 rv <- lapply(names(iRT), function(p){
+  start_time <- Sys.time()
   rv <- mclapply(X=input, FUN=.aggregatePeptideSpectrumMatch, peptide=p);
+  end_time <- Sys.time()
+  end_time - start_time
   DF <- do.call('rbind', rv);
-  names(DF) <- c('mZ', 'intensities');
-  aggregate(DF$intensities ~ DF$mZ, FUN=sum);
+  
+  aggregate(DF$intensities ~ DF$mZ * DF$instrument * DF$peptide, FUN=sum);
 })
-end_time <- Sys.time()
-end_time - start_time
+
+DF <- do.call('rbind', rv)
+names(DF) <- c('mZ', 'instrument', 'peptide', 'intensities');
 ```
 
-```{r plotMatches, fig.height=12, fig.retina=3}
-op <- par(mfrow=c(4,3));
-res <- mapply(FUN=function(peptide, x){
-	plot(x, sub=peptide, pch=16, xlab='m/z', ylab='count')
-        ions <- protViz::fragmentIon(peptide)[[1]]$y[1:nchar(peptide)-1]
-	axis(3, ions, paste0("y", 1:length(ions)))
-	}, peptide=names(iRT), x=rv)
+```{r plotMatchedIntensities, fig.height=12, fig.retina=3}
+xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
+       pch=16, layout=c(1,11), 
+       auto.key = list(space = "right"),
+       xlab='m/z y-ions',
+       ylab='median aggregated intensity of matched y-ions')
 ```
 
 ## Chromatograms
@@ -137,18 +145,23 @@ end_time - start_time
 score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
 
 rv <- mapply(FUN=function(x, i){
-	par(mfrow=c(1,2))
-
-	plot(x); legend("topright", legend=i, title='Instrument Model', bty = "n", cex=0.75)
-
-	rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
-	fit <- lm(rt ~ score)
-plot(rt ~ score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
-abline(fit, col = 'grey')
-abline(v = 0, col = "grey", lty = 2)
-legend("topleft", legend = paste("Regression line: ", "rt =", format(coef(fit)[1], digits = 4), " + ", format(coef(fit)[2], digits = 2), "score", "\nR2: ", format(summary(fit)$r.squared, digits = 2)), bty = "n", cex = 0.75)
-text(score, rt,  iRT,pos=1,cex=0.5)
-	}, x=C, i=DF$InstrumentModel)
+    par(mfrow=c(1,2))
+    
+    plot(x); legend("topright", legend=i, title='Instrument Model', bty = "n", cex=0.75)
+    
+    rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
+    fit <- lm(rt ~ score)
+    plot(rt ~ score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
+    abline(fit, col = 'grey')
+    abline(v = 0, col = "grey", lty = 2)
+    legend("topleft",
+           legend = paste("Regression line: ", "rt =",
+                          format(coef(fit)[1], digits = 4), " + ",
+                          format(coef(fit)[2], digits = 2), "score", "\nR2: ",
+                          format(summary(fit)$r.squared, digits = 2)),
+           bty = "n", cex = 0.75)
+    text(score, rt,  iRT,pos=1,cex=0.5)
+}, x=C, i=DF.instrument$InstrumentModel)
 ```
 
 
