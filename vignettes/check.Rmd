@@ -101,8 +101,11 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
     if(nrow(DF) == 0) return(NULL)
 
     rv <- aggregate(DF$intensity ~ DF$mZ, FUN=median)
-    H <- readFileHeader(filename)
-    rv$instrument <- H$`Instrument model`
+
+    # H <- readFileHeader(filename)
+    # rv$instrument <- H$`Instrument model`
+    rv$instrument <- strsplit(filename, "/")[[1]][7]
+
     rv$peptide <- peptide
     names(rv) <- c('mZ', 'intensities', 'instrument', 'peptide');
     rv
@@ -118,7 +121,7 @@ rv <- lapply(names(iRT), function(p){
   end_time - start_time
   DF <- do.call('rbind', rv);
   
-  aggregate(DF$intensities ~ DF$mZ * DF$instrument * DF$peptide, FUN=sum);
+  aggregate(DF$intensities ~ DF$mZ * DF$instrument * DF$peptide, FUN=median);
 })
 
 DF <- do.call('rbind', rv)
@@ -130,7 +133,7 @@ xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
        pch=16, layout=c(1,11), 
        auto.key = list(space = "right"),
        xlab='m/z y-ions',
-       ylab='median aggregated intensity of matched y-ions')
+       ylab='median aggregated relative intensity of matched y-ions')
 ```
 
 ## Chromatograms
