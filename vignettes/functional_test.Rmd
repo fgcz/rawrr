@@ -1,0 +1,273 @@
+---
+title: rawR - Functional test using raw files (autoQC01) from different LC-MS systems
+author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
+date: "`r Sys.time()`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+---
+
+
+# Libraries
+
+```{r}
+library(protViz)
+library(rawR)
+library(parallel)
+library(lattice)
+```
+
+
+# Input 
+
+```{r input}
+input <- scan("input.txt", as.character())
+```
+
+
+
+```{r defineIrtMass}
+iRT.mZ <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
+            683.8541, 699.3388, 726.8361, 776.9301)
+
+iRT.score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
+
+
+names(iRT.mZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+                 "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
+		 "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
+		 "LFLQFGAQGSPFLK")
+```
+
+
+
+# Parameters
+
+```{r}
+options(mc.cores = 24)
+```
+
+The script processes recent orbitrap files of each instrument at the FGCZ using the latest R development and the [rawR](https://github.com/fgcz/rawR) package version.
+
+
+# Check read functions
+
+## File Header 
+
+```{r fileHeader}
+H <- mclapply(FUN=rawR::readFileHeader, input)
+```
+
+```{r results='asis'}
+DF.instrument <- do.call('rbind',
+  lapply(strsplit(input, "/") ,
+    function(x) data.frame(instument=x[7],
+      path=paste(x[c(8:9)], collapse="/"))))
+DF.instrument$InstrumentModel <- sapply(H, function(x)x$`Instrument model`)
+knitr::kable(DF.instrument)
+```
+
+## Index and spectrum
+
+```{r defineComputeBestPeptideSpectrumMatch}
+.computeBestPeptideSpectrumMatch <- function(rawfile="/Users/cp/Downloads/20180220_14_autoQC01.raw",
+                         pepSeq = c("LGGNEQVTR", "GAGSSEPVTGLDAK", "VEATFGVDESNAK",
+                                    "TPVISGGPYEYR", "YILAGVENSK", "TPVITGAPYEYR", "DGLDAASYYAPVR",
+                                    "ADVTPADFSEWSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR", "LFLQFGAQGSPFLK"),
+                         peptideMassTolerance = 0.003){
+    mass2Hplus <- (parentIonMass(pepSeq) + 1.008) / 2
+
+
+    S <- readIndex(rawfile)
+    S <- S[-which(S$MSOrder != "Ms2"), ]
+
+
+    idx <- lapply(mass2Hplus, function(m){
+        which(abs(S$precursorMass - m) < peptideMassTolerance)
+    })
+
+    # just to be generic correct
+    scanNumbers <- lapply(idx, function(x){S$scan[x]})
+
+    HCDIons <- function (b, y)
+    {
+        Hydrogen <- 1.007825
+        Oxygen <- 15.994915
+        Nitrogen <- 14.003074
+        # c <- b + (Nitrogen + (3 * Hydrogen))
+        # z <- y - (Nitrogen + (3 * Hydrogen))
+        # return(cbind(b, y,c ,z))
+        return(cbind(y))
+    }
+
+    bestMatchingMS2Scan <- mclapply(1:length(pepSeq), function(i){
+        PL <- readSpectrum(rawfile, scan = scanNumbers[[i]])
+
+        pp <- lapply(PL, function(x){psm(pepSeq[i], x, FUN = HCDIons, plot = FALSE)})
+
+        score <- sapply(1:length(pp),
+                        function(j){
+                            #sum(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.1])
+                            mm <- median(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.01])
+                            mm * sum(abs(pp[[j]]$mZ.Da.error) < 0.1)
+                          }) #find best scoring spectra
+         bestFirstMatch <- which(max(score, na.rm = TRUE) == score)[1]
+         
+         
+         rv <- data.frame(scan=scanNumbers[[i]][bestFirstMatch], peptide=pepSeq[i], rawfile=rawfile)
+         
+         if(FALSE){
+           plot(PL[bestFirstMatch], main=pepSeq[i]);
+           abline(v=fragmentIon(Y)[[1]]$y[1:nchar(Y)-1],
+                  col="#AAAAAA66",lwd=5)
+         }
+         rv
+    })
+
+   
+    do.call('rbind', bestMatchingMS2Scan)
+}
+
+```
+
+```{r computeBestMatches}
+bestMatchingMS2Scan <- mclapply(FUN = .computeBestPeptideSpectrumMatch, input, pepSeq=names(iRT.mZ)[1])
+```
+
+
+
+```{r plotBestMatches}
+# op <- par(mfrow=c(11, 1))
+op <- par(mar=c(6,6,6,1), mfrow=c(1, 2))
+rv <- lapply(bestMatchingMS2Scan, function(x){
+  S <- readSpectrum(x$rawfile[1], x$scan)
+  H <- readFileHeader(x$rawfile[1])
+  lapply(1, function(i){
+    plot(S[[i]], main=x$peptide[i], sub=H$`Instrument model`)
+    Y <- x$peptide[i]
+     abline(v=fi<-fragmentIon(Y)[[1]]$y[1:nchar(Y)-1],
+                  col="#AAAAAA66",lwd=5)
+     
+     axis(3, fi, paste0('y', 1:length(fi)))
+    })
+})
+```
+
+```{r define-aggregatePeptideSpectrumMatch, echo=FALSE}
+.aggregatePeptideSpectrumMatch <- function(filename="20181220_013_autoQC01.raw", peptide="LGGNEQVTR", error = 0.1){
+
+        mass <- (protViz::parentIonMass(peptide)[1] + 1.008 )/2
+        ions <- protViz::fragmentIon(peptide)[[1]]$y[1:nchar(peptide)-1]
+
+        idx <- rawR::readIndex(filename)
+        scan <- which(abs(idx$precursorMass - mass) < 0.01)
+
+        message(paste0("extract scans for ", peptide, " in ", filename, " reading ", length(scan), " spectra ..."))
+
+        if (length(scan) == 0) return(NULL)
+
+        S <- readSpectrum(filename, scan)
+
+        SS <- lapply(S, function(x){
+                if(length(x$mZ) > 0){
+                    nn <- findNN(ions, x$mZ, check=TRUE)
+                    mZ <- ions[abs(ions - x$mZ[nn]) < error]
+                    intensity <- x$intensity[nn[abs(ions - x$mZ[nn]) < error]] / max(x$intensity)
+
+                    if (length(mZ) > 0){
+                        DF <- data.frame(mZ=mZ, intensity=intensity)
+                        return(DF)
+                    }
+                }
+               NULL
+               })
+
+    try({
+        DF <- do.call('rbind', SS)
+    }, {NULL})
+
+    if(is.null(DF)) return(NULL)
+    if(nrow(DF) == 0) return(NULL)
+
+    rv <- aggregate(DF$intensity ~ DF$mZ, FUN=median)
+
+    # H <- readFileHeader(filename)
+    # rv$instrument <- H$`Instrument model`
+    rv$instrument <- strsplit(filename, "/")[[1]][7]
+
+    rv$peptide <- peptide
+    names(rv) <- c('mZ', 'intensities', 'instrument', 'peptide');
+    rv
+}
+
+```
+
+```{r runSpectraMatches, message=FALSE, echo=FALSE, eval=FALSE}
+rv <- lapply(names(iRT.mZ), function(p){
+  start_time <- Sys.time()
+  rv <- mclapply(X=input, FUN=.aggregatePeptideSpectrumMatch, peptide=p);
+  end_time <- Sys.time()
+  end_time - start_time
+  DF <- do.call('rbind', rv);
+  
+  aggregate(DF$intensities ~ DF$mZ * DF$instrument * DF$peptide, FUN=median);
+})
+
+DF <- do.call('rbind', rv)
+names(DF) <- c('mZ', 'instrument', 'peptide', 'intensities');
+```
+
+```{r plotMatchedIntensities, fig.height=12, fig.retina=3, echo=FALSE, eval=FALSE}
+xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
+       pch=16, layout=c(1,11), 
+       auto.key = list(space = "right"),
+       xlab='m/z y-ions',
+       ylab='median aggregated relative intensity of matched y-ions')
+```
+
+## Chromatograms
+```{r readChromatogram}
+start_time <- Sys.time()
+C <- mclapply(X=input, FUN=rawR::readChromatogram, mass = iRT.mZ, tol = 10, type = "xic", filter = "ms")
+end_time <- Sys.time()
+end_time - start_time
+```
+
+```{r plotChromatogram, fig.retina=3}
+score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
+
+rv <- mapply(FUN=function(x, i){
+    par(mfrow=c(1,2))
+    
+    plot(x); legend("topright", legend=i, title='Instrument Model', bty = "n", cex=0.75)
+    
+    rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
+    fit <- lm(rt ~ iRT.score)
+    plot(rt ~ score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
+    abline(fit, col = 'grey')
+    abline(v = 0, col = "grey", lty = 2)
+    legend("topleft",
+           legend = paste("Regression line: ", "rt =",
+                          format(coef(fit)[1], digits = 4), " + ",
+                          format(coef(fit)[2], digits = 2), "score", "\nR2: ",
+                          format(summary(fit)$r.squared, digits = 2)),
+           bty = "n", cex = 0.75)
+    text(iRT.score, rt,  iRT.mZ,pos=1,cex=0.5)
+}, x=C, i=DF.instrument$InstrumentModel)
+```
+
+
+# System information
+
+```{r monoInfo, message=TRUE, echo=TRUE}
+rawR:::.monoInfo()
+```
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+```{r sticker, out.width="25%", fig.align="center", fig.cap=" Lions love raw meat!"}
+knitr::include_graphics("images/hex-rmarkdown.png")
+```

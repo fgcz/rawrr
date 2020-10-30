@@ -3,8 +3,9 @@ title: rawR - Direct access to raw mass spectrometry data in R
 author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    keep_tex: true
+  pdf_document: 
+    keep_tex: yes
+    latex_engine: xelatex
   html_document:
     df_print: paged
   word_document: default
@@ -14,8 +15,8 @@ csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{rawR JPR Technical Note}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -166,7 +167,7 @@ plot(C, diagnostic = TRUE)
 
 Be reminded that the intensity traces are not computed within `R` for instance by reading all scans of a raw file and subsequently iterating over a scan subset (This would be a greedy, but slow solution!). Instead, traces are directly calculated by a `C#` method (reference method code) that calls the vendor API. The API takes care of the filtering process (checks filter validity and applies the filter). On the `R` level there is no need to know *a priori* which scans match the filter rule, or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawRchromatogram` objects. By changing the filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++:
 
-```{r fragmentIonTraces, fig.cap="XICs for LGGNEQVTR++ fragment ions y6 to y8"}
+```{r fragmentIonTraces, fig.cap="XICs for LGGNEQVTR++ fragment ions y6 to y8", fig.retina=3}
 plot(rawR::readChromatogram(rawfile = rawfile,
       mass = yIonSeries[c("y6", "y7", "y8")],
       type = 'xic', tol = 10,
@@ -215,7 +216,7 @@ An extended version of the above use cases can be found at [link](https://fgcz-m
 
 ## Conclusions
 
-Our R package `rawR` provides direct access to spectral data stored in vendor-specific binary raw files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (spectrum & chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use doesn't impair performance. We also emphasized that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawR` to the BioC project and align further efforts with the R for Mass Spectromerty initiative. In particular, we hope to extend `rawR` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
+Our R package `rawR` provides direct access to spectral data stored in vendor-specific binary raw files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (spectrum & chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use doesn't impair performance. We also emphasized that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawR` to the BioC project and align further efforts with the R for Mass Spectrometry initiative. In particular, we hope to extend `rawR` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
 
 
 ## Author information
