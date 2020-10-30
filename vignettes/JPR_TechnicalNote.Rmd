@@ -18,6 +18,7 @@ vignette: |
   %\VignetteIndexEntry{rawR JPR Technical Note}
   %\VignetteEngine{knitr::knitr}
   %\VignetteEngine{knitr::rmarkdown}
+urlcolor: blue
 ---
 
 
