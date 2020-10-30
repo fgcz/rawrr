@@ -124,7 +124,7 @@ rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw
 i <- c(9594, 11113, 11884, 12788, 12677, 13204, 13868, 14551, 16136, 17193, 17612)
 S <- rawR::readSpectrum(rawfile = rawfile, scan = i)
 class(S[[1]])
-print(S[[1]]) #comment this line if necessary to save space
+summary(S[[1]]) #comment this line if necessary to save space
 
 plot(S[[1]], centroid=TRUE)
 ```
