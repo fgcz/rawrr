@@ -51,7 +51,7 @@ We strongly believe that a library providing raw data reading functionally would
 
 Our implementation is build on two layers, the `R` and the `C#` layer which exchange information using file i/o. The following section describes the package topology from top-down, starting with a rational for the object design.
 
-#### `R`
+### `R`
 
 Mass spectrometry (MS) typically uses two basic data items: mass spectra and chromatograms.
 
