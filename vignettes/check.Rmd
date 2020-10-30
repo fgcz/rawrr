@@ -24,6 +24,20 @@ library(lattice)
 input <- scan("input.txt", as.character())
 ```
 
+
+
+```{r defineIrtMass}
+iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
+            683.8541, 699.3388, 726.8361, 776.9301)
+
+names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+                 "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
+		 "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
+		 "LFLQFGAQGSPFLK")
+```
+
+
+
 # Parameters
 
 ```{r}
@@ -52,19 +66,90 @@ knitr::kable(DF.instrument)
 
 ## Index and spectrum
 
-```{r defineIrtMass}
-iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
-            683.8541, 699.3388, 726.8361, 776.9301)
+```{r defineComputeBestPeptideSpectrumMatch}
+.computeBestPeptideSpectrumMatch <- function(rawfile="/Users/cp/Downloads/20180220_14_autoQC01.raw",
+                         pepSeq = c("LGGNEQVTR", "GAGSSEPVTGLDAK", "VEATFGVDESNAK",
+                                    "TPVISGGPYEYR", "YILAGVENSK", "TPVITGAPYEYR", "DGLDAASYYAPVR",
+                                    "ADVTPADFSEWSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR", "LFLQFGAQGSPFLK"),
+                         peptideMassTolerance = 0.003){
+    mass2Hplus <- (parentIonMass(pepSeq) + 1.008) / 2
 
-names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
-                 "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
-		 "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
-		 "LFLQFGAQGSPFLK")
+
+    S <- readIndex(rawfile)
+    S <- S[-which(S$MSOrder != "Ms2"), ]
+
+
+    idx <- lapply(mass2Hplus, function(m){
+        which(abs(S$precursorMass - m) < peptideMassTolerance)
+    })
+
+    # just to be generic correct
+    scanNumbers <- lapply(idx, function(x){S$scan[x]})
+
+    HCDIons <- function (b, y)
+    {
+        Hydrogen <- 1.007825
+        Oxygen <- 15.994915
+        Nitrogen <- 14.003074
+        # c <- b + (Nitrogen + (3 * Hydrogen))
+        # z <- y - (Nitrogen + (3 * Hydrogen))
+        # return(cbind(b, y,c ,z))
+        return(cbind(y))
+    }
+
+    bestMatchingMS2Scan <- mclapply(1:length(pepSeq), function(i){
+        PL <- readSpectrum(rawfile, scan = scanNumbers[[i]])
+
+        pp <- lapply(PL, function(x){psm(pepSeq[i], x, FUN = HCDIons, plot = FALSE)})
+
+        score <- sapply(1:length(pp),
+                        function(j){
+                            #sum(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.1])
+                            sum(abs(pp[[j]]$mZ.Da.error) < 0.1)
+                          }) #find best scoring spectra
+         bestFirstMatch <- which(max(score, na.rm = TRUE) == score)[1]
+         
+         
+         rv <- data.frame(scan=scanNumbers[[i]][bestFirstMatch], peptide=pepSeq[i], rawfile=rawfile)
+         
+         if(FALSE){
+           plot(PL[bestFirstMatch], main=pepSeq[i]);
+           abline(v=fragmentIon(Y)[[1]]$y[1:nchar(Y)-1],
+                  col="#AAAAAA66",lwd=5)
+         }
+         rv
+    })
+
+   
+    do.call('rbind', bestMatchingMS2Scan)
+}
+
+```
+
+```{r computeBestMatches}
+bestMatchingMS2Scan <- mclapply(FUN = .computeBestPeptideSpectrumMatch, input, pepSeq=names(iRT)[1])
 ```
 
 
 
-```{r define-aggregatePeptideSpectrumMatch}
+```{r plotBestMatches, fig.retina=3}
+# op <- par(mfrow=c(11, 1))
+op <- par(mar=c(6,6,6,1), mfrow=c(1, 2))
+rv <- lapply(bestMatchingMS2Scan, function(x){
+  S <- readSpectrum(x$rawfile[1], x$scan)
+  H <- readFileHeader(x$rawfile[1])
+  lapply(1, function(i){
+    plot(S[[i]], main=x$peptide[i], sub=H$`Instrument model`)
+    Y <- x$peptide[i]
+     abline(v=fi<-fragmentIon(Y)[[1]]$y[1:nchar(Y)-1],
+                  col="#AAAAAA66",lwd=5)
+     
+     axis(3, fi, paste0('y', 1:length(fi)))
+    })
+})
+```
+
+```{r define-aggregatePeptideSpectrumMatch, echo=FALSE}
 .aggregatePeptideSpectrumMatch <- function(filename="20181220_013_autoQC01.raw", peptide="LGGNEQVTR", error = 0.1){
 
         mass <- (protViz::parentIonMass(peptide)[1] + 1.008 )/2
@@ -113,7 +198,7 @@ names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 
 ```
 
-```{r runSpectraMatches, message=FALSE}
+```{r runSpectraMatches, message=FALSE, echo=FALSE, eval=FALSE}
 rv <- lapply(names(iRT), function(p){
   start_time <- Sys.time()
   rv <- mclapply(X=input, FUN=.aggregatePeptideSpectrumMatch, peptide=p);
@@ -128,7 +213,7 @@ DF <- do.call('rbind', rv)
 names(DF) <- c('mZ', 'instrument', 'peptide', 'intensities');
 ```
 
-```{r plotMatchedIntensities, fig.height=12, fig.retina=3}
+```{r plotMatchedIntensities, fig.height=12, fig.retina=3, echo=FALSE, eval=FALSE}
 xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
        pch=16, layout=c(1,11), 
        auto.key = list(space = "right"),

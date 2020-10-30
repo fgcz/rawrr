@@ -3,8 +3,9 @@ title: rawR - Direct access to raw mass spectrometry data in R
 author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    keep_tex: true
+  pdf_document: 
+    keep_tex: yes
+    latex_engine: xelatex
   html_document:
     df_print: paged
   word_document: default
@@ -14,8 +15,8 @@ csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{rawR JPR Technical Note}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEngine{knitr::rmarkdown}
 ---
 
@@ -211,7 +212,7 @@ We (the FGCZ) use these iRT regression models to automatically monitor the perfo
 
 ## Conclusions
 
-Our R package `rawR` provides direct access to spectral data stored in vendor-specific binary raw files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (spectrum & chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use doesn't impair performance. We also emphasized that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawR` to the BioC project and align further efforts with the R for Mass Spectromerty initiative. In particular, we hope to extend `rawR` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
+Our R package `rawR` provides direct access to spectral data stored in vendor-specific binary raw files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (spectrum & chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use doesn't impair performance. We also emphasized that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawR` to the BioC project and align further efforts with the R for Mass Spectrometry initiative. In particular, we hope to extend `rawR` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
 
 
 ## Author information
