@@ -18,6 +18,7 @@ library(parallel)
 library(lattice)
 ```
 
+
 # Input 
 
 ```{r input}
@@ -27,10 +28,13 @@ input <- scan("input.txt", as.character())
 
 
 ```{r defineIrtMass}
-iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
+iRT.mZ <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
-names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+iRT.score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
+
+
+names(iRT.mZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
 		 "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
 		 "LFLQFGAQGSPFLK")
@@ -105,7 +109,8 @@ knitr::kable(DF.instrument)
         score <- sapply(1:length(pp),
                         function(j){
                             #sum(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.1])
-                            sum(abs(pp[[j]]$mZ.Da.error) < 0.1)
+                            mm <- median(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.01])
+                            mm * sum(abs(pp[[j]]$mZ.Da.error) < 0.1)
                           }) #find best scoring spectra
          bestFirstMatch <- which(max(score, na.rm = TRUE) == score)[1]
          
@@ -127,12 +132,12 @@ knitr::kable(DF.instrument)
 ```
 
 ```{r computeBestMatches}
-bestMatchingMS2Scan <- mclapply(FUN = .computeBestPeptideSpectrumMatch, input, pepSeq=names(iRT)[1])
+bestMatchingMS2Scan <- mclapply(FUN = .computeBestPeptideSpectrumMatch, input, pepSeq=names(iRT.mZ)[1])
 ```
 
 
 
-```{r plotBestMatches, fig.retina=3}
+```{r plotBestMatches}
 # op <- par(mfrow=c(11, 1))
 op <- par(mar=c(6,6,6,1), mfrow=c(1, 2))
 rv <- lapply(bestMatchingMS2Scan, function(x){
@@ -199,7 +204,7 @@ rv <- lapply(bestMatchingMS2Scan, function(x){
 ```
 
 ```{r runSpectraMatches, message=FALSE, echo=FALSE, eval=FALSE}
-rv <- lapply(names(iRT), function(p){
+rv <- lapply(names(iRT.mZ), function(p){
   start_time <- Sys.time()
   rv <- mclapply(X=input, FUN=.aggregatePeptideSpectrumMatch, peptide=p);
   end_time <- Sys.time()
@@ -224,7 +229,7 @@ xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
 ## Chromatograms
 ```{r readChromatogram}
 start_time <- Sys.time()
-C <- mclapply(X=input, FUN=rawR::readChromatogram, mass = iRT, tol = 10, type = "xic", filter = "ms")
+C <- mclapply(X=input, FUN=rawR::readChromatogram, mass = iRT.mZ, tol = 10, type = "xic", filter = "ms")
 end_time <- Sys.time()
 end_time - start_time
 ```
@@ -238,7 +243,7 @@ rv <- mapply(FUN=function(x, i){
     plot(x); legend("topright", legend=i, title='Instrument Model', bty = "n", cex=0.75)
     
     rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
-    fit <- lm(rt ~ score)
+    fit <- lm(rt ~ iRT.score)
     plot(rt ~ score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
     abline(fit, col = 'grey')
     abline(v = 0, col = "grey", lty = 2)
@@ -248,7 +253,7 @@ rv <- mapply(FUN=function(x, i){
                           format(coef(fit)[2], digits = 2), "score", "\nR2: ",
                           format(summary(fit)$r.squared, digits = 2)),
            bty = "n", cex = 0.75)
-    text(score, rt,  iRT,pos=1,cex=0.5)
+    text(iRT.score, rt,  iRT.mZ,pos=1,cex=0.5)
 }, x=C, i=DF.instrument$InstrumentModel)
 ```
 
@@ -261,4 +266,8 @@ rawR:::.monoInfo()
 
 ```{r sessionInfo}
 sessionInfo()
+```
+
+```{r sticker, out.width="25%", fig.align="center", fig.cap=" Lions love raw meat!"}
+knitr::include_graphics("images/hex-rmarkdown.png")
 ```
