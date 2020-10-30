@@ -240,6 +240,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @exportClass rawRspectrum
 #' @exportS3Method plot rawRspectrum
 #' @exportS3Method print rawRspectrum
+#' @exportS3Method summary rawRspectrum
 #' 
 #' @return a nested list of \code{rawRspectrum} objects containing more than 50 
 #' values of scan information, e.g., the charge state, two vectors containing
@@ -802,6 +803,21 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 
 }
 
+#' Basic summary function
+#' @author Christian Panse & Tobias Kockmann, 2020
+#' @param object an \code{rawRspectrum} object.
+#' @param \ldots Arguments to be passed to methods.
+summary.rawRspectrum <- function(object, ...){
+    cat("Total Ion Current:\t", object$TIC, fill = TRUE)
+    cat("Scan Low Mass:\t", object$massRange[1], fill = TRUE)
+    cat("Scan High Mass:\t", object$massRange[2], fill = TRUE)
+    cat("Scan Start Time (Min):\t", round(object$rtinseconds/60,2), fill = TRUE)
+    cat("Scan Number:\t", object$scan, fill=TRUE)
+    cat("Base Peak Intensity:\t", object$basePeak[2], fill = TRUE)
+    cat("Base Peak Mass:\t", object$basePeak[1], fill = TRUE)
+    cat("Scan Mode:\t", object$scanType, fill = TRUE)
+}
+
 #' Basic print function faking the look and feel of freestyle's output 
 #' @author Christian Panse & Tobias Kockmann, 2020
 #' @param x an \code{rawRspectrum} object.
@@ -812,9 +828,9 @@ print.rawRspectrum <- function(x, ...){
     cat("Scan High Mass:\t", x$massRange[2], fill = TRUE)
     cat("Scan Start Time (Min):\t", round(x$rtinseconds/60,2), fill = TRUE)
     cat("Scan Number:\t", x$scan, fill=TRUE)
-    cat("Base Peak Intensity:\t", x$basePeak[2], fill = TRUE)	
+    cat("Base Peak Intensity:\t", x$basePeak[2], fill = TRUE)
     cat("Base Peak Mass:\t", x$basePeak[1], fill = TRUE)
-    cat("Scan Mode:\t", x$scanType, fill = TRUE)	
+    cat("Scan Mode:\t", x$scanType, fill = TRUE)
 
     keys <- c("======= Instrument data =====   :",
               "Multiple Injection:",
