@@ -1,7 +1,7 @@
 Package: rawR
 Type: Package
 Title: Access to Thermo Fisher Scientific raw files from R
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -18,7 +18,12 @@ Suggests:
 	lattice,
 	parallel,
 	testthat
-Description: The package is developed, tested and used at the Functional
+Description: provides interface for Thermo Fisher Scientifc raw files
+        branched from rawDiag. This package wraps the functionality
+	of the RawFileReader .NET assembly. Within the R environment
+	spectra and chromatograms are represented by S3 objects.
+	All objects are currently kept in memory.
+        The package is developed, tested and used at the Functional
         Genomics Center Zurich, Switzerland.
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
