@@ -1,7 +1,7 @@
 ---
 title: rawR - Direct access to raw mass spectrometry data in R
 author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
-date: "`r Sys.Date()`"
+date: "`r Sys.time()`"
 output:
   pdf_document: 
     keep_tex: yes
