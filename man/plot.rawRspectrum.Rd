@@ -26,6 +26,8 @@ intensities rather than absolute.}
 
 \item{legend}{Should legend be printed?}
 
+\item{diagnostic}{Should this option be applied? The default is \code{FALSE}.}
+
 \item{...}{function passes arbitrary additional arguments.}
 }
 \description{

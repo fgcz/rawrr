@@ -5,4 +5,4 @@
 .*.rawR.xml$
 .*exec.README.txt
 .*.idea.
-.*check.Rmd
+.*vignettes.*
