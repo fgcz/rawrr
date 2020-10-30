@@ -163,6 +163,7 @@ readFileHeader <- function(rawfile,
 #' @return returns a \code{data.frame} with the column names
 #' scanType, rtinseconds, precursorMass, and charge of all spectra.
 #' @export readIndex
+#' @importFrom utils read.csv
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
 #' @seealso \link[rawDiag]{read.raw}
 #'
@@ -955,6 +956,8 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
 #' @param diagnostic Show diagnostic legend?
 #' 
 #' @export plot.rawRchromatogramSet
+#' @importFrom grDevices hcl.colors
+#' @importFrom graphics lines text
 plot.rawRchromatogramSet <- function(x, diagnostic = FALSE, ...){
     
     #should become is.Class function in the future
