@@ -224,7 +224,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #'  
 #' @details 
 #' 
-#' \section{\code{sample.raw}}
+#' {\code{sample.raw}}
 #' The binary example file sample.raw contains 574 fourier-transformed orbi trap
 #' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 #' mass spectrometer was operated in line with a nano electrospray source (NSI)
@@ -232,10 +232,9 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' centroiding (c) and lock mass correction. Additional raw data for
 #' demonstration and extended testing is available through the
 #' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
-#' Lions love raw meat!
+#' \strong{Lions love raw meat!}
 #' 
-#' 
-#' @aliases readSpectrum plot.rawRSpectrum rawRspectrum rawR sample.raw
+#' @aliases readSpectrum plot.rawRSpectrum rawR sample.raw
 #' 
 #' @export readSpectrum
 #' @exportClass rawRspectrum
@@ -371,7 +370,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' 
 #' @author Christian Trachsel, Tobias Kockmann and
 #' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020.
-#' @seealso \link[rawDiag]{readXIC}
+#' @seealso \link[rawDiag]{readXICs}
 #' @export readChromatogram 
 #' @exportClass rawRchromatogram
 #' @exportClass rawRchromatogramSet
@@ -561,17 +560,18 @@ new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
 #' \code{rawRspectrum}, also named helper function. Currently, mainly to support
 #' testing and for demonstration.
 #' 
-#' @usage \code{rawRspectrum(sim = "example_1")}
 #'
 #' @param sim Either \code{example_1} or \code{TESTPEPTIDE}
 #'
 #' @return Function returns a validated \code{rawRspectrum} object
 #' @export rawRspectrum
 #'
-#' @examples \code{plot(rawRspectrum(sim = "TESTPEPTIDE"))}
-#' \code{rawRspectrum(sim = "example_1")}
+#' @examples
 #' 
-#' @author Tobias Kockmann
+#' plot(rawRspectrum(sim = "TESTPEPTIDE"))
+#' rawRspectrum(sim = "example_1")
+#' 
+#' @author Tobias Kockmann, 2020.
 rawRspectrum <- function(sim = character()) {
     
     stopifnot(is.character(sim))
@@ -689,7 +689,7 @@ validate_rawRspectrum <- function(x){
 #' @param SN Should Signal/Noise be used for plotting?
 #' 
 #' @param legend Should legend be printed?
-#' 
+#' @param diagnostic Should this option be applied? The default is \code{FALSE}.
 #' @param ... function passes arbitrary additional arguments.
 #' @author Tobias Kockmann, 2020
 #' @importFrom graphics legend
@@ -804,6 +804,8 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 
 #' Basic print function faking the look and feel of freestyle's output 
 #' @author Christian Panse & Tobias Kockmann, 2020
+#' @param x an \code{rawRspectrum} object.
+#' @param \ldots Arguments to be passed to methods.
 print.rawRspectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", x$massRange[1], fill = TRUE)
@@ -911,7 +913,6 @@ is.rawRchromatogram <- function(x){
 #' @param legend Should legend be printed?
 #' @param ... Passes additional arguments.
 #'
-#' @return
 #' @export plot.rawRchromatogram
 #'
 #' @examples pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')

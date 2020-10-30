@@ -85,7 +85,7 @@ X <- readChromatogram(rawfile, mZ)
 Thermo Fisher NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}.
 
-\link[rawDiag]{readXIC}
+\link[rawDiag]{readXICs}
 }
 \author{
 Christian Trachsel, Tobias Kockmann and
