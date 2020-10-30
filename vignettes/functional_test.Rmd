@@ -78,12 +78,15 @@ Read a list of meta data for each raw file.
 H <- mclapply(FUN=rawR::readFileHeader, input)
 ```
 
+The table below lists the FCGZ internal instrument identifier, a filename of the measurement, and the instrument method.
+
 ```{r results='asis'}
 DF.instrument <- do.call('rbind',
   lapply(strsplit(input, "/") ,
     function(x) data.frame(instument=x[7],
       path=paste(x[c(8:9)], collapse="/"))))
 DF.instrument$InstrumentModel <- sapply(H, function(x)x$`Instrument model`)
+DF.instrument$ctime <- ISOdate(1970,1,1,hour=0) + sapply(input, function(x) file.info(x)$ctime)
 knitr::kable(DF.instrument)
 ```
 
@@ -264,7 +267,7 @@ rv <- mapply(FUN=function(x, i){
     
     rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
     fit <- lm(rt ~ iRT.score)
-    plot(rt ~ score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
+    plot(rt ~ iRT.score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
     abline(fit, col = 'grey')
     abline(v = 0, col = "grey", lty = 2)
     legend("topleft",
@@ -284,9 +287,8 @@ rv <- mapply(FUN=function(x, i){
 rawR:::.monoInfo()
 ```
 
-# References
-<div id="refs"></div>
-
 ```{r sessionInfo}
 sessionInfo()
 ```
+
+# References
