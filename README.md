@@ -5,9 +5,7 @@ R interface for Thermo Fisher Scientifc raw files branched from [rawDiag](https:
 
 ## Install
 
-```{r}
-install.packages('http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.0.tar.gz')
-```
+Please install the latest release from [https://github.com/fgcz/rawR/releases] according to the provided instructions.
 
 ## System requirements
 
