@@ -139,10 +139,19 @@ readFileHeader <- function(rawfile,
 
         if (rvs == 0){
 
+            ## Replace backslashes in Instrument method file path to ensure
+            ## the R file can be parsed
+            r_file <- readLines(tf)
+            r_file[12] <- gsub('\\\\','/',r_file[12])
+            writeLines(r_file,tf)
+
             rv <- try({
                 e <- new.env();
                 e$info <- list()
                 source(tf, local=TRUE)
+
+                ## Keep only the file name for the Instrument method
+                e$info$`Instrument method` <- basename(e$info$`Instrument method`)
 
                 #message(paste("unlinking", tf, "..."))
                 #unlink(tf)
