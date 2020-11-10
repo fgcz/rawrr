@@ -164,7 +164,7 @@
 
                     double charge, precursorMass;
 
-                    Console.WriteLine("scan,scanType,rtinseconds,precursorMass,MSOrder,charge");
+                    Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge");
 
              	    for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
@@ -185,7 +185,7 @@
 			        charge = -1;
 		        }
 
-                    Console.WriteLine("{0},{1},{2},{3},{4},{5}", scanNumber,
+                    Console.WriteLine("{0};{1};{2};{3};{4};{5}", scanNumber,
 		    	scanStatistics.ScanType.ToString(),
 			Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
 			precursorMass,
@@ -250,11 +250,11 @@
 		        }
 
                         file.WriteLine("e$Spectrum[[{0}]] <- list(", scanNumber);
-                        file.WriteLine("\tscan = {0},", scanNumber);
-                        file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
-                        file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
-                        file.WriteLine("\tprecursorMass = {0},", pc);
-			file.WriteLine("\tMSOrder = '{0}',", scanFilter.MSOrder.ToString());
+                        file.WriteLine("\tscan = {0};", scanNumber);
+                        file.WriteLine("\tscanType = \"{0}\";", scanStatistics.ScanType.ToString());
+                        file.WriteLine("\trtinseconds = {0};", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
+                        file.WriteLine("\tprecursorMass = {0};", pc);
+			file.WriteLine("\tMSOrder = '{0}';", scanFilter.MSOrder.ToString());
                         file.WriteLine("\tcharge = {0}", charge);
                                 file.WriteLine(")");
 		    }
