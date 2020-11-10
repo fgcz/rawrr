@@ -1,5 +1,5 @@
     /*
-      aGetTrailerExtraInformationdapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl 
+      aGetTrailerExtraInformationdapded from the ThermoFischer `Hello, world!` example provided by Jim Shofstahl
       see URL http://planetorbitrap.com/rawfilereader#.WjkqIUtJmL4
       the ThermoFisher library has to be manual downloaded and installed
       Please read the License document
@@ -15,7 +15,7 @@
       2020-08-12 added infoR option
       2020-08-26 readSpectrum backend
     */
-     
+
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -148,6 +148,12 @@
                     Console.WriteLine("e$info$`Sample row number` <- '{0}' ", rawFile.SampleInformation.RowNumber);
                     Console.WriteLine("e$info$`Sample dilution factor` <- '{0}' ", rawFile.SampleInformation.DilutionFactor);
                     Console.WriteLine("e$info$`Sample barcode` <- '{0}' ", rawFile.SampleInformation.Barcode);
+
+                    Console.WriteLine("e$info$`User text 0` <- '{0}' ", rawFile.SampleInformation.UserText[0]);
+                    Console.WriteLine("e$info$`User text 1` <- '{0}' ", rawFile.SampleInformation.UserText[1]);
+                    Console.WriteLine("e$info$`User text 2` <- '{0}' ", rawFile.SampleInformation.UserText[2]);
+                    Console.WriteLine("e$info$`User text 3` <- '{0}' ", rawFile.SampleInformation.UserText[3]);
+                    Console.WriteLine("e$info$`User text 4` <- '{0}' ", rawFile.SampleInformation.UserText[4]);
 	    }
 
             public static void GetIndex(this IRawDataPlus rawFile){
@@ -178,7 +184,7 @@
                         } catch {
 			        charge = -1;
 		        }
-		    
+
                     Console.WriteLine("{0},{1},{2},{3},{4},{5}", scanNumber,
 		    	scanStatistics.ScanType.ToString(),
 			Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
@@ -227,7 +233,7 @@
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
 			var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
 
-		       
+
 		        try{
                         var reaction0 = scanEvent.GetReaction(0);
 		        pc =  reaction0.PrecursorMass;
@@ -280,7 +286,7 @@
                         var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
-                        
+
                         try
                         {
                             var reaction0 = scanEvent.GetReaction(0);
@@ -404,7 +410,7 @@
 
                 // Get the memory used at the beginning of processing
                 Process processBefore = Process.GetCurrentProcess();
-                
+
                 long memoryBefore = processBefore.PrivateMemorySize64 / 1024;
 
                 try
@@ -455,7 +461,7 @@
 
                     if (string.IsNullOrEmpty(filename))
                     {
-                        
+
                         Console.WriteLine("No RAW file specified!");
 
                         return;
@@ -466,7 +472,7 @@
                     {
                         Console.WriteLine("rawR version = {}", rawR_version);
                         Console.WriteLine(@"The file doesn't exist in the specified location - {0}", filename);
-                        
+
                         return;
                     }
 
@@ -484,7 +490,7 @@
                     if (rawFile.IsError)
                     {
                         Console.WriteLine("Error opening ({0}) - {1}", rawFile.FileError, filename);
-                        
+
                         return;
                     }
 
@@ -541,13 +547,13 @@
                         }
                         Environment.Exit(0);
                     }
-                    
+
                     if (mode == "version")
                     {
-                         Console.WriteLine("version={}", rawR_version);   
+                         Console.WriteLine("version={}", rawR_version);
                          Environment.Exit(0);
                     }
-                    
+
                     if (mode == "chromatogram")
                     {
                         // Get the BasePeak chromatogram for the MS data
@@ -596,7 +602,7 @@
 
                     if (mode == "xic")
                     {
-                        try   
+                        try
                         {
                             var inputFilename = args[2];
                             double ppmError = Convert.ToDouble(args[3]);
@@ -683,7 +689,7 @@
                         MassRanges = new[] {ThermoFisher.CommonCore.Data.Business.Range.Create(50, 2000000)}
 			};
 
-                // Get the chromatogram from the RAW file. 
+                // Get the chromatogram from the RAW file.
                 var dataTIC = rawFile.GetChromatogramData(new IChromatogramSettings[] {settingsTIC}, startScan, endScan);
                 var dataMassRange = rawFile.GetChromatogramData(new IChromatogramSettings[] {settingsMassRange}, startScan, endScan);
                 var dataBasePeak = rawFile.GetChromatogramData(new IChromatogramSettings[] {settingsBasePeak}, startScan, endScan);
@@ -716,8 +722,8 @@
 	    {
 		    if (rawFile.GetFilterFromString(filter) == null) {
 			    return false;
-		    } 
-		    return true; 
+		    }
+		    return true;
 	    }
 
             private static void ExtractIonChromatogramAsRcode(IRawDataPlus rawFile, int startScan, int endScan, List<double> massList,
@@ -750,7 +756,7 @@
                 IChromatogramSettings[] allSettings = settingList.ToArray();
 
                 var data = rawFile.GetChromatogramData(allSettings, startScan, endScan);
-                
+
                 // Split the data into the chromatograms
                 var trace = ChromatogramSignal.FromChromatogramData(data);
 
@@ -763,7 +769,7 @@
                     {
                         List<double> tTime = new List<double>();
                         List<double> tIntensities = new List<double>();
-                        
+
                         for (int j = 0; j < trace[i].Times.Count; j++)
                         {
                             if (trace[i].Intensities[j] > 0)
@@ -771,9 +777,9 @@
                                 tTime.Add(trace[i].Times[j]);
                                 tIntensities.Add(trace[i].Intensities[j]);
                             }
-                            
+
                         }
-                       
+
                         file.WriteLine("e$chromatogram[[{0}]] <- list(", i + 1);
                         file.WriteLine("\tfilter = '{0}',", filter);
                         file.WriteLine("\tppm = {0},", ppmError);
