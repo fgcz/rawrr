@@ -187,7 +187,7 @@ readFileHeader <- function(rawfile,
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 readIndex <- function(rawfile, tmpdir=tempdir()){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- file.path(path.package(package = "rawR"), "exec", "rawR.exe")
+    exe <- system.file('exec/rawR.exe',package = 'rawR')
 
     rawfile <- normalizePath(rawfile)
 
