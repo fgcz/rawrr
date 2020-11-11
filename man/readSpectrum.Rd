@@ -20,13 +20,13 @@ uses \code{tempdir()}.}
 \item{validate}{boolean default is \code{FALSE}.}
 }
 \value{
-a nested list of \code{rawRspectrum} objects containing more than 50 
+a nested list of \code{rawRspectrum} objects containing more than 50
 values of scan information, e.g., the charge state, two vectors containing
-the mZ and its corresponding intensity values or the AGC information, 
+the mZ and its corresponding intensity values or the AGC information,
 mass calibration, ion optics \ldots
 }
 \description{
-the function derives spectra of a given rawfile and a given 
+the function derives spectra of a given rawfile and a given
 vector of scan numbers.
 }
 \details{
@@ -52,7 +52,7 @@ names(S[[1]])
 
 plot(S[[1]])
 
- 
+
 \dontrun{
 # INPUT:
 GAG <- "GAGSSEPVTGLDAK"
@@ -86,7 +86,7 @@ cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
   \item{Thermo Fisher NewRawfileReader C# code snippets
     \url{https://planetorbitrap.com/rawfilereader}}.
   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-  \item{the R function 1st appeared in 
+  \item{the R function 1st appeared in
     \url{https://doi.org/10.1021/acs.jproteome.8b00173}.
   }
 }

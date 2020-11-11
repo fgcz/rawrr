@@ -58,7 +58,7 @@ iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
   "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
   "LFLQFGAQGSPFLK")
 
-# [2H+] 
+# [2H+]
 if (require(protViz)){
      (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
   }else{

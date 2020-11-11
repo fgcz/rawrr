@@ -22,7 +22,7 @@ Read scan index
 \examples{
 (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
   'sample.raw'))
-  
+
 Idx <- readIndex(rawfile)
 table(Idx$scanType)
 plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
