@@ -13,7 +13,7 @@ bibliography: rawR.bib
 knitr::include_graphics("images/hex-rmarkdown.png")
 ```
 
-This script processes recent orbitrap files of each instrument at the [Functional Genomics Center Zurich](https://fgcz.ch/) [proteomics unit](https://fgcz.ch/omics_areas/prot.html) using the latest R development and the [rawR](https://github.com/fgcz/rawR) package version.
+This script processes recent orbitrap files of each instrument at the [Functional Genomics Center Zurich](https://fgcz.ch/) [proteomics unit](https://fgcz.ch/omics_areas/prot.html) using the latest R development and the [rawR](https://github.com/fgcz/rawR) package version [@Kockmann2020].
 The objectives are: 1. demonstrate functionality on different orbitrap instrument models, 2. show the robustness of the package in a real-world setup (daily changing input), and 3. to demonstrate how it performs together with using the `parallel` R package.
 
 
