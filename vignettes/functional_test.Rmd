@@ -155,7 +155,7 @@ end_time - start_time
 
 Visualize the results ...
 
-```{r plotBestMatches}
+```{r plotBestMatches, error=TRUE}
 start_time <- Sys.time()
 op <- par(mar = c(6, 6, 6, 1), mfrow=c(1, 2))
 rv <- lapply(bestMatchingMS2Scan, function(x){
@@ -238,7 +238,7 @@ DF <- do.call('rbind', rv)
 names(DF) <- c('mZ', 'instrument', 'peptide', 'intensities');
 ```
 
-```{r plotMatchedIntensities, fig.height=12, fig.retina=3, echo=FALSE, eval=FALSE}
+```{r plotMatchedIntensities, fig.height=12, fig.retina=3, echo=FALSE, eval=FALSE, error=TRUE}
 xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
        pch=16, layout=c(1,11), 
        auto.key = list(space = "right"),
@@ -251,7 +251,7 @@ xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
 
 Derives the chromatograms of all iRT peptides applying the mass filter option and an ion tolerance of 10ppm.
 
-```{r readChromatogram}
+```{r readChromatogram, error=TRUE}
 start_time <- Sys.time()
 C <- mclapply(X=input, FUN=rawR::readChromatogram, mass = iRT.mZ, tol = 10, type = "xic", filter = "ms")
 end_time <- Sys.time()
@@ -259,13 +259,14 @@ end_time - start_time
 ```
 
 Visualize the chromatograms and applying a linear regression one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values (iRTs) and *vice versa* [@Escher2012].
-```{r plotChromatogram, fig.retina=3}
+```{r plotChromatogram, fig.retina=3, error=TRUE}
 rv <- mapply(FUN=function(x, i){
     par(mfrow=c(1,2))
     
     plot(x); legend("topright", legend=i, title='Instrument Model', bty = "n", cex=0.75)
     
     rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
+    if (length(rt) == length(iRT.score)){
     fit <- lm(rt ~ iRT.score)
     plot(rt ~ iRT.score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
     abline(fit, col = 'grey')
@@ -277,6 +278,7 @@ rv <- mapply(FUN=function(x, i){
                           format(summary(fit)$r.squared, digits = 2)),
            bty = "n", cex = 0.75)
     text(iRT.score, rt,  iRT.mZ,pos=1,cex=0.5)
+    }
 }, x=C, i=DF.instrument$InstrumentModel)
 ```
 
