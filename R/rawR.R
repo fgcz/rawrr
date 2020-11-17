@@ -5,10 +5,10 @@
 
 
 .writeRData <- function(rawfile, outputfile=paste0(rawfile, ".RData"), tmpdir=tempdir()){
-    
+
     scanRange <- readFileHeader(rawfile)$`Scan range`
     scanIdx <- seq(scanRange[1], scanRange[2], by=1)
-    
+
     res <- lapply(scanIdx, function(x){
         rv <- readSpectrum(rawfile, scan=x, tmpdir=tmpdir)[[1]]
         list(scanType=rv$scanType, mZ=rv$mZ, intensity=rv$intensity, charge=rv$charge, rtinseconds=rv$rtinseconds)
@@ -16,25 +16,25 @@
     e <- new.env()
     objName <- paste("S",basename(rawfile), sep='')
     assign(objName, res, envir = e)
-    
+
     save(objName, file=outputfile, envir = e)
 
-} 
+}
 
-.isMonoAssemblyWorking <- 
-    function(exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
+.isMonoAssemblyWorking <-
+    function(exe = system.file('exec/rawR.exe',package = 'rawR')){
         if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
             if (Sys.which('mono') == ""){
                 warning("Can not find Mono JIT compiler. check SystemRequirements.")
                 return()
             }
         }
-        
+
         if (!file.exists(exe)){
             warning("rawR.exe is not availble.")
             return (FALSE)
         }
-        
+
         # execute Assembly
         rvs <-  "?"
         if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
@@ -42,13 +42,13 @@
         }else{
             rvs <- system2(exe, stdout = TRUE)
         }
-        
+
         # expect that string
         if (rvs != "No RAW file specified!"){
             warning("Mono JIT compiler and rawR.exe assembly are not working.")
             return (FALSE)
         }
-        
+
         TRUE
     }
 
@@ -60,7 +60,7 @@
 #' @export is.rawRspectrum
 #'
 #' @examples
-#' 
+#'
 #' pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
 #' S <- readSpectrum(pathToRawFile, scan = 1:10)
 #' is.rawRspectrum(S[[1]])
@@ -83,9 +83,9 @@ is.rawRspectrum <- function(x){
 #' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020.
 #' @references Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
-#' 
+#'
 #' @seealso \link[rawDiag]{read.raw.info}
-#' 
+#'
 #' @return a list object containing the following entries: RAW file version,
 #' Creation date, Operator, Number of instruments, Description,
 #' Instrument model, Instrument name, Serial number, Software version,
@@ -95,21 +95,23 @@ is.rawRspectrum <- function(x){
 #' Sample name, Sample id, Sample type, Sample comment, Sample vial,
 #' Sample volume, Sample injection volume, Sample row number,
 #' Sample dilution factor, or Sample barcode.
-#' 
+#'
 #' @export readFileHeader
 #'
 #' @examples
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
 #'   'sample.raw'))
-#' 
+#'
 #' M <- readFileHeader(rawfile)
 readFileHeader <- function(rawfile,
    mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-   exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe"),
+   exe = system.file('exec/rawR.exe',package = 'rawR'),
    mono_path = "",
    argv = "infoR",
    system2_call = TRUE,
                            method = "thermo"){
+
+    rawfile <- normalizePath(rawfile)
 
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
@@ -118,12 +120,12 @@ readFileHeader <- function(rawfile,
         stop('the mono assembly are not available.')
     }
     if(system2_call && method == 'thermo'){
-        
+
         tf <- tempfile(fileext = '.R')
         tf.err <- tempfile(fileext = '.err')
-        
+
         # message(paste("system2 is writting to tempfile ", tf, "..."))
-        
+
         if (mono){
             rvs <- system2("mono", args = c(exe, shQuote(rawfile
             ), argv),
@@ -134,19 +136,28 @@ readFileHeader <- function(rawfile,
             stderr = tf.err,
             stdout = tf)
         }
-        
+
         if (rvs == 0){
-            
+
+            ## Replace backslashes in Instrument method file path to ensure
+            ## the R file can be parsed
+            r_file <- readLines(tf)
+            r_file[12] <- gsub('\\\\','/',r_file[12])
+            writeLines(r_file,tf)
+
             rv <- try({
                 e <- new.env();
                 e$info <- list()
                 source(tf, local=TRUE)
-                
+
+                ## Keep only the file name for the Instrument method
+                e$info$`Instrument method` <- basename(e$info$`Instrument method`)
+
                 #message(paste("unlinking", tf, "..."))
                 #unlink(tf)
                 return(e$info)
             }, NULL)
-            
+
             # unlink(tfstdout)
             return(rv)
         }
@@ -163,20 +174,23 @@ readFileHeader <- function(rawfile,
 #' @return returns a \code{data.frame} with the column names
 #' scanType, rtinseconds, precursorMass, and charge of all spectra.
 #' @export readIndex
+#' @importFrom utils read.csv2
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
 #' @seealso \link[rawDiag]{read.raw}
 #'
 #' @examples
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
 #'   'sample.raw'))
-#'   
+#'
 #' Idx <- readIndex(rawfile)
 #' table(Idx$scanType)
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 readIndex <- function(rawfile, tmpdir=tempdir()){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- file.path(path.package(package = "rawR"), "exec", "rawR.exe")
-    
+    exe <- system.file('exec/rawR.exe',package = 'rawR')
+
+    rawfile <- normalizePath(rawfile)
+
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
     }
@@ -184,13 +198,13 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
     if (!.isMonoAssemblyWorking()){
         stop('the mono assembly are not available.')
     }
-    
+
     tfi <- tempfile(tmpdir=tmpdir)
     tfo <- tempfile(tmpdir=tmpdir)
     tfstdout <- tempfile(tmpdir=tmpdir)
-    
+
     cmd <- exe
-    
+
     if (mono){
         rvs <- system2(Sys.which("mono"),
                        args = c(shQuote(exe), shQuote(rawfile),
@@ -201,9 +215,9 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
                        args = c( shQuote(rawfile), "index", shQuote(tfstdout)),
                        stdout=tfstdout)
     }
-    
-    DF <- read.csv(tfstdout, header = TRUE, comment.char = "#")
-    
+
+    DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';')
+
     unlink(c(tfi, tfo, tfstdout))
     DF
 }
@@ -211,19 +225,19 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' Read a Set of Spectra
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
-#' @param scan a vector of requested scan numbers. 
+#' @param scan a vector of requested scan numbers.
 #' @param tmpdir a non-empty character vector giving the directory name; default
 #' uses \code{tempdir()}.
 #' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
-#' 
-#' @description the function derives spectra of a given rawfile and a given 
+#'
+#' @description the function derives spectra of a given rawfile and a given
 #' vector of scan numbers.
-#'  
-#'  
-#' @details 
-#' 
-#' \section{\code{sample.raw}}
+#'
+#'
+#' @details
+#'
+#' {\code{sample.raw}}
 #' The binary example file sample.raw contains 574 fourier-transformed orbi trap
 #' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 #' mass spectrometer was operated in line with a nano electrospray source (NSI)
@@ -231,58 +245,58 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' centroiding (c) and lock mass correction. Additional raw data for
 #' demonstration and extended testing is available through the
 #' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
-#' Lions love raw meat!
-#' 
-#' 
-#' @aliases readSpectrum plot.rawRSpectrum rawRspectrum rawR sample.raw
-#' 
+#' \strong{Lions love raw meat!}
+#'
+#' @aliases readSpectrum plot.rawRSpectrum rawR sample.raw
+#'
 #' @export readSpectrum
 #' @exportClass rawRspectrum
 #' @exportS3Method plot rawRspectrum
 #' @exportS3Method print rawRspectrum
-#' 
-#' @return a nested list of \code{rawRspectrum} objects containing more than 50 
+#' @exportS3Method summary rawRspectrum
+#'
+#' @return a nested list of \code{rawRspectrum} objects containing more than 50
 #' values of scan information, e.g., the charge state, two vectors containing
-#' the mZ and its corresponding intensity values or the AGC information, 
+#' the mZ and its corresponding intensity values or the AGC information,
 #' mass calibration, ion optics \ldots
-#' 
+#'
 #' @seealso \link[rawDiag]{readScans}
-#' 
+#'
 #' @examples
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
 #'   'sample.raw'))
-#' 
+#'
 #' S <- readSpectrum(rawfile, scan = 1:9)
-#' 
+#'
 #' S[[1]]
-#' 
+#'
 #' names(S[[1]])
-#' 
+#'
 #' plot(S[[1]])
-#' 
-#'  
+#'
+#'
 #' \dontrun{
 #' # INPUT:
 #' GAG <- "GAGSSEPVTGLDAK"
 #' rawfile <- file.path(Sys.getenv("HOME"),
 #'   "Downloads/20180220_14_autoQC01.raw")
-#' 
+#'
 #' # list spectra metainformation
 #' IDX <- readIndex(rawfile)
-#' 
+#'
 #' # determine precursor matches
 #' S <- readSpectrum(rawfile,
 #'   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001))
-#' 
+#'
 #' # query spectra with precursor matches
 #' rv <-lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
-#' 
+#'
 #' # determine spectra indices having the  max number of hits hits
 #' hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
-#' 
+#'
 #' # take the 1st one
 #' idx <- which(hits == hit.max)[1]
-#' 
+#'
 #' # OUTPUT
 #' rv <- protViz::peakplot(GAG,  (S[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
 #' # https://www.proteomicsdb.org/use/
@@ -292,15 +306,15 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #'   \item{Thermo Fisher NewRawfileReader C# code snippets
 #'     \url{https://planetorbitrap.com/rawfilereader}}.
 #'   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-#'   \item{the R function 1st appeared in 
+#'   \item{the R function 1st appeared in
 #'     \url{https://doi.org/10.1021/acs.jproteome.8b00173}.
 #'   }
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- file.path(path.package(package = "rawR"), "exec", "rawR.exe")
-    
-    
+
+
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
     }
@@ -310,15 +324,15 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
     if (!.isMonoAssemblyWorking()){
         stop('the mono assembly are not available.')
     }
-    
+
     tfi <- tempfile(tmpdir=tmpdir)
     tfo <- tempfile(tmpdir=tmpdir)
     tfstdout <- tempfile(tmpdir=tmpdir)
-    
+
     cat(scan, file = tfi, sep="\n")
-    
+
     cmd <- exe
-    
+
     if (mono){
         rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile),
                                                    "scans", shQuote(tfi), shQuote(tfo)))
@@ -326,77 +340,78 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
         rvs <- system2(exe, args = c( shQuote(rawfile), "scans", shQuote(tfi),
                                       shQuote(tfo)))
     }
-    
+
     e <- new.env()
-    
+
     source(tfo, local=TRUE)
     unlink(c(tfi, tfo, tfstdout))
-    
-    
+
+
     rv <- lapply(e$Spectrum,
                  function(x){class(x) <- c('rawRspectrum'); x})
     if(validate){
         rv <- lapply(rv, validate_rawRspectrum)
     }
-    
+
     rv
 }
 
 
 #' Extracts Chromatograms
 #'
-#' @param rawfile the file name. 
-#' @param mass a vector of mass values iff \code{type = 'xic'}. 
+#' @param rawfile the file name.
+#' @param mass a vector of mass values iff \code{type = 'xic'}.
 #' @param tol mass tolerance in ppm iff \code{type = 'xic'}.
 #' @param filter defines the scan filter, default is \code{filter="ms"} if a
 #' wrong filter is set the function will return \code{NULL} and draws a warning.
 #' @param type \code{c(xic, bpc, tic)} for extracted ion , base peak or
 #' total ion chromatogram.
-#' @param mono if the mono enviroment should be used. 
+#' @param mono if the mono enviroment should be used.
 #' @param exe the exe file user by mono.
-#' 
+#'
 #' @seealso Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
-#' 
+#'
 #' @return chromatogram object(s) containing of a vector of \code{times} and a
 #' corresponding vector of \code{intensities}.
-#' 
+#'
 #' @references
 #' \itemize{
 #'   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
 #'   \item{the R function 1st appeared in
 #'     \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
 #' }
-#' 
+#'
 #' @author Christian Trachsel, Tobias Kockmann and
 #' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020.
-#' @seealso \link[rawDiag]{readXIC}
-#' @export readChromatogram 
+#' @seealso \link[rawDiag]{readXICs}
+#' @export readChromatogram
 #' @exportClass rawRchromatogram
 #' @exportClass rawRchromatogramSet
 #' @exportS3Method plot rawRchromatogram
 #' @exportS3Method plot rawRchromatogramSet
+#' @importFrom utils read.csv
 #' @examples
-#' 
+#'
 #' # Example 1: not meaning full but proof-of-concept
 #' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
-#' 
+#'
 #' XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 #' plot(XIC)
-#' 
+#'
 #' BPC <- readChromatogram(rawfile, type='bpc')
 #' plot(BPC)
-#' 
+#'
 #' TIC <- readChromatogram(rawfile, type='tic')
 #' plot(TIC)
-#' 
+#'
 #' # Example 2: extract iRT peptides
 #' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 #'   "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
 #'   "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
 #'   "LFLQFGAQGSPFLK")
-#' 
-#' # [2H+] 
+#'
+#' # [2H+]
 #' if (require(protViz)){
 #'      (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
 #'   }else{
@@ -406,11 +421,11 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' \dontrun{
 #' # https://fgcz-ms.uzh.ch/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw
 #' # md5 = 00ffee77b82202200e5aec0522729f51
-#' 
+#'
 #' rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
 #' X <- readChromatogram(rawfile, mZ)
 #' }
-#' 
+#'
 readChromatogram <- function(rawfile,
                              mass = NULL,
                              tol = 10,
@@ -418,15 +433,15 @@ readChromatogram <- function(rawfile,
                              type = 'xic',
                              mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
                              exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
-    
+
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
     }
-    
+
     if (!.isMonoAssemblyWorking()){
         stop('the mono assembly are not available.')
     }
-    
+
     tfstdout <- tempfile()
     tfi <- tempfile()
     tfo <- tempfile()
@@ -435,9 +450,9 @@ readChromatogram <- function(rawfile,
             stop('no mass vector is proived.')
         }
         cat(mass, file=tfi, sep="\n")
-        
+
         cmd <- exe
-        
+
         if (mono){
             rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic",
                                             shQuote(tfi), tol, shQuote(tfo), shQuote(filter)))
@@ -445,30 +460,30 @@ readChromatogram <- function(rawfile,
             rvs <- system2(exe, args = c(shQuote(rawfile), "xic", shQuote(tfi), tol,
                                          shQuote(tfo), shQuote(filter)))
         }
-        
+
         rv <- try({
             e <- new.env();
             e$chromatogram <- list()
             source(tfo, local = TRUE)
-            
-            
+
+
             if ('warning' %in% names(e)){
                 warning(e$warning)
             }
-            
+
             if ('message' %in% names(e)){
                 message(e$message)
             }
-            
+
             if ('error' %in% names(e)){
                 warning(e$error)
                 return(NULL)
-            } 
-            
+            }
+
             e$chromatogram
         }, NULL)
-        
-        
+
+
         #message(paste(c(tfi, tfo, tfstdout), collapse = ",\n"))
         #message(length(rv))
         rv <- lapply(rv,
@@ -477,7 +492,7 @@ readChromatogram <- function(rawfile,
                          attr(x, 'type') <- 'xic'
                          class(x) <- 'rawRchromatogram';
                          x})
-        
+
     }else{
         if (mono){
             rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
@@ -485,8 +500,8 @@ readChromatogram <- function(rawfile,
             rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)),stdout=tfstdout)
         }
         DF <- read.csv(tfstdout, header = TRUE, comment.char = "#")
-        
-        
+
+
         if (type == 'tic'){
             rv <- list(
                 times=DF$rt,
@@ -498,10 +513,10 @@ readChromatogram <- function(rawfile,
         }
     }
     unlink(c(tfi, tfo, tfstdout))
-    
+
     attr(rv, 'filter') <- filter
     attr(rv, 'filename') <- rawfile
-    
+
     if (type=='xic'){
         attr(rv, 'type') <- 'xic'
         attr(rv, 'tol') <- tol
@@ -513,13 +528,13 @@ readChromatogram <- function(rawfile,
         attr(rv, 'type') <- 'bpc'
         class(rv) <- 'rawRchromatogram'
     }
-    
+
     rv
 }
 
 
 #' Create instances of class \code{rawRspectrum}
-#' 
+#'
 #' Developer function.
 #'
 #' @param scan scan number
@@ -538,12 +553,12 @@ new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
                              scanType = character(), rtinseconds = numeric(),
                              centroidStream = logical(),
                              mZ = numeric(), intensity = numeric()){
-    
+
     stopifnot(is.numeric(scan), is.numeric(massRange), is.character(scanType),
               is.numeric(rtinseconds), is.logical(centroidStream),
               is.numeric(mZ), is.numeric(intensity)
     )
-    
+
     structure(list(scan = scan,
                    basePeak = c(mZ[which.max(intensity)], intensity[which.max(intensity)]),
                    TIC = sum(intensity), massRange = massRange,
@@ -555,26 +570,27 @@ new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
 }
 
 #' Create \code{rawRspectrum} objects
-#' 
+#'
 #' @description High-level constructor for instances of class
 #' \code{rawRspectrum}, also named helper function. Currently, mainly to support
 #' testing and for demonstration.
-#' 
-#' @usage \code{rawRspectrum(sim = "example_1")}
+#'
 #'
 #' @param sim Either \code{example_1} or \code{TESTPEPTIDE}
 #'
 #' @return Function returns a validated \code{rawRspectrum} object
 #' @export rawRspectrum
 #'
-#' @examples \code{plot(rawRspectrum(sim = "TESTPEPTIDE"))}
-#' \code{rawRspectrum(sim = "example_1")}
-#' 
-#' @author Tobias Kockmann
+#' @examples
+#'
+#' plot(rawRspectrum(sim = "TESTPEPTIDE"))
+#' rawRspectrum(sim = "example_1")
+#'
+#' @author Tobias Kockmann, 2020.
 rawRspectrum <- function(sim = character()) {
-    
+
     stopifnot(is.character(sim))
-    
+
     if (sim == "example_1") {
         S <- new_rawRspectrum(scan = 1,
                               massRange = c(90, 1510),
@@ -585,7 +601,7 @@ rawRspectrum <- function(sim = character()) {
                               intensity = rep(100, times = 15)
                               )
     }
-    
+
     if (sim == "TESTPEPTIDE") {
         S <- new_rawRspectrum(scan = 1,
                               massRange = c(90, 1510),
@@ -597,75 +613,75 @@ rawRspectrum <- function(sim = character()) {
                                      988.4469, 1117.4895),
                               intensity = rep(100, times = 10)
         )
-        
+
     }
-    
+
     ## more examples?
-    
+
     validate_rawRspectrum(S)
-    
+
 }
 
-#' Validate instance of class rawRSpectrum 
+#' Validate instance of class rawRSpectrum
 #'
-#' @description Checks the validity of \code{rawRspectrum} object attributes. 
+#' @description Checks the validity of \code{rawRspectrum} object attributes.
 #'
 #' @param x object to be validated.
 #'
 #' @usage validate_rawRspectrum(x)
-#' 
+#'
 #' @return Validated \code{rawRspectrum} object
 #' @export validate_rawRspectrum
 validate_rawRspectrum <- function(x){
     values <- unclass(x)
-    
+
     if (values$scan < 1) {
         stop("Scan values just be >= 1", call. = FALSE)
     }
-    
+
     if (length(values$mZ) != length(values$intensity)){
         stop(
             "mZ should have same length as intensities.",
             call. = FALSE
         )
     }
-    
+
     if (any(values$mZ < 0)) {
         stop("All mZ values just be greater than zero", call. = FALSE)
     }
-    
+
     if (any(values$intensity < 0)) {
         stop("All intensity values just be greater than zero", call. = FALSE)
     }
-    
+
     if (any(values$massRange < 0)) {
         stop("All massRange values just be greater than zero", call. = FALSE)
     }
-    
+
     if (values$massRange[1] > values$massRange[2]) {
         stop("massRange[1] must be smaller than massRange[2].", call. = FALSE)
     }
-    
+
     if (any(values$basePeak < 0)) {
         stop("All basePeak values must be greater than zero.", call. = FALSE)
     }
-    
+
     ## still problems here: fails with sample data
-    
+
     if (!values$basePeak[1] %in% values$mZ) {
         stop("basePeak[1] (position) must be found in mZ", call. = FALSE)
     }
-    
+
     if (values$basePeak[2] != max(values$intensity)) {
         stop("basePeak intensity is unequal max. intensity", call. = FALSE)
     }
-    
+
     ##
-    
+
     if (values$rtinseconds < 0) {
         stop("rtinseconds must be greater than zero", call. = FALSE)
     }
-    
+
     x
 }
 
@@ -682,27 +698,27 @@ validate_rawRspectrum <- function(x){
 #'
 #' @param relative If set to \code{TRUE} enforces plotting of relative
 #' intensities rather than absolute.
-#' 
+#'
 #' @param centroid Should centroided data be used for plotting?
-#' 
+#'
 #' @param SN Should Signal/Noise be used for plotting?
-#' 
+#'
 #' @param legend Should legend be printed?
-#' 
+#' @param diagnostic Should this option be applied? The default is \code{FALSE}.
 #' @param ... function passes arbitrary additional arguments.
 #' @author Tobias Kockmann, 2020
 #' @importFrom graphics legend
 plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                               legend = TRUE, diagnostic = FALSE, ...){
-    
+
     stopifnot(is.rawRspectrum(x))
-    
+
     if (centroid) {
-        
+
         stopifnot(x$centroidStream)
-        
+
         if (SN) {
-            
+
             plot(x = x$centroid.mZ, y = x$centroid.intensity/x$noise,
                  type = "h",
                  xlim = x$massRange,
@@ -710,9 +726,9 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                  ylab = "Centroid Signal/Noise",
                  frame.plot = FALSE, ...
             )
-            
+
         } else {
-            
+
             plot(x = x$centroid.mZ, y = x$centroid.intensity,
                  type = "h",
                  xlim = x$massRange,
@@ -727,8 +743,8 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                 n <- length(x$centroid.intensity)
                 if (n > 10) n <- 10
                 i  <- order(x$centroid.intensity, decreasing = TRUE)[1:n]
-                
-                
+
+
                 text(x = x$centroid.mZ[i],
                      y = x$centroid.intensity[i],
                      pos = 3,
@@ -737,35 +753,35 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                                     x$resolutions[i]),
                      cex = 0.5)
             }
-            
+
         }
-        
-        
+
+
     } else {
-        
+
         if (relative) {
-            
+
             plot(x = x$mZ, y = x$intensity/x$basePeak[2], type = "h",
                  xlim = x$massRange,
                  xlab = "m/z",
                  ylab = "Relative Intensity",
                  frame.plot = FALSE, ...)
-            
+
         } else {
-            
+
             plot(x = x$mZ, y = x$intensity, type = "h",
                  xlim = x$massRange,
                  xlab = "m/z",
                  ylab = "Intensity",
                  frame.plot = FALSE, ...)
-            
+
         }
-        
+
     }
-    
-    
+
+
     if (legend) {
-        
+
         #basePeak <- paste("(", paste(format(x$basePeak, nsmall = 4),
         #                             collapse = ", "), ")", sep='')
         legend("topleft",
@@ -784,9 +800,9 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                      ),
                bty = "n",
                cex=0.5)
-        
+
     }
-    
+
     if (diagnostic) {
         legend("left", legend = paste(c("Injection time [ms]: ",
                                           "Max. Injection time [ms]: ",
@@ -801,17 +817,34 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 
 }
 
-#' Basic print function faking the look and feel of freestyle's output 
+#' Basic summary function
 #' @author Christian Panse & Tobias Kockmann, 2020
+#' @param object an \code{rawRspectrum} object.
+#' @param \ldots Arguments to be passed to methods.
+summary.rawRspectrum <- function(object, ...){
+    cat("Total Ion Current:\t", object$TIC, fill = TRUE)
+    cat("Scan Low Mass:\t", object$massRange[1], fill = TRUE)
+    cat("Scan High Mass:\t", object$massRange[2], fill = TRUE)
+    cat("Scan Start Time (Min):\t", round(object$rtinseconds/60,2), fill = TRUE)
+    cat("Scan Number:\t", object$scan, fill=TRUE)
+    cat("Base Peak Intensity:\t", object$basePeak[2], fill = TRUE)
+    cat("Base Peak Mass:\t", object$basePeak[1], fill = TRUE)
+    cat("Scan Mode:\t", object$scanType, fill = TRUE)
+}
+
+#' Basic print function faking the look and feel of freestyle's output
+#' @author Christian Panse & Tobias Kockmann, 2020
+#' @param x an \code{rawRspectrum} object.
+#' @param \ldots Arguments to be passed to methods.
 print.rawRspectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", x$massRange[1], fill = TRUE)
     cat("Scan High Mass:\t", x$massRange[2], fill = TRUE)
     cat("Scan Start Time (Min):\t", round(x$rtinseconds/60,2), fill = TRUE)
     cat("Scan Number:\t", x$scan, fill=TRUE)
-    cat("Base Peak Intensity:\t", x$basePeak[2], fill = TRUE)	
+    cat("Base Peak Intensity:\t", x$basePeak[2], fill = TRUE)
     cat("Base Peak Mass:\t", x$basePeak[1], fill = TRUE)
-    cat("Scan Mode:\t", x$scanType, fill = TRUE)	
+    cat("Scan Mode:\t", x$scanType, fill = TRUE)
 
     keys <- c("======= Instrument data =====   :",
               "Multiple Injection:",
@@ -879,11 +912,11 @@ print.rawRspectrum <- function(x, ...){
     )
     for (i in keys){
         value <- x[i]
-       
+
         if (value == "NULL"){
             cat(i, "\t\n", fill = TRUE)
         }else{
-            cat(paste(i, x[i],sep='\t'), fill = TRUE) 
+            cat(paste(i, x[i],sep='\t'), fill = TRUE)
         }
     }
 }
@@ -910,7 +943,6 @@ is.rawRchromatogram <- function(x){
 #' @param legend Should legend be printed?
 #' @param ... Passes additional arguments.
 #'
-#' @return
 #' @export plot.rawRchromatogram
 #'
 #' @examples pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
@@ -918,20 +950,20 @@ is.rawRchromatogram <- function(x){
 #' plot(C[[1]])
 plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     stopifnot(is.rawRchromatogram(x))
-    
+
     plot(x = x$times, y = x$intensities,
          xlab = "Retention Time [min]",
          ylab = "Intensity",
          type = "l",
          frame.plot = FALSE)
-    
-    
+
+
     if (legend) {
         if(attr(x, 'type') == 'xic'){
             legend("topleft",
                    legend = paste(c("File: ", "Filter: ", "Mass: ", "Tolerance: "),
-                                  c(basename(attr(x, 'filename')), 
-                                    x$filter, 
+                                  c(basename(attr(x, 'filename')),
+                                    x$filter,
                                     x$mass,
                                     x$ppm)
                    ),
@@ -953,15 +985,17 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
 #' @param x A \code{rawRchromatogramSet} object to be plotted.
 #' @param ... Passes additional arguments.
 #' @param diagnostic Show diagnostic legend?
-#' 
+#'
 #' @export plot.rawRchromatogramSet
+#' @importFrom grDevices hcl.colors
+#' @importFrom graphics lines text
 plot.rawRchromatogramSet <- function(x, diagnostic = FALSE, ...){
-    
+
     #should become is.Class function in the future
     stopifnot(attr(x, "class") == "rawRchromatogramSet")
-    
+
     ## so far only XIC branch available
-    
+
     if (attr(x, 'type') == 'xic') {
         plot(0, 0, type='n',
              xlim=range(unlist(lapply(x, function(o){o$times}))),
@@ -970,16 +1004,16 @@ plot.rawRchromatogramSet <- function(x, diagnostic = FALSE, ...){
              xlab='Retention Time [min]',
              ylab='Intensities', ...
         )
-        
+
         cm <- hcl.colors(length(x), "Set 2")
         mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
         legend("topleft",
                as.character(sapply(x, function(o){o$mass})),
                col=cm,
-               pch=16, 
+               pch=16,
                title='target mass [m/z]',
                bty='n', cex = 0.75)
-    
+
         if (diagnostic) {
             legend("topright", legend = paste(c("File: ",
                                                 "Filter: ",
@@ -992,7 +1026,7 @@ plot.rawRchromatogramSet <- function(x, diagnostic = FALSE, ...){
                                             attr(x, "tol")
                                           )
                                     ),
-                   bty = "n", cex = 0.75, text.col = "black")    
+                   bty = "n", cex = 0.75, text.col = "black")
         }
     }
 }

@@ -1,7 +1,7 @@
 ---
 title: rawR - Direct access to raw mass spectrometry data in R
 author: "Tobias Kockmann^1‡^ & Christian Panse^1,2‡^"
-date: "`r Sys.Date()`"
+date: "`r Sys.time()`"
 output:
   pdf_document: 
     keep_tex: yes
@@ -18,6 +18,7 @@ vignette: |
   %\VignetteIndexEntry{rawR JPR Technical Note}
   %\VignetteEngine{knitr::knitr}
   %\VignetteEngine{knitr::rmarkdown}
+urlcolor: blue
 ---
 
 
@@ -43,14 +44,15 @@ computational mass spectrometry, software, R package
 
 ## Introduction
 
-...
+Mass spectromerty-based proteomics and metabolomics are the preferred technology to study the protein and metabolite landscape of complex biological systems. The orbitrap mass analyzer is one of the key innovations that propelled the field by providing HRAM data on a chromatographic time scale. Driven by the need to analyze the resulting LC-MS data, several specialized software tools haven been developed in the last decade. In the academic environment, [MaxQuant](https://maxquant.org/) and [Skyline](https://skyline.ms/project/home/begin.view?) are beyond the most popular ones. These software tools usually offer GUIs that control running predefined analysis templates/workflows including free parameters that need to be defined by the user. In parallel, projects like [OpenMS](https://www.openms.de/) or [pytemocis](https://github.com/levitsky/pyteomics) developed, but chose a fundamentally different approach. They aim at providing software libraries bound to specific programming languages like `C++` or `Python`. These naturally offer greater analytical flexibility, but require programming skills form the end user and have therefore not reached the popularity of their GUI counterparts. Proteomics and metabolomics specific libraries have also been developed for the [`R`](https://www.r-project.org/) statistical environment, but these mainly support high-level statistical analysis, once the raw measurement data has undergone extensive pre-processing and aggregation by external software tools (often the GUI-based once listed above). A typical example is the `R` package [MSstats](http://msstats.org/) for the statistical analysis of LS-MS experiments with complex designs or [MSqRob](https://github.com/statOmics/MSqRob). MSstats can process MaxQuant or Skyline output and creates protein/peptide level estimates whether the biological system shows statistically significant regulation. In a nutshell, these tools provide statistical post processing. Libraries that support working with the spectral data in `R` also exist, for instance the BioC package [MSnbase](https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html), but require conversion of raw data to exchange formats like [mzML](http://www.psidev.info/mzML). These conversion are primarily supported by the [ProteWizard](http://proteowizard.sourceforge.net/) project and its software tool `MSconvert`.
 
+We strongly believe that a library providing raw data reading functionally would finally close the gap and facilitate modular end-to-end analysis pipeline development in `R`. This could be of special interest to research environments/projects dealing with either big data analytics, or to scientists that are interested in code prototyping without having a formal computer science education. Another key aspect regarding multi omics integration of proteomics and metabolomics data is the fact that high-throughput genomic data analysis is already done mostly in `R`. So proteomics and metabolomics could finally "join the party"! This is primarily due to the [BioC project](https://www.bioconductor.org/) that currently provides >1900 open source software packages, training & teaching, and a very active user & developer community [@Huber2015]. Having these thoughts in mind we decide to implement our R package `rawR`. `rawR` utilizes a vendor-provided API to access spectral data logged in proprietary raw files. These binary files are written by all orbitrap mass spectrometers, unlocking an incredible amount of the global LC-MS data, also stored in public repositories like [ProteomeExchange](http://www.proteomexchange.org/). In this manuscript, we present a first package version/release and show case its usage for bottom-up proteomics data analysis.
 
 ## Implementation
 
 Our implementation is build on two layers, the `R` and the `C#` layer which exchange information using file i/o. The following section describes the package topology from top-down, starting with a rational for the object design.
 
-#### `R`
+### `R`
 
 Mass spectrometry (MS) typically uses two basic data items: mass spectra and chromatograms.
 
@@ -64,7 +66,7 @@ In short, the additional attributes further described the nature of the original
 #### Chromatograms
 Chromatograms come in different flavors, but are always signal intensity values as a function of time. Signal intensities can be point estimates from scanning detectors or plain intensities from non scanning detectors (e.g. UV trace). Scanning detector (mass analyzers) point estimates can be defined in different ways by for instance summing all signals of a given spectrum (total ion chromatogram or TIC), or by extracting signal around an expected value (extracted ion chromatogram = XIC), or by using the maximum signal contained in a spectrum (base peak chromatogram = BPC). On top, chromatograms can be computed from pre-filtered lists of scans. A total ion chromatogram (TIC) for instance is typically generated by iterating over all MS1-level scans. 
 
-We therefore decided to implemented corresponding objects following `R`s `S3` OOP system named `rawRspectrum` and `rawRchromatogram` that closely resemble the above definitions. The package provides functions to create and validate class instances (objects), but typically instances are generated by reader functions that expect rawfiles as input data (see Table 1. for an overview). We refer to collections of objects as sets (e.g. `rawRspectrumSet`). The constructors (`rawRspectrum()` and `rawRchromatogram()`) primarily exist for (unit) testing proposes, or for simulating data (no binary input data is required). One can for instance generated spectra showing predefined patterns (ion series derived from a peptide sequence) or sample from base `R`s collection of distributions (in preparation). We also implemented basic generics for printing and plotting of objects that we use for visualization throughout this manuscript. To minimize dependencies, we choose to stick to `base R`, but it would be relatively easy to write your own plotting functions using `lattice` or `ggplot`. The reader functions typically call compiled `C#` code (see next section). We call these `C#` methods wrappers.
+We therefore decided to implemented corresponding objects following `R`s `S3` OOP system named `rawRspectrum` and `rawRchromatogram` that closely resemble the above definitions [@newS]. The package provides functions to create and validate class instances (objects), but typically instances are generated by reader functions that expect rawfiles as input data (see Table 1. for an overview). We refer to collections of objects as sets (e.g. `rawRspectrumSet`). The constructors (`rawRspectrum()` and `rawRchromatogram()`) primarily exist for (unit) testing proposes, or for simulating data (no binary input data is required). One can for instance generated spectra showing predefined patterns (ion series derived from a peptide sequence) or sample from base `R`s collection of distributions (in preparation). We also implemented basic generics for printing and plotting of objects that we use for visualization throughout this manuscript. To minimize dependencies, we choose to stick to `base R`, but it would be relatively easy to write your own plotting functions using `lattice` or `ggplot`. The reader functions typically call compiled `C#` code (see next section). We call these `C#` methods wrappers.
 
 ```{r, echo=FALSE, eval=FALSE}
 plot(rawRspectrum(sim = "TESTPEPTIDE"))
@@ -114,7 +116,7 @@ H <- rawR::readFileHeader(rawfile = rawfile)
 
 The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HR-AM) data on a time scale that is compatible with chromatographic analysis (LC-MS). It is therefore heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data transformation to exchange formats like mz(X)ML. This use case shows how easy it is to work directly with the binary raw data, after installing our `R` package `rawR` that applies vendor APIs for data access. For demonstration purposes we use a complete LC-MS run recorded on a `r H$"Instrument model"`. The `r H$"Time range"[2]` min run resulted in `r H$"Number of scans"` scans that were written to disc. Already type setting the above lines uses `rawR` functionality, since the instrument model, the time range of data acquisition, and the number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader()` and returns a simple `R` object of type `list` (see Table 1).
 
-Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawRspectrum` object or `rawRspectrumSet`. Our package of course also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Fig. 1 shows the resulting plot for scan `9594`:
+Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawRspectrum` object or `rawRspectrumSet`. Our package of course also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Figure 1 shows the resulting plot for scan `9594`:
 
 ```{r plot.rawRspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawR)
@@ -123,12 +125,12 @@ rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw
 i <- c(9594, 11113, 11884, 12788, 12677, 13204, 13868, 14551, 16136, 17193, 17612)
 S <- rawR::readSpectrum(rawfile = rawfile, scan = i)
 class(S[[1]])
-print(S[[1]]) #comment this line if necessary to save space
+summary(S[[1]]) #comment this line if necessary to save space
 
 plot(S[[1]], centroid=TRUE)
 ```
 
-The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \sim charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure~2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
+The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting, since orbitrap detectors follow $$S/N \sim charges \cdot \sqrt R$$ and signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure 2 shows that all fragment ion signals are several ten or even hundred fold above the local noise estimate.
 
 ```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using Signal/Noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]."}
 plot(S[[1]], centroid=TRUE, SN = TRUE)
@@ -164,15 +166,15 @@ plot(rawR::readChromatogram(rawfile = rawfile, type = "bpc"))
 The initial step of iRT regression is now to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, given they were spiked into the sample matrix prior to data acquisition. Luckily ;-), our example data is iRT peptides in a tyrptic digest of BSA. The code chunk below demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawRchromatogramSet` object of the type `xic`. This object is plotted for visual inspection. 
 
 ```{r plot.rawRchromatogram, fig.cap="XICs for iRT peptides precursors. Each XIC was calculated using a tolerance of 10 ppm around the target mass and using only MS1 scans.", error=TRUE}
-iRT <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
+iRTmZ <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
-names(iRT) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+names(iRTmZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
                  "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
                  "LFLQFGAQGSPFLK")
 
-C <- rawR::readChromatogram(rawfile, mass = iRT, tol = 10, type = "xic", filter = "ms")
+C <- rawR::readChromatogram(rawfile, mass = iRTmZ, tol = 10, type = "xic", filter = "ms")
 plot(C, diagnostic = TRUE)
 ```
 
@@ -189,24 +191,25 @@ You will immediately recognize that this means our example data was actually rec
 
 
 ```{r readIndex}
-I <- rawR::readIndex(rawfile = rawfile)
-head(subset(I, scanType == "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
+Idx <- rawR::readIndex(rawfile = rawfile)
+head(subset(Idx,
+  scanType == "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
 ```
 
 For regression, we now extract the RTs at the maximum of the intensity traces stored in the chromatogram object and fit a linear model of the form: $$rt = a + b\cdot score$$ In theory, we could do this at the precursor or fragment ion level. For simplicity we show only the first option.  
 
 ```{r iRTscoreFit, error=TRUE}
-score <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
+iRTscore <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
 rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
-fit <- lm(rt ~ score)
+fit <- lm(rt ~ iRTscore)
 ```
 
+The fitted model can than be inspected using standard procedures. The output of code chunk `iRTscoreFitPlot`, in Figure 6, shows a visual inspection by plotting observed RTs as a function of iRT score together with the fitted model regression line. The corresponding R squared indicates that the RTs behave highly linear! This is expected since, the iRT peptides were separated on a 20 min linear gradient from 5 %B to 35 %B using C18 RP material (the change rate is therefore 1.5 %B / min). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide `GAGSSEPVTGLDAK`, since it was defined to have a zero score on the iRT scale.
 
-The fitted model can than be inspected using std. procedures. Code chunk `iRTscoreFitPlot` shows a visual inspection by plotting observed RTs as a function of iRT score together with the  fitted model regression line. The corresponding R squared indicates that the RTs behave highly linear! This is expected since, the iRT peptides were separated on a 20 min linear gradient from 5 %B to 35 %B using C18 RP material (the change rate is therefore 1.5 %B / min). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide GAGSSEPVTGLDAK, since it was defined to have a zero score on the iRT scale.
 
-
-```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="iRT regression"}
-plot(rt ~ score,
+```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="iRT score fit plot with regression line."}
+# iRTscoreFitPlot
+plot(rt ~ iRTscore,
      ylab = 'Retention time [min]',
      xlab = "iRT score",
      pch=16,frame.plot = FALSE)
@@ -217,12 +220,12 @@ legend("topleft", legend = paste("Regression line: ", "rt =",
                                  format(coef(fit)[2], digits = 2), "score",
                                  "\nR2: ", format(summary(fit)$r.squared, digits = 2)),
        bty = "n", cex = 0.75)
-text(score, rt,  iRT,pos=1,cex=0.5)
+text(iRTscore, rt, iRTmZ, pos=1,cex=0.5)
 ```
 
 ### Extension
 
-An extended version of the above use cases can be found at [link](https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of rawfiles recorded approx. every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are not on duty anymore). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. In this case, we use the resulting rawfiles to test `rawR` functionality over different orbitrap instrument. In order to find the high-scoring MS2 scan for `r names(iRT)[1]`++ per file, we now use a simple scoring function, implemented directly in `R` (it actually counts the number of matching y-ions), instead of running an external search engine. The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the source code is executed in a full parallel fashion (each core processes one rawfile) on a Linux server! This shows, how scalable analysis pipelines can be constructed starting from basic building blocks (code chunks). It demonstrates that (i) `rawR`s data access mechanism works for all types of instrument models and (ii) over network attached storage.
+An extended version of the above use cases can be found at (https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of rawfiles recorded approx. every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are not on duty anymore). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. In this case, we use the resulting rawfiles to test `rawR` functionality over different orbitrap instrument. In order to find the high-scoring MS2 scan for `r names(iRTmZ)[1]`++ per file, we now use a simple scoring function, implemented directly in `R` (it actually counts the number of matching y-ions), instead of running an external search engine. The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the source code is executed in a full parallel fashion (each core processes one rawfile) on a Linux server! This shows, how scalable analysis pipelines can be constructed starting from basic building blocks (code chunks). It demonstrates that (i) `rawR`s data access mechanism works for all types of instrument models and (ii) over network attached storage.
 
 
 ## Conclusions
@@ -246,11 +249,11 @@ Tobias Kockmann <https://orcid.org/0000-0002-1847-885X>
 
 The manuscript was written through contributions of all authors. All authors have given approval to the final version of the manuscript. ‡These authors contributed equally.
 
-
+<!--
 ## Funding Sources
 
 Any funds used to support the research of the manuscript should be placed here (per journal style).
-
+-->
 
 ## Acknowledgements
 

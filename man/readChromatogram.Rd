@@ -58,7 +58,7 @@ iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
   "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
   "LFLQFGAQGSPFLK")
 
-# [2H+] 
+# [2H+]
 if (require(protViz)){
      (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
   }else{
@@ -85,7 +85,7 @@ X <- readChromatogram(rawfile, mZ)
 Thermo Fisher NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}.
 
-\link[rawDiag]{readXIC}
+\link[rawDiag]{readXICs}
 }
 \author{
 Christian Trachsel, Tobias Kockmann and
