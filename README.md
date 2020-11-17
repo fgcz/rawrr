@@ -19,6 +19,6 @@ Make sure that .NET Framework 4.5.1 or higher is installed.
 
 You need to have [Mono](https://www.mono-project.com) installed. Mono is an open source implementation of Microsoft's .NET Framework.
 
-# Technical note
-* https://planetorbitrap.com/rawfilereader
+# Manuscripts
+
 * https://www.biorxiv.org/content/10.1101/2020.10.30.362533v1
