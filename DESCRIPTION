@@ -1,7 +1,7 @@
 Package: rawR
 Type: Package
 Title: Access to Thermo Fisher Scientific raw files from R
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),

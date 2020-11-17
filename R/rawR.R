@@ -174,7 +174,7 @@ readFileHeader <- function(rawfile,
 #' @return returns a \code{data.frame} with the column names
 #' scanType, rtinseconds, precursorMass, and charge of all spectra.
 #' @export readIndex
-#' @importFrom utils read.csv
+#' @importFrom utils read.csv2
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
 #' @seealso \link[rawDiag]{read.raw}
 #'
@@ -216,7 +216,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
                        stdout=tfstdout)
     }
 
-    DF <- read.table(tfstdout, header = TRUE, comment.char = "#",sep = ';')
+    DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';')
 
     unlink(c(tfi, tfo, tfstdout))
     DF
@@ -390,6 +390,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @exportClass rawRchromatogramSet
 #' @exportS3Method plot rawRchromatogram
 #' @exportS3Method plot rawRchromatogramSet
+#' @importFrom utils read.csv
 #' @examples
 #'
 #' # Example 1: not meaning full but proof-of-concept
