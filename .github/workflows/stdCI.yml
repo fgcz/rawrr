@@ -55,12 +55,15 @@ jobs:
           path: ${{ env.R_LIBS_USER }}
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
-
+      
+      - name: Install system dev dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y libicu-dev pandoc texlive texlive-latex-extra mono-devel
+        
       - name: Install system dependencies
         if: runner.os == 'Linux'
-        - name: install Linux packages
         run: |
-          sudo apt-get install -y libicu-dev pandoc texlive texlive-latex-extra mono-devel && while read -r cmd
+          while read -r cmd
           do
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
