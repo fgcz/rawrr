@@ -60,8 +60,7 @@ jobs:
         if: runner.os == 'Linux'
         - name: install Linux packages
         run: |
-          sudo apt-get install -y libicu-dev pandoc texlive texlive-latex-extra mono-devel \
-          && while read -r cmd
+          sudo apt-get install -y libicu-dev pandoc texlive texlive-latex-extra mono-devel && while read -r cmd
           do
             eval sudo $cmd
           done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
