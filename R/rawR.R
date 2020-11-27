@@ -105,7 +105,7 @@ is.rawRspectrum <- function(x){
 #' M <- readFileHeader(rawfile)
 readFileHeader <- function(rawfile,
    mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-   exe = system.file('exec/rawR.exe',package = 'rawR'),
+   exe = file.path(system.file(package = 'rawR'), 'exec', 'rawR.exe'),
    mono_path = "",
    argv = "infoR",
    system2_call = TRUE,
@@ -187,7 +187,7 @@ readFileHeader <- function(rawfile,
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 readIndex <- function(rawfile, tmpdir=tempdir()){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- system.file('exec/rawR.exe',package = 'rawR')
+    exe <- system.file('exec/rawR.exe', package = 'rawR')
 
     rawfile <- normalizePath(rawfile)
 
@@ -312,7 +312,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- file.path(path.package(package = "rawR"), "exec", "rawR.exe")
+    exe <- file.path(system.file(package = 'rawR'), 'exec', 'rawR.exe')
 
 
     if (!file.exists(rawfile)){
@@ -432,7 +432,7 @@ readChromatogram <- function(rawfile,
                              filter = "ms",
                              type = 'xic',
                              mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-                             exe = file.path(path.package(package = "rawR"), "exec", "rawR.exe")){
+    			     exe = file.path(system.file(package = 'rawR'), 'exec', 'rawR.exe')){
 
     if (!file.exists(rawfile)){
         stop(paste0('file ', rawfile, ' is not available. return.'))
@@ -914,7 +914,7 @@ print.rawRspectrum <- function(x, ...){
         value <- x[i]
 
         if (value == "NULL"){
-            cat(i, "\t\n", fill = TRUE)
+            #cat(i, "\t\n", fill = TRUE)
         }else{
             cat(paste(i, x[i],sep='\t'), fill = TRUE)
         }
