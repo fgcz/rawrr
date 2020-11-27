@@ -14,6 +14,7 @@
       2019-05-28 save info as Yaml
       2020-08-12 added infoR option
       2020-08-26 readSpectrum backend
+      2020-11-27 fix basePeak issue #21
     */
 
     using System;
@@ -277,9 +278,6 @@
                     {
 
                         var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
-                        var pepmass = -1.0;
-                        var charge = 0;
-                        var monoisotopicMz = "NA";
                         var basepeakMass = -1.0;
                         var basepeakIntensity = -1.0;
 
@@ -287,52 +285,70 @@
                         var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+			int indexCharge = -1;
+			int indexMonoisotopicmZ = -1;
+
 
                         try
                         {
-                            var reaction0 = scanEvent.GetReaction(0);
-                            var idx_PEPMASS = trailerFields
+                            indexMonoisotopicmZ = trailerFields
                                 .Select((item, index) => new
                                 {
                                     name = item.Label.ToString().CleanRawfileTrailerHeader(),
                                     Position = index
                                 })
                                 .First(x => x.name.Contains("MonoisotopicmZ")).Position;
+			}
+			catch
+			{
+                            indexMonoisotopicmZ = -1;
+			}
 
-                            var idx_CHARGE = trailerFields
+			try
+			{
+                            indexCharge = trailerFields
                                 .Select((item, index) => new
                                 {
                                     name = item.Label.ToString(),
                                     Position = index
                                 })
                                 .First(x => x.name.Contains("Charge State")).Position;
-
-                                pepmass = reaction0.PrecursorMass;
-                                basepeakMass =  (scanStatistics.BasePeakMass);
-                                basepeakIntensity =  Math.Round(scanStatistics.BasePeakIntensity);
-                                charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
-                                monoisotopicMz = scanTrailer.Values.ToArray()[idx_PEPMASS];
                         }
                         catch
-                        {
-                            // Console.WriteLine("catch");
-                            pepmass = -1.0;
-                            basepeakMass = -1.0;
-                            basepeakIntensity = -1.0;
-                            charge = 0;
-                            monoisotopicMz = "NA";
-                        }
+			{
+			    indexCharge = -1;
+			}
+
 
                             var scan = Scan.FromFile(rawFile, scanNumber);
 
                                 file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
                                 file.WriteLine("\tscan = {0},", scanNumber);
+
+			try
+			{
+                                basepeakMass =  (scanStatistics.BasePeakMass);
+                                basepeakIntensity =  Math.Round(scanStatistics.BasePeakIntensity);
                                 file.WriteLine("\tbasePeak = c({0}, {1}),", basepeakMass, basepeakIntensity);
+			}
+			catch
+			{
+                                file.WriteLine("\tbasePeak = c(NA, NA),");
+			}
                                 file.WriteLine("\tTIC = {0},", scanStatistics.TIC.ToString());
                                 file.WriteLine("\tmassRange = c({0}, {1}),", scanStatistics.LowMass.ToString(), scanStatistics.HighMass.ToString());
                                 file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
                                 file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
-                                file.WriteLine("\tpepmass = c({0}, {1}),", pepmass, basepeakIntensity);
+			try
+			{
+                            var reaction0 = scanEvent.GetReaction(0);
+                                file.WriteLine("\tpepmass = {0},", reaction0.PrecursorMass);
+			}
+			catch
+			{
+                                file.WriteLine("\tpepmass = NA,");
+			}
+
                             if (scanStatistics.IsCentroidScan && centroidStream.Length > 0)
                             {
                                 // Get the centroid (label) data from the RAW file for this scan
@@ -349,8 +365,17 @@
                                     null,
                                     scanNumber);
 
-                                file.WriteLine("\tcharge = {0},", charge);
-                                file.WriteLine("\tmonoisotopicMz = {0},", monoisotopicMz);
+			    if (indexMonoisotopicmZ > 0)
+                                file.WriteLine("\tmonoisotopicMz = {0},", Convert.ToDouble(scanTrailer.Values.ToArray()[indexMonoisotopicmZ]));
+			    else
+                                file.WriteLine("\tmonoisotopicMz = NA,");
+
+
+			    if (indexCharge > 0)
+                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+			    else
+                                file.WriteLine("\tcharge = NA,");
+
                                 file.WriteLine("\tmZ = c(" + string.Join(", ", centroidStream.Masses) + "),");
                                 file.WriteLine("\tintensity = c(" + string.Join(", ", centroidStream.Intensities) + "),");
                                 file.WriteLine("\tnoises = c(" + string.Join(", ", centroidStream.Noises) + "),");
@@ -374,8 +399,16 @@
                                     null,
                                     scanNumber);
 
-                                file.WriteLine("\tcharge = {0},", charge);
-                                file.WriteLine("\tmonoisotopicMz = {0},", monoisotopicMz);
+			    if (indexCharge > 0)
+                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+			    else
+                                file.WriteLine("\tcharge = NA,");
+
+			    if (indexMonoisotopicmZ > 0)
+                                file.WriteLine("\tmonoisotopicMz = {0},", Convert.ToDouble(scanTrailer.Values.ToArray()[indexMonoisotopicmZ]));
+			    else
+                                file.WriteLine("\tmonoisotopicMz = NA,");
+
                                 file.WriteLine("\tmZ = c(" + string.Join(",", scan.SegmentedScan.Positions) + "),");
                                 file.WriteLine("\tintensity = c(" + string.Join(",", scan.SegmentedScan.Intensities) + "),");
                             }
@@ -773,7 +806,7 @@
 
                         for (int j = 0; j < trace[i].Times.Count; j++)
                         {
-                            if (trace[i].Intensities[j] > 0)
+                         //   if (trace[i].Intensities[j] > 0)
                             {
                                 tTime.Add(trace[i].Times[j]);
                                 tIntensities.Add(trace[i].Intensities[j]);
