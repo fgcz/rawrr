@@ -740,12 +740,12 @@
                     Console.WriteLine("# Base Peak chromatogram ({0} points)", traceBasePeak[0].Length);
                     Console.WriteLine("# MassRange chromatogram ({0} points)", traceMassRange[0].Length);
 
-                    Console.WriteLine("rt,intensity.BasePeak,intensity.TIC,intensity.MassRange");
+                    Console.WriteLine("rt;intensity.BasePeak;intensity.TIC;intensity.MassRange");
                     if (outputData)
                     {
                         for (int i = 0; i < traceBasePeak[0].Length; i++)
                         {
-                            Console.WriteLine("{1:F3},{2:F0},{3:F0},{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
+                            Console.WriteLine("{1:F3};{2:F0};{3:F0};{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
                         }
                     }
                 }

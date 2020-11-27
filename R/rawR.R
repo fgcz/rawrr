@@ -390,7 +390,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @exportClass rawRchromatogramSet
 #' @exportS3Method plot rawRchromatogram
 #' @exportS3Method plot rawRchromatogramSet
-#' @importFrom utils read.csv
+#' @importFrom utils read.csv2
 #' @examples
 #'
 #' # Example 1: not meaning full but proof-of-concept
@@ -497,9 +497,9 @@ readChromatogram <- function(rawfile,
         if (mono){
             rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
         }else{
-            rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)),stdout=tfstdout)
+            rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)), stdout=tfstdout)
         }
-        DF <- read.csv(tfstdout, header = TRUE, comment.char = "#")
+        DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';')
 
 
         if (type == 'tic'){
