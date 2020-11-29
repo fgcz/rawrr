@@ -10,7 +10,7 @@ library(rawR)
 
 test_that("check readSpectrum function names.", {
 
-  rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+  rawfile <- sample()
 
   S <- readSpectrum(rawfile, 1:22)
 
@@ -20,7 +20,7 @@ test_that("check readSpectrum function names.", {
 
 test_that("check readSpectrum 23.", {
 
-  rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+  rawfile <- sample()
   S <- readSpectrum(rawfile, 23)[[1]]
 
   DF <- read.table(file.path(path.package(package = 'rawR'), 'extdata', 'scan23_peakList.txt'), sep="\t", header=TRUE)
@@ -37,8 +37,8 @@ test_that("check readSpectrum 23.", {
 test_that("check readSpectrum error.", {
   rawfile <- "this file does not exists"
   expect_error(S<-readSpectrum(rawfile))
-  
-  rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
+
+  rawfile <- sample()
   expect_error(S<-readSpectrum(rawfile))
   expect_error(S<-readSpectrum(rawfile, scan = NULL))
 })

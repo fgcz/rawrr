@@ -6,10 +6,7 @@ library(rawR)
 
 test_that("check readFileHeader", {
 
-  rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-
-
-  M <- readFileHeader(rawfile)
+  M <- readFileHeader(sample())
 
 
   expect_identical(M$`Scan range`, c(1, 574))

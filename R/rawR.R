@@ -60,9 +60,8 @@
 #' @export is.rawRspectrum
 #'
 #' @examples
-#'
-#' pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-#' S <- readSpectrum(pathToRawFile, scan = 1:10)
+#' rawfile <- sample()
+#' S <- readSpectrum(rawfile, scan = 1:10)
 #' is.rawRspectrum(S[[1]])
 is.rawRspectrum <- function(x){
     class(x) == "rawRspectrum"
@@ -179,8 +178,7 @@ readFileHeader <- function(rawfile,
 #' @seealso \link[rawDiag]{read.raw}
 #'
 #' @examples
-#' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
-#'   'sample.raw'))
+#' rawfile <- sample()
 #'
 #' Idx <- readIndex(rawfile)
 #' table(Idx$scanType)
@@ -222,6 +220,37 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
     DF
 }
 
+#' {\code{sample.raw}}
+#'
+#' @description Thermo Fisher Scientific Q Exactive HF-X raw file
+#' of size 1.5M bytes and checksum
+#' \code{MD5 (sample.raw) = fe67058456c79af7442316c474d20e96}.
+#'
+#' @details
+#' The binary example file sample.raw contains 574 fourier-transformed orbi trap
+#' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
+#' mass spectrometer was operated in line with a nano electrospray source (NSI)
+#' in positive mode (+). All spectra were written to disk after applying
+#' centroiding (c) and lock mass correction. Additional raw data for
+#' demonstration and extended testing is available through the
+#' \strong{Lions love raw meat!}
+#'
+#' @seealso
+#' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
+#'
+#' @return filepath of the sample.raw location
+#' @export sample
+#' @aliases sample.raw
+#' @author Tobias Kockmann 2018
+#' @examples
+#' sample()
+sample <- function(){
+    # path.package(package = 'rawR')
+    rawfile <- file.path(system.file(package = 'rawR'), 'extdata', 'sample.raw')
+    stopifnot(file.exists(rawfile))
+    rawfile
+}
+
 #' Read a Set of Spectra
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
@@ -235,19 +264,8 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' vector of scan numbers.
 #'
 #'
-#' @details
 #'
-#' {\code{sample.raw}}
-#' The binary example file sample.raw contains 574 fourier-transformed orbi trap
-#' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
-#' mass spectrometer was operated in line with a nano electrospray source (NSI)
-#' in positive mode (+). All spectra were written to disk after applying
-#' centroiding (c) and lock mass correction. Additional raw data for
-#' demonstration and extended testing is available through the
-#' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
-#' \strong{Lions love raw meat!}
-#'
-#' @aliases readSpectrum plot.rawRSpectrum rawR sample.raw
+#' @aliases readSpectrum plot.rawRSpectrum rawR
 #'
 #' @export readSpectrum
 #' @exportClass rawRspectrum
@@ -263,8 +281,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @seealso \link[rawDiag]{readScans}
 #'
 #' @examples
-#' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
-#'   'sample.raw'))
+#' (rawfile <- sample())
 #'
 #' S <- readSpectrum(rawfile, scan = 1:9)
 #'
@@ -394,7 +411,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @examples
 #'
 #' # Example 1: not meaning full but proof-of-concept
-#' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw'))
+#' (rawfile <- sample())
 #'
 #' XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 #' plot(XIC)
@@ -930,8 +947,8 @@ print.rawRspectrum <- function(x, ...){
 #' @return Boolean
 #' @export is.rawRchromatogram
 #'
-#' @examples pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-#' C <- readChromatogram(pathToRawFile, mass = 445.1181, tol = 10)
+#' @examples rawfile <- sample()
+#' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
 #' is.rawRchromatogram(C[[1]])
 is.rawRchromatogram <- function(x){
     "rawRchromatogram" %in% class(x)
@@ -945,8 +962,8 @@ is.rawRchromatogram <- function(x){
 #'
 #' @export plot.rawRchromatogram
 #'
-#' @examples pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-#' C <- readChromatogram(pathToRawFile, mass = 445.1181, tol = 10)
+#' @examples rawfile <- sample()
+#' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
 #' plot(C[[1]])
 plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     stopifnot(is.rawRchromatogram(x))

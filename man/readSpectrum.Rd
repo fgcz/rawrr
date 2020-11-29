@@ -4,7 +4,6 @@
 \alias{readSpectrum}
 \alias{plot.rawRSpectrum}
 \alias{rawR}
-\alias{sample.raw}
 \title{Read a Set of Spectra}
 \usage{
 readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
@@ -29,20 +28,8 @@ mass calibration, ion optics \ldots
 the function derives spectra of a given rawfile and a given
 vector of scan numbers.
 }
-\details{
-{\code{sample.raw}}
-The binary example file sample.raw contains 574 fourier-transformed orbi trap
-spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
-mass spectrometer was operated in line with a nano electrospray source (NSI)
-in positive mode (+). All spectra were written to disk after applying
-centroiding (c) and lock mass correction. Additional raw data for
-demonstration and extended testing is available through the
-\href{tartare package}{https://bioconductor.org/packages/tartare/}.
-\strong{Lions love raw meat!}
-}
 \examples{
-(rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
-  'sample.raw'))
+(rawfile <- sample())
 
 S <- readSpectrum(rawfile, scan = 1:9)
 

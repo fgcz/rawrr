@@ -20,8 +20,7 @@ scanType, rtinseconds, precursorMass, and charge of all spectra.
 Read scan index
 }
 \examples{
-(rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
-  'sample.raw'))
+rawfile <- sample()
 
 Idx <- readIndex(rawfile)
 table(Idx$scanType)

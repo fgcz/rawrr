@@ -16,7 +16,7 @@ Boolean
 Check if object is instance of class \code{rawRchromatogram}
 }
 \examples{
-pathToRawFile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
-C <- readChromatogram(pathToRawFile, mass = 445.1181, tol = 10)
+rawfile <- sample()
+C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
 is.rawRchromatogram(C[[1]])
 }

@@ -6,9 +6,8 @@ library(rawR)
 
 
 test_that("check readIndex.", {
-  rawfile <- file.path(path.package(package = 'rawR'), 'extdata', 'sample.raw')
 
-  S <- readIndex(rawfile)
+  S <- readIndex(sample())
 
   expect_equivalent(dim(S) == c(573, 6), c(TRUE, TRUE))
 })
