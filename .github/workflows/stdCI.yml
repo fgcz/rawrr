@@ -3,12 +3,10 @@
 on:
   push:
     branches:
-      - main
-      - master
+      - sparce-Vectors
   pull_request:
     branches:
-      - main
-      - master
+      - sparce-Vectors
 
 name: R-CMD-check
 
