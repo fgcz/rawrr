@@ -23,8 +23,9 @@ Description: provides interface for Thermo Fisher Scientifc raw files
 	of the RawFileReader .NET assembly. Within the R environment
 	spectra and chromatograms are represented by S3 objects.
 	All objects are currently kept in memory.
+	(Kockmann T. et al (2020) <doi:10.1101/2020.10.30.362533>)
         The package is developed, tested and used at the Functional
-        Genomics Center Zurich, Switzerland.
+        Genomics Center Zurich, Switzerland <https://fgcz.ch>.
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
