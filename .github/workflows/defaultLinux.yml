@@ -1,0 +1,46 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# See https://github.com/r-lib/actions/tree/master/examples#readme for
+# additional example workflows available for the R community.
+
+name: rwaR
+env:
+    ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        r-version: [4.0, 4.0.3]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up R ${{ matrix.r-version }}
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.r-version }}
+      - name: Install dependencies
+        run: |
+          install.packages(c("remotes", "rcmdcheck"))
+          remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
+      - name: install Linux packages
+        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip
+      - name: Check
+        run: |
+	  cd /tmp
+	  wget http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz
+	  tar xfvz rawR_0.1.5.tar.gz
+	  curl -s https://codeload.github.com/cpanse/recmap/zip/master >rawR.zip
+	  unzip rawR.zip
+	  cp rawR/exec/*.dll rawR-master/exec && rm *.gz
+	  cd rawR-master/src && make
+	  cd /tmp/ && R CMD build rawR-master && R CMD check rawR*tar.gz
