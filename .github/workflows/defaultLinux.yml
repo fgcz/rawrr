@@ -28,11 +28,12 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: install Linux packages
-        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip
+        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra
+      - name: install R suggested R packages
+        run: Rscript -e "install.packages(c('protViz', 'knitr', 'testthat'), repos='https://cloud.r-project.org')"
       - name: fetch and check rawR package
         run: |
-          Rscript -e "install.packages(c('protViz', 'knitr', 'testthat'), repos='https://cloud.r-project.org')" \
-          && curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
+          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
           && curl -s https://codeload.github.com/fgcz/rawR/zip/master > /tmp/rawR-master.zip \
           && cd /tmp && unzip rawR-master.zip \
           && cp rawR/exec/*.dll rawR-master/exec \
