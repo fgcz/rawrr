@@ -113,10 +113,10 @@ readFileHeader <- function(rawfile,
     rawfile <- normalizePath(rawfile)
 
     if (!file.exists(rawfile)){
-        stop(paste0('file ', rawfile, ' is not available. return.'))
+        stop(paste0('File ', rawfile, ' is not available. return.'))
     }
     if (!.isMonoAssemblyWorking()){
-        stop('the mono assembly are not available.')
+        stop('The mono assemblies are not available.')
     }
     if(system2_call && method == 'thermo'){
 
@@ -190,11 +190,11 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
     rawfile <- normalizePath(rawfile)
 
     if (!file.exists(rawfile)){
-        stop(paste0('file ', rawfile, ' is not available. return.'))
+        stop(paste0('File ', rawfile, ' is not available.'))
     }
 
     if (!.isMonoAssemblyWorking()){
-        stop('the mono assembly are not available.')
+        stop('The mono assembly are not available.')
     }
 
     tfi <- tempfile(tmpdir=tmpdir)
@@ -333,13 +333,13 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 
 
     if (!file.exists(rawfile)){
-        stop(paste0('file ', rawfile, ' is not available. return.'))
+        stop(paste0('File ', rawfile, ' is not available.'))
     }
     if (is.null(scan)){
-        stop('no scan vector is proived.')
+        stop('No scan vector is provided.')
     }
     if (!.isMonoAssemblyWorking()){
-        stop('the mono assembly are not available.')
+        stop('The mono assemblies are not available.')
     }
 
     tfi <- tempfile(tmpdir=tmpdir)
@@ -452,11 +452,11 @@ readChromatogram <- function(rawfile,
     			     exe = file.path(system.file(package = 'rawR'), 'exec', 'rawR.exe')){
 
     if (!file.exists(rawfile)){
-        stop(paste0('file ', rawfile, ' is not available. return.'))
+        stop(paste0('File ', rawfile, ' is not available.'))
     }
 
     if (!.isMonoAssemblyWorking()){
-        stop('the mono assembly are not available.')
+        stop('The mono assemblies are not available.')
     }
 
     tfstdout <- tempfile()
@@ -464,7 +464,7 @@ readChromatogram <- function(rawfile,
     tfo <- tempfile()
     if(type == 'xic'){
         if (is.null(mass)){
-            stop('no mass vector is proived.')
+            stop('No mass vector is provided.')
         }
         cat(mass, file=tfi, sep="\n")
 
@@ -664,15 +664,15 @@ validate_rawRspectrum <- function(x){
     }
 
     if (any(values$mZ < 0)) {
-        stop("All mZ values just be greater than zero", call. = FALSE)
+        stop("All mZ values just be greater than zero.", call. = FALSE)
     }
 
     if (any(values$intensity < 0)) {
-        stop("All intensity values just be greater than zero", call. = FALSE)
+        stop("All intensity values just be greater than zero.", call. = FALSE)
     }
 
     if (any(values$massRange < 0)) {
-        stop("All massRange values just be greater than zero", call. = FALSE)
+        stop("All massRange values just be greater than zero.", call. = FALSE)
     }
 
     if (values$massRange[1] > values$massRange[2]) {
@@ -686,17 +686,17 @@ validate_rawRspectrum <- function(x){
     ## still problems here: fails with sample data
 
     if (!values$basePeak[1] %in% values$mZ) {
-        stop("basePeak[1] (position) must be found in mZ", call. = FALSE)
+        stop("basePeak[1] (position) must be found in mZ.", call. = FALSE)
     }
 
     if (values$basePeak[2] != max(values$intensity)) {
-        stop("basePeak intensity is unequal max. intensity", call. = FALSE)
+        stop("basePeak intensity is unequal max. intensity.", call. = FALSE)
     }
 
     ##
 
     if (values$rtinseconds < 0) {
-        stop("rtinseconds must be greater than zero", call. = FALSE)
+        stop("rtinseconds must be greater than zero.", call. = FALSE)
     }
 
     x
