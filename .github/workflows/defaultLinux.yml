@@ -31,7 +31,8 @@ jobs:
         run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip
       - name: fetch and check rawR package
         run: |
-          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
+          Rscript -e 'install.packages(c('protViz', 'knitr', 'testthat'), repos="https://cloud.r-project.org")' \
+          && curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
           && curl -s https://codeload.github.com/fgcz/rawR/zip/master > /tmp/rawR-master.zip \
           && cd /tmp && unzip rawR-master.zip \
           && cp rawR/exec/*.dll rawR-master/exec \
