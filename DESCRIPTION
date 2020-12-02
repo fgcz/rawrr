@@ -35,3 +35,5 @@ Encoding: UTF-8
 LazyData: true
 NeedsCompilation: no
 RoxygenNote: 7.1.1
+biocViews: MassSpectrometry, Proteomics, Metabolomics
+VignetteBuilder: knitr
