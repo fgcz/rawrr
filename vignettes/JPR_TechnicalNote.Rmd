@@ -244,10 +244,12 @@ Our R package `rawR` provides direct access to spectral data stored in vendor-sp
 Tobias Kockmann  
 E-mail: <tobias.kockmann@fgcz.ethz.ch>
 
+<!--
 ### ORCID
 
 Christian Panse <https://orcid.org/0000-0003-1975-3064>  
 Tobias Kockmann <https://orcid.org/0000-0002-1847-885X>  
+-->
 
 ### Author contributions
 
@@ -283,6 +285,7 @@ XIC, extracted ion chromatogram;
 # References
 <div id="refs"></div>
 
+<!--
 # Supplements
 
 ```{r monoInfo, message=TRUE, echo=TRUE}
@@ -292,3 +295,4 @@ rawR:::.monoInfo()
 ```{r sessionInfo}
 sessionInfo()
 ```
+-->
