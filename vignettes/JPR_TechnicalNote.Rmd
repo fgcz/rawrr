@@ -40,7 +40,14 @@ Winterthurerstrasse 190, 8057 Zurich, Switzerland
 
 ## Abstract
 
-The Bioconductor project[@Huber2015] (BioC) has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API), but rather focused on metadata analysis and visualization. Our novel package `rawR` now provides complete, OS independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionality provided by the `rawR` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package.
+The Bioconductor project[@Huber2015] (BioC) has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API), but rather focused on metadata analysis and visualization. Our novel package `rawR` now provides complete, OS independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionality provided by the `rawR` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403).
+
+<!--
+Deposition of Mass spectrometry data
+
+For papers which were initially submitted without depositing MS data into a PUBLIC repository (such as ProteomeXchange, Massive, or Chorus),  deposit the data PRIOR to submitting a revision, and include dataset identifier(s) in the Abstract of the revised paper to show compliance.  This is a critical point for publication transparency since it allows readers to reproduce results claimed in the manuscript.
+NOTE:   MS data provided on author-managed links is NOT acceptable.
+-->
 
 **Availability**: <https://github.com/fgcz/rawR>
 
@@ -287,8 +294,19 @@ PRM, parallel reaction monitoring;
 TIC, total ion chromatogram;
 XIC, extracted ion chromatogram;
 
+## Supporting Information
 
-# References
+<!--
+Supporting Information - If the manuscript is accompanied by any supporting information for publication, a brief description of the supplementary material is required in the manuscript. The appropriate format is: Supporting Information. Brief statement in nonsentence format listing the contents of the material supplied as Supporting Information.
+-->
+
+## Funding Sources
+
+<!--
+Funding Sources: Authors are required to report ALL funding sources and grant/award numbers relevant to this manuscript. Enter all sources of funding for ALL authors relevant to this manuscript in BOTH the Open Funder Registry tool in ACS Paragon Plus and in the manuscript to meet this requirement. See http://pubs.acs.org/page/4authors/funder_options.html for complete instructions.
+-->
+
+## References
 <div id="refs"></div>
 
 <!--
