@@ -28,11 +28,15 @@ header-includes:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-^1^Functional Genomics Center Zurich, ETH Zurich / University of Zurich,
+1 Functional Genomics Center Zurich, ETH Zurich / University of Zurich,
 Winterthurerstrasse 190, 8057 Zurich, Switzerland
 
-^2^Swiss Institute of Bioinformatics, Quartier Sorge - Batiment Amphipole,
+2 Swiss Institute of Bioinformatics, Quartier Sorge - Batiment Amphipole,
 1015 Lausanne, Switzerland
+
+\* Corresponding author
+
+‡ Equal contributing author
 
 ## Abstract
 
