@@ -1,6 +1,6 @@
 ---
 title: rawR - Direct Access to raw Mass Spectrometry Data in R
-author: "Tobias Kockmann^1‡^* & Christian Panse^1,2‡^"
+author: "Tobias Kockmann^1‡\\*^ & Christian Panse^1,2‡^"
 date: "`r Sys.time()`"
 output:
   pdf_document: 
