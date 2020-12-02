@@ -19,6 +19,8 @@ vignette: |
   %\VignetteEngine{knitr::knitr}
   %\VignetteEngine{knitr::rmarkdown}
 urlcolor: blue
+header-includes:
+  - \usepackage{setspace}\doublespacing
 ---
 
 
