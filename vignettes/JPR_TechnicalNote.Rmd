@@ -1,5 +1,5 @@
 ---
-title: rawR - Direct Access to raw Mass Spectrometry Data in R
+title: "The rawR R package – Direct access to orbitrap data and beyond"
 author: "Tobias Kockmann^1‡\\*^ & Christian Panse^1,2‡^"
 date: "`r Sys.time()`"
 output:
@@ -40,7 +40,7 @@ Winterthurerstrasse 190, 8057 Zurich, Switzerland
 
 ## Abstract
 
-The Bioconductor project[@Huber2015] (BioC) has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API), but rather focused on metadata analysis and visualization. Our novel package `rawR` now provides complete, OS independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionality provided by the `rawR` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403).
+The Bioconductor project[@Huber2015] (BioC) has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API), but rather focused on metadata analysis and visualization. Our novel package `rawR` now provides complete, OS independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionality provided by the `rawR` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542).
 
 <!--
 Deposition of Mass spectrometry data
@@ -65,41 +65,32 @@ This is primarily due to the [BioC project](https://www.bioconductor.org/)[@Hube
 
 ## Implementation
 
-Our implementation is built on two layers, the `R` and the `C#` layer, which exchange information using file i/o. The following section describes the package topology from top-down, starting with a rationale for the object design.
-
-### `R`
-
-Mass spectrometry (MS) typically uses two basic data items: mass spectra and chromatograms.
-
-#### Spectra
-All mass spectra are recorded by scanning detectors (mass analyzers) that log signal intensities for ranges of mass to charge ratios (m/z), also referred to as position. These recordings can be of continuous nature, so-called profile data (p), or appear centroided (c) in case discrete information (tuples of position and intensity values) are sufficient. This heavily compacted data structure is often called a peak list. In addition to signal intensities, a peak list can also cover additional peak attributes like peak resolution (R), charge (z), or local noise estimates.
+Our implementation consists of two language layers, the top `R` layer and the hidden `C#` layer. Specifically `R` functions requesting access to data stored in binary raw files (reader family functions listed in Table 1) invoke compiled `C#` wrapper methods using a system call. Calling a wrapper method typically results in the execution of methods defined in the `RawFileReader` dynamic link library provided by Thermo Fisher. Our precompiled wrapper methods are bundled in the `rawR` executable file and shipped with the  released `R` package. Running `rawR.exe` requires the [mono](https://www.mono-project.com/) environment on none Microsoft operating systems. Mono is a cross platform, open source .NET framework. On Microsoft Windows the Microsoft .NET framework is typically already installed and sufficient. Our package also contains the `C#` source code (rawR.cs), hopefully allowing other developers to follow and improve our code. In order to return extracted data back to the `R` layer we use file I/O. More specifically, the extracted information is written to a temporary location on the harddrive, read back into memory and parsed into `R` objects.
 
 <!--
-In short, the additional attributes further described the nature of the original profile signal or help to group peak lists with respect to their molecular nature or processing history. A well-known example is the assignment of peaks to peak groups that constitute isotope patterns (M, M+1, M+2, ...). 
+The implementation section is missing a detailed description on how the classes “spectrum” and “chromatogram” look like. As these are the “only two non-standard objects” the reader should be informed about which properties they contain (without having to investigate the package documentation). It might make sense to attach the documentation as supporting material, although it is a current snapshot and will change with further development of the package. 
 -->
 
+Since mass spectrometry typically uses two basic data items, the mass spectrum and the mass chromatogram, we decided to implement corresponding objects following `R`'s `S3` OOP system [@newS] named `rawRspectrum` and `rawRchromatogram`. The package provides functions to create and validate class instances (objects). However, typically instances are generated by the reader family of functions listed in Table 1. and returned as lists, so called sets (`rawRspectrumSet`, `rawRchromatogramSet`). The class constructors (`rawRspectrum` and `rawRchromatogram`) primarily exist for (unit) testing purposes. The internal architecture of `rawRspectrum` is a linear list of vectors. List item names are typically transferred as returned by the `RawFileReader` and minimal type conversion is applied. The data portion of the `rawRchromatogram` object is as well a simple linear list. We also implemented basic generics for printing and plotting of objects that we used for visualization throughout this manuscript. To minimize dependencies, we choose to stick to `base R`.
+
+<!--
+Comment: Maybe to basic for JPR, since MS community is familiar with the definition of spectra and chromatogram
+
+#### Spectra
+All mass spectra are recorded by scanning detectors (mass analyzers) that log signal intensities for ranges of mass to charge ratios (m/z), also referred to as position. These recordings can be of continuous nature, so-called profile data (p), or appear centroided (c) in case discrete information (tuples of position and intensity values) are sufficient. This heavily compacted data structure is often called a peak list. In addition to signal intensities, a peak list can also cover additional peak attributes like peak resolution (R), charge (z), or local noise estimates. In short, the additional attributes further described the nature of the original profile signal or help to group peak lists with respect to their molecular nature or processing history. A well-known example is the assignment of peaks to peak groups that constitute isotope patterns (M, M+1, M+2, ...). 
+
 #### Chromatograms
-Chromatograms come in different flavors but are always signal intensity values as a function of time. Signal intensities can be point estimates from scanning detectors or plain intensities from non-scanning detectors, e.g., UV trace. Scanning detector (mass analyzers) point estimates can be defined in different ways by, for instance, summing all signals of a given spectrum (total ion chromatogram or TIC), or by extracting signal around an expected value (extracted ion chromatogram = XIC), or by using the maximum signal contained in a spectrum (base peak chromatogram = BPC). On top, chromatograms can be computed from pre-filtered lists of scans. A total ion chromatogram (TIC), for instance, is typically generated by iterating over all MS1-level scans. 
+Chromatograms come in different flavors but are always signal intensity values as a function of time. Signal intensities can be point estimates from scanning detectors or plain intensities from non-scanning detectors, e.g., UV trace. Scanning detector (mass analyzers) point estimates can be defined in different ways by, for instance, summing all signals of a given spectrum (total ion chromatogram or TIC), or by extracting signal around an expected value (extracted ion chromatogram = XIC), or by using the maximum signal contained in a spectrum (base peak chromatogram = BPC). On top, chromatograms can be computed from pre-filtered lists of scans. A total ion chromatogram (TIC), for instance, is typically generated by iterating over all MS1-level scans.
+-->
 
-Therefore, we decided to implemented corresponding objects following `R`s `S3` OOP system named `rawRspectrum` and `rawRchromatogram` that closely resemble the above definitions [@newS]. The package provides functions to create and validate class instances (objects). However, typically instances are generated by reader functions that expect rawfiles as input data (see Table 1. for an overview). We refer to collections of objects as sets, e.g., `rawRspectrumSet`. The constructors (`rawRspectrum()` and `rawRchromatogram()`) primarily exist for (unit) testing proposes or for simulating data (no binary input data is required). For instance, one can generate spectra showing predefined patterns (ion series derived from a peptide sequence) or sample from base `R`s collection of distributions (in preparation). We also implemented basic generics for printing and plotting of objects that we use for visualization throughout this manuscript. To minimize dependencies, we choose to stick to `base R` but it would be relatively easy to write your own plotting functions using `lattice` or `ggplot`. The reader functions typically call compiled `C#` code (see next section). We call these `C#` methods wrappers.
-
-```{r, echo=FALSE, eval=FALSE}
-plot(rawRspectrum(sim = "TESTPEPTIDE"))
-validate_rawRspectrum(rawRspectrum(sim = "TESTPEPTIDE"))
-```
-### `C#`
-
-The `base::system2` R function invokes methods compiled in the compiled `rawR.exe` .NET application. `rawR.exe` utilizes the NewRawFileReader .Net assembly provided by Thermo Fisher Scientific [@RFR]. Therefore, it can read the proprietary vendor files and pass R code for S3 class R [@R] objects back to the R layer of `rawR`. The `C#` source code and a precompiled binary is shipped with the released R package and runs on Linux, Microsoft Windows, and MacOSX on the X86_64 hardware architecture. On Linux and MacOS the [mono](https://www.mono-project.com/) assemblies are required to run the wrapper functions.
-
-
-### Example binary data
-The [example file](http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw) (MD5: `a1f5df9627cf9e0d51ec1906776957ab`) used throughout this manuscript contains Fourier-transformed orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF in positive mode (+). The mass spectrometer was operated in line with a nano UPLC and a nano electrospray source (NSI). MS2 spectra were generated by HCD fragmentation at normalized collision energy (NCE) of 27. All spectra were written to disk after applying centroiding (c) and lock mass correction. The analyzed sample consists of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 reversed-phase material at a constant flow rate of 300 nl/min.
+### Example data
+The example file `20181113_010_autoQC01.raw` used throughout this manuscript contains Fourier-transformed orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF in positive mode (+). The mass spectrometer was operated in line with a nano UPLC and a nano electrospray source (NSI). MS2 spectra were generated by HCD fragmentation at normalized collision energy (NCE) of 27. All spectra were written to file after applying centroiding (c) and lock mass correction. The analyzed sample consisted of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 reversed-phase material at a constant flow rate of 300 nl/min. The file is part of the MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542)
 
 Additional raw data for demonstration and extended testing is available through the BioC data package [tartare](https://bioconductor.org/packages/tartare/).
 
 <!---
 TODO(cp): add to man page
-The binary example file sample.raw contains 574 Fourier-transformed orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/) [@tartare]. Lions love raw meat!
+The file sample.raw contains 574 Fourier-transformed orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/) [@tartare]. Lions love raw meat!
 -->
 
 ## Results
