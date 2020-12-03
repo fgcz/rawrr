@@ -240,7 +240,7 @@ text(iRTscore, rt, iRTmZ, pos=1,cex=0.5)
 
 ### Extension
 
-An extended version of the above use cases can be found at (https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of rawfiles recorded approximately every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are out of service). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. In this case, we use the resulting rawfiles to test `rawR` functionality over different orbitrap instrument. In order to find the high-scoring MS2 scan for `r names(iRTmZ)[1]`++ per file, we now use a simple scoring function, implemented directly in `R` (it counts the number of matching y-ions), instead of running an external search engine. The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the source code is executed in a full parallel fashion (each core processes one rawfile) on a Linux server. This shows how scalable analysis pipelines can be constructed starting from basic building blocks (code chunks). It demonstrates that (i) `rawR`'s data access mechanism works for all types of instrument models and (ii) over network-attached storage.
+An extended and dynamic version of the above use cases can be found at (https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of raw files recorded approximately every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are out of service). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. We reuse the resulting raw files to showcase `rawR`'s functionality across different orbitrap instrument models/generations. In order to find the highest-scoring MS2 scan for `r names(iRTmZ)[1]`++ per file, we now use a simple scoring function, implemented directly in `R` (it counts the number of matching y-ions), instead of running an external search engine (see supplementary file: R script functional test). The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the source code is executed in a full parallel fashion (each core processes one raw file) on a Linux server. This shows how scalable analysis pipelines can be constructed starting from basic building blocks (code chunks). It demonstrates that (i) `rawR`'s data access mechanism works for all types of instrument models and (ii) over network-attached storage.
 
 
 ## Conclusions
@@ -285,7 +285,7 @@ BSA, Bovine Serum Albumin;
 FTMS, Fourier-transformed mass spectrum;
 GUI, graphics user interface;
 HRAM, high-resolution accurate mass; 
-IRT, indexed retention time;
+iRT, indexed retention time;
 LC-MS, liquid chromatography followed by mass spectrometry;
 OOP, object-oriented programming;
 MS, mass spectrometry;
@@ -300,14 +300,10 @@ XIC, extracted ion chromatogram;
 Supporting Information - If the manuscript is accompanied by any supporting information for publication, a brief description of the supplementary material is required in the manuscript. The appropriate format is: Supporting Information. Brief statement in nonsentence format listing the contents of the material supplied as Supporting Information.
 -->
 
-## Funding Sources
-
 <!--
-Funding Sources: Authors are required to report ALL funding sources and grant/award numbers relevant to this manuscript. Enter all sources of funding for ALL authors relevant to this manuscript in BOTH the Open Funder Registry tool in ACS Paragon Plus and in the manuscript to meet this requirement. See http://pubs.acs.org/page/4authors/funder_options.html for complete instructions.
+- Page 13-14, "Supplements":
+If this information is intended as Supporting information, it must be removed and provided as a separate file.   The first page of the file should be a cover page that includes title of the primary article, the authors’ names and affiliations, and a table of contents listing each supporting component by name and brief caption.  Number pages as S-1, S-2, etc
 -->
-
-## References
-<div id="refs"></div>
 
 <!--
 # Supplements
@@ -320,3 +316,15 @@ rawR:::.monoInfo()
 sessionInfo()
 ```
 -->
+
+*Software environment information: Output of `rawR:::monoInfo()` and `sessionInfo()`
+*R script "functional test": Extended code example generating a html page.
+
+## Funding Sources
+
+<!--
+Funding Sources: Authors are required to report ALL funding sources and grant/award numbers relevant to this manuscript. Enter all sources of funding for ALL authors relevant to this manuscript in BOTH the Open Funder Registry tool in ACS Paragon Plus and in the manuscript to meet this requirement. See http://pubs.acs.org/page/4authors/funder_options.html for complete instructions.
+-->
+
+## References
+<div id="refs"></div>
