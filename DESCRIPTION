@@ -29,7 +29,7 @@ Description: provides interface for Thermo Fisher Scientifc raw files
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
-URL: https://github.com/fgcz/rawDiag/
+URL: https://github.com/fgcz/rawR/
 BugReports: https://github.com/fgcz/rawR/issues
 Encoding: UTF-8
 LazyData: true

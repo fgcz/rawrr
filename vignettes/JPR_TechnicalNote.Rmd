@@ -21,6 +21,9 @@ vignette: |
 urlcolor: blue
 header-includes:
   - \usepackage{setspace}\doublespacing
+keywords: computational mass spectrometry, software, R package
+abstract: |
+  The Bioconductor project[@Huber2015] has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API), but rather focused on metadata analysis and visualization. Our novel package `rawR` now provides complete, OS independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionality provided by the `rawR` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403). **Availability**: <https://github.com/fgcz/rawR> **Keywords**: computational mass spectrometry, software, R package
 ---
 
 
@@ -38,9 +41,8 @@ Winterthurerstrasse 190, 8057 Zurich, Switzerland
 
 ‡ Equal contributing author
 
-## Abstract
 
-The Bioconductor project[@Huber2015] (BioC) has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API), but rather focused on metadata analysis and visualization. Our novel package `rawR` now provides complete, OS independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionality provided by the `rawR` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542).
+
 
 <!--
 Deposition of Mass spectrometry data
@@ -49,21 +51,16 @@ For papers which were initially submitted without depositing MS data into a PUBL
 NOTE:   MS data provided on author-managed links is NOT acceptable.
 -->
 
-**Availability**: <https://github.com/fgcz/rawR>
 
-## Keywords
+# Introduction
 
-computational mass spectrometry, software, R package
-
-## Introduction
-
-Mass spectrometry-based proteomics and metabolomics are the preferred technology to study the protein and metabolite landscape of complex biological systems. The orbitrap mass analyzer is one of the key innovations that propelled the field by providing HRAM data on a chromatographic time scale. Driven by the need to analyze the resulting LC-MS data, several specialized software tools have been developed in the last decade. In the academic environment, [MaxQuant](https://maxquant.org/)[@Cox2008] and [Skyline](https://skyline.ms/project/home/begin.view?)[@MacLean2010] are beyond the most popular ones. These software tools usually offer GUIs that control running predefined analysis templates/workflows, including free parameters that need to be defined by the user. In parallel, projects like [OpenMS](https://www.openms.de/)[@Rst2016] or [pyteomics](https://github.com/levitsky/pyteomics)[@Goloborodko2013] developed, but chose a fundamentally different approach. They aim at providing software libraries bound to specific programming languages like `C++` or `Python`. These naturally offer greater analytical flexibility but require programming skills from the end-user and have therefore not reached the popularity of their GUI counterparts. Proteomics and metabolomics specific libraries have also been developed for the [`R`](https://www.r-project.org/) statistical environment, but these mainly support high-level statistical analysis once the raw measurement data has undergone extensive preprocessing and aggregation by external software tools (often the GUI-based once listed above). A typical example is the `R` package [MSstats](http://msstats.org/)[@Choi2014] for the statistical analysis of LC-MS experiments with complex designs or [MSqRob](https://github.com/statOmics/MSqRob)[@Goeminne2015]. MSstats can process MaxQuant or Skyline output and creates protein/peptide level estimates whether the biological system shows statistically significant regulation. In a nutshell, these tools provide statistical postprocessing. Libraries that support working with the spectral data in `R` also exist, for instance, the BioC package [MSnbase](https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html)[@Gatto2011], but require conversion of raw data to exchange formats like [mzML](http://www.psidev.info/mzML). These conversions are primarily supported by the [ProteoWizard](http://proteowizard.sourceforge.net/)[@Chambers2012] project and its software tool `MSconvert`.
+Mass spectrometry-based proteomics and metabolomics are the preferred technology to study the protein and metabolite landscape of complex biological systems. The orbitrap mass analyzer is one of the key innovations that propelled the field by providing HRAM data on a chromatographic time scale. Driven by the need to analyze the resulting LC-MS data, several specialized software tools have been developed in the last decade. In the academic environment, [MaxQuant](https://maxquant.org/)[@Cox2008] and [Skyline](https://skyline.ms/project/home/begin.view?)[@MacLean2010] are beyond the most popular ones. These software tools usually offer GUIs that control running predefined analysis templates/workflows, including free parameters that need to be defined by the user. In parallel, projects like [OpenMS](https://www.openms.de/)[@Rst2016] or [pyteomics](https://github.com/levitsky/pyteomics)[@Goloborodko2013] developed, but chose a fundamentally different approach. They aim at providing software libraries bound to specific programming languages like `C++` or `Python`. These naturally offer greater analytical flexibility but require programming skills from the end-user and have therefore not reached the popularity of their GUI counterparts. Proteomics and metabolomics specific libraries have also been developed for the [`R`](https://www.r-project.org/) statistical environment, but these mainly support high-level statistical analysis once the raw measurement data has undergone extensive preprocessing and aggregation by external software tools (often the GUI-based once listed above). A typical example is the `R` package [MSstats](http://msstats.org/)[@Choi2014] for the statistical analysis of LC-MS experiments with complex designs or [MSqRob](https://github.com/statOmics/MSqRob)[@Goeminne2015]. MSstats can process MaxQuant or Skyline output and creates protein/peptide level estimates whether the biological system shows statistically significant regulation. In a nutshell, these tools provide statistical postprocessing. Libraries that support working with the spectral data in `R` also exist, for instance, the Bioconductor package [MSnbase](https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html)[@Gatto2011], but require conversion of raw data to exchange formats like [mzML](http://www.psidev.info/mzML). These conversions are primarily supported by the [ProteoWizard](http://proteowizard.sourceforge.net/)[@Chambers2012] project and its software tool `MSconvert`.
 
 We strongly believe that a library providing raw data reading functionally would finally close the gap and facilitate modular end-to-end analysis pipeline development in `R`. This could be of special interest to research environments/projects dealing with either big data analytics or scientists interested in code prototyping without formal computer science education.  Another key aspect regarding multi-omics integration of proteomics and metabolomics data is the fact that high-throughput genomic data analysis is already done mostly in `R`.
 <!-- So proteomics and metabolomics could finally "join the party" !-->
-This is primarily due to the [BioC project](https://www.bioconductor.org/)[@Huber2015] that currently provides >1900 open-source software packages, training & teaching, and a very active user & developer community. Having these thoughts in mind, we decide to implement our R package `rawR`. `rawR` utilizes a vendor-provided API to access spectral data logged in proprietary raw files. These binary files are written by all orbitrap mass spectrometers, unlocking an incredible amount of the global LC-MS data, also stored in public repositories like [ProteomeExchange](http://www.proteomexchange.org/). This manuscript presents a first package version/release and shows case its usage for bottom-up proteomics data analysis.
+This is primarily due to the [Bioconductor project](https://www.bioconductor.org/)[@Huber2015] that currently provides >1900 open-source software packages, training & teaching, and a very active user & developer community. Having these thoughts in mind, we decide to implement our R package `rawR`. `rawR` utilizes a vendor-provided API to access spectral data logged in proprietary raw files. These binary files are written by all orbitrap mass spectrometers, unlocking an incredible amount of the global LC-MS data, also stored in public repositories like [ProteomeExchange](http://www.proteomexchange.org/). This manuscript presents a first package version/release and shows case its usage for bottom-up proteomics data analysis.
 
-## Implementation
+# Implementation
 
 Our implementation consists of two language layers, the top `R` layer and the hidden `C#` layer. Specifically `R` functions requesting access to data stored in binary raw files (reader family functions listed in Table 1) invoke compiled `C#` wrapper methods using a system call. Calling a wrapper method typically results in the execution of methods defined in the `RawFileReader` dynamic link library provided by Thermo Fisher. Our precompiled wrapper methods are bundled in the `rawR` executable file and shipped with the  released `R` package. Running `rawR.exe` requires the [mono](https://www.mono-project.com/) environment on none Microsoft operating systems. Mono is a cross platform, open source .NET framework. On Microsoft Windows the Microsoft .NET framework is typically already installed and sufficient. Our package also contains the `C#` source code (rawR.cs), hopefully allowing other developers to follow and improve our code. In order to return extracted data back to the `R` layer we use file I/O. More specifically, the extracted information is written to a temporary location on the harddrive, read back into memory and parsed into `R` objects.
 
@@ -86,14 +83,14 @@ Chromatograms come in different flavors but are always signal intensity values a
 ### Example data
 The example file `20181113_010_autoQC01.raw` used throughout this manuscript contains Fourier-transformed orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF in positive mode (+). The mass spectrometer was operated in line with a nano UPLC and a nano electrospray source (NSI). MS2 spectra were generated by HCD fragmentation at normalized collision energy (NCE) of 27. All spectra were written to file after applying centroiding (c) and lock mass correction. The analyzed sample consisted of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 reversed-phase material at a constant flow rate of 300 nl/min. The file is part of the MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542)
 
-Additional raw data for demonstration and extended testing is available through the BioC data package [tartare](https://bioconductor.org/packages/tartare/).
+Additional raw data for demonstration and extended testing is available through the Bioconductor data package [tartare](https://bioconductor.org/packages/tartare/) [@tartare].
 
 <!---
 TODO(cp): add to man page
 The file sample.raw contains 574 Fourier-transformed orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/) [@tartare]. Lions love raw meat!
 -->
 
-## Results
+# Results
 
 The following sections are inspired by real-world research/infrastructure projects but have been stripped down to the bare scientific essentials to put more weight on the software application. We display source code in grey-shaded boxes, including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package.
 
@@ -106,7 +103,7 @@ The following sections are inspired by real-world research/infrastructure projec
 
 Table: lists the most important `rawR` package functions connected to reading functionality. More details can be found in the package documentation.
 
-### Use Case I - Analyzing Orbitrap Spectra
+## Use Case I - Analyzing Orbitrap Spectra
 
 <!---
 scp fgcz-r-035.uzh.ch:/export/lv_iduzh06/projects/p1000/Proteomics/QEXACTIVEHF_2/tobiasko_20181113/20181113_010_autoQC01.raw ~/Downloads/
@@ -114,9 +111,9 @@ scp fgcz-r-035.uzh.ch:/export/lv_iduzh06/projects/p1000/Proteomics/QEXACTIVEHF_2
 http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
 MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 -->
-```{r readFileHeader, echo=FALSE}
+```{r readFileHeader, echo=FALSE, message=FALSE}
 library(rawR)
-rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
+rawfile <- rawR::sample()
 H <- rawR::readFileHeader(rawfile = rawfile)
 ```
 
@@ -124,7 +121,7 @@ The orbitrap detector has been a tremendous success story in MS, since it offers
 
 Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawRspectrum` object or `rawRspectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Figure 1 shows the resulting plot for scan `9594`:
 
-```{r plot.rawRspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
+```{r plotrawRspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawR)
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
 ## scan numbers (PSMs) derived from DB search
@@ -157,7 +154,7 @@ axis(3, yIonSeries, names(yIonSeries))
 More sophisticated analysis workflows applying `rawR` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross-compared at different collision energies. Be aware that such things are convenient since the `rawRspectrum` object provides easy access to normalized and absolute collision energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
 
 
-### Use Case II - iRT Regression for System Suitability Monitoring
+## Use Case II - iRT Regression for System Suitability Monitoring
 
 By applying linear regression, one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values and *vice versa* [@Escher2012]. This can be used for retention time calibration/prediction. In addition, fitted iRT regression models provide highly valuable information about LC-MS run performance. This example shows how easy it is to perform iRT regression in `R` by just using the raw measurement data, our package `rawR`, and well known `base R` functions supporting linear modeling. To get a first impression of the data we calculate a TIC using the `readChromatogram()` function. Plotting the TIC shows chromatographic peaks between 15 and 28 min that could be of peptidic origin. Of note, there is also a `type = "bpc"` option if you prefer a BPC:
 
@@ -171,7 +168,7 @@ plot(rawR::readChromatogram(rawfile = rawfile, type = "bpc"))
 
 The initial step of iRT regression is to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, given they were spiked into the sample matrix prior to data acquisition. Fortunately, our example data is iRT peptides in a tryptic digest of BSA. The code chunk below demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawRchromatogramSet` object of the type `xic`. This object is plotted for visual inspection.
 
-```{r plot.rawRchromatogram, fig.cap="XICs for iRT peptides precursors. Each XIC was calculated using a tolerance of 10 ppm around the target mass and using only MS1 scans.", error=TRUE}
+```{r plotrawRchromatogram, fig.cap="XICs for iRT peptides precursors. Each XIC was calculated using a tolerance of 10 ppm around the target mass and using only MS1 scans.", error=TRUE}
 iRTmZ <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
@@ -229,31 +226,17 @@ legend("topleft", legend = paste("Regression line: ", "rt =",
 text(iRTscore, rt, iRTmZ, pos=1,cex=0.5)
 ```
 
-### Extension
+## Extension
 
 An extended and dynamic version of the above use cases can be found at (https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of raw files recorded approximately every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are out of service). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. We reuse the resulting raw files to showcase `rawR`'s functionality across different orbitrap instrument models/generations. In order to find the highest-scoring MS2 scan for `r names(iRTmZ)[1]`++ per file, we now use a simple scoring function, implemented directly in `R` (it counts the number of matching y-ions), instead of running an external search engine (see supplementary file: R script functional test). The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the source code is executed in a full parallel fashion (each core processes one raw file) on a Linux server. This shows how scalable analysis pipelines can be constructed starting from basic building blocks (code chunks). It demonstrates that (i) `rawR`'s data access mechanism works for all types of instrument models and (ii) over network-attached storage.
 
 
-## Conclusions
+# Conclusions
 
-Our R package `rawR` provides direct access to spectral data stored in vendor-specific binary raw files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (spectrum & chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use doesn't impair performance. We also emphasized that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawR` to the BioC project and align further efforts with the R for Mass Spectrometry initiative. In particular, we hope to extend `rawR` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
+Our R package `rawR` provides direct access to spectral data stored in vendor-specific binary raw files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (spectrum & chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use doesn't impair performance. We also emphasized that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawR` to the Bioconductor project and align further efforts with the R for Mass Spectrometry initiative. In particular, we hope to extend `rawR` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
 
 
-## Author information
-
-### Corresponding author
-
-Tobias Kockmann  
-E-mail: <tobias.kockmann@fgcz.ethz.ch>
-
-<!--
-### ORCID
-
-Christian Panse <https://orcid.org/0000-0003-1975-3064>  
-Tobias Kockmann <https://orcid.org/0000-0002-1847-885X>  
--->
-
-### Author contributions
+## Author contributions
 
 The manuscript was written through contributions of all authors. All authors have given approval to the final version of the manuscript. ‡These authors contributed equally.
 
@@ -271,7 +254,6 @@ We thank Lilly van de Venn for designing the `rawR` package logo. We are gratefu
 ## Abbreviations
 
 API, advanced programming interface;
-BioC, Bioconductor project;
 BSA, Bovine Serum Albumin;
 FTMS, Fourier-transformed mass spectrum;
 GUI, graphics user interface;

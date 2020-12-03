@@ -440,7 +440,7 @@
             {
                 // This local variable controls if the AnalyzeAllScans method is called
                 // bool analyzeScans = false;
-                string rawR_version = "0.0.1";
+                string rawR_version = "0.1.5";
 
                 // Get the memory used at the beginning of processing
                 Process processBefore = Process.GetCurrentProcess();
@@ -502,7 +502,8 @@
                     }
 
                     // Check to see if the specified RAW file exists
-                    if (!File.Exists(filename))
+                   // if (!File.Exists(filename))
+		   if(false)
                     {
                         Console.WriteLine("rawR version = {}", rawR_version);
                         Console.WriteLine(@"The file doesn't exist in the specified location - {0}", filename);
