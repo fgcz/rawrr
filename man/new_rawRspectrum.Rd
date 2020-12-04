@@ -35,3 +35,6 @@ Object of class \code{rawRspectrum}
 \description{
 Developer function.
 }
+\author{
+Tobias Kockmann, 2020.
+}

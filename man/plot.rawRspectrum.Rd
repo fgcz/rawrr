@@ -41,5 +41,5 @@ additional arguments to \code{plot()}
 Is usually called by method dispatch.
 }
 \author{
-Tobias Kockmann, 2020
+Tobias Kockmann, 2020.
 }

@@ -15,5 +15,5 @@
 Basic print function faking the look and feel of freestyle's output
 }
 \author{
-Christian Panse & Tobias Kockmann, 2020
+Christian Panse and Tobias Kockmann, 2020.
 }

@@ -15,5 +15,5 @@
 Basic summary function
 }
 \author{
-Christian Panse & Tobias Kockmann, 2020
+Christian Panse and Tobias Kockmann, 2020.
 }

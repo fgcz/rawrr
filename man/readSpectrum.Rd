@@ -13,8 +13,8 @@ readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
 
 \item{scan}{a vector of requested scan numbers.}
 
-\item{tmpdir}{a non-empty character vector giving the directory name; default
-uses \code{tempdir()}.}
+\item{tmpdir}{a non-empty character vector giving the directory name;
+default uses \code{tempdir()}.}
 
 \item{validate}{boolean default is \code{FALSE}.}
 }

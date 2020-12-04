@@ -8,28 +8,38 @@
 sample()
 }
 \value{
-filepath of the sample.raw location
+file path of the sample.raw location.
 }
 \description{
-Thermo Fisher Scientific Q Exactive HF-X raw file
-of size 1.5M bytes and checksum
-\code{MD5 (sample.raw) = fe67058456c79af7442316c474d20e96}.
-}
-\details{
-The binary example file sample.raw contains 574 fourier-transformed orbi trap
+The binary example file sample.raw contains 574 Fourier-transformed orbitrap
 spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 mass spectrometer was operated in line with a nano electrospray source (NSI)
 in positive mode (+). All spectra were written to disk after applying
-centroiding (c) and lock mass correction. Additional raw data for
-demonstration and extended testing is available through the
+centroiding (c) and lock mass correction.
+}
+\details{
+Thermo Fisher Scientific Q Exactive HF-X raw file
+of size 1.5M bytes and checksum
+\code{MD5 (sample.raw) = fe67058456c79af7442316c474d20e96}.
+Additional raw data for
+demonstration and extended testing is available through
+\href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}
+and the
+\href{https://bioconductor.org/packages/tartare/}{tartare} package.
 \strong{Lions love raw meat!}
 }
 \examples{
 sample()
 }
-\seealso{
-\href{tartare package}{https://bioconductor.org/packages/tartare/}.
+\references{
+\itemize{
+\item{Bioconductor
+\href{https://bioconductor.org/packages/tartare/}{tartare} package.}
+\item{Automated quality control sample 1 (autoQC01) analyzed across different
+Thermo Scientific mass spectrometers,
+\href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.}
+}
 }
 \author{
-Tobias Kockmann 2018
+Tobias Kockmann, 2018, 2019.
 }

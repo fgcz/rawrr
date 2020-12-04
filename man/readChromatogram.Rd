@@ -66,26 +66,29 @@ if (require(protViz)){
 }
 
 \dontrun{
-# https://fgcz-ms.uzh.ch/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw
-# md5 = 00ffee77b82202200e5aec0522729f51
+# MSV000086542
+# MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 
-rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
+rawfile <- file.path(Sys.getenv('HOME'), "Downloads",
+  "20181113_010_autoQC01.raw")
+
 X <- readChromatogram(rawfile, mZ)
 }
 
 }
 \references{
-\itemize{
-  \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-  \item{the R function 1st appeared in
-    \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
-}
+Automated quality control sample 1 (autoQC01) analyzed across different
+Thermo Scientific mass spectrometers,
+\href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.
 }
 \seealso{
-Thermo Fisher NewRawfileReader C# code snippets
-\url{https://planetorbitrap.com/rawfilereader}.
-
-\link[rawDiag]{readXICs}
+\itemize{
+\item{Thermo Fisher NewRawfileReader C# code snippets
+\url{https://planetorbitrap.com/rawfilereader}.}
+\item{\link[rawDiag]{readXICs} contains a prototype with limited
+functionality.}
+\item{\url{https://CRAN.R-project.org/package=protViz}}
+}
 }
 \author{
 Christian Trachsel, Tobias Kockmann and

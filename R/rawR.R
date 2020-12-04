@@ -222,26 +222,37 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 
 #' {\code{sample.raw}}
 #'
-#' @description Thermo Fisher Scientific Q Exactive HF-X raw file
-#' of size 1.5M bytes and checksum
-#' \code{MD5 (sample.raw) = fe67058456c79af7442316c474d20e96}.
-#'
-#' @details
-#' The binary example file sample.raw contains 574 fourier-transformed orbi trap
+#' @description
+#' The binary example file sample.raw contains 574 Fourier-transformed orbitrap
 #' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 #' mass spectrometer was operated in line with a nano electrospray source (NSI)
 #' in positive mode (+). All spectra were written to disk after applying
-#' centroiding (c) and lock mass correction. Additional raw data for
-#' demonstration and extended testing is available through the
+#' centroiding (c) and lock mass correction.
+#'
+#' @details Thermo Fisher Scientific Q Exactive HF-X raw file
+#' of size 1.5M bytes and checksum
+#' \code{MD5 (sample.raw) = fe67058456c79af7442316c474d20e96}.
+#' Additional raw data for
+#' demonstration and extended testing is available through
+#' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}
+#' and the
+#' \href{https://bioconductor.org/packages/tartare/}{tartare} package.
 #' \strong{Lions love raw meat!}
 #'
-#' @seealso
-#' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
+#' @references
+#' \itemize{
+#' \item{Bioconductor
+#' \href{https://bioconductor.org/packages/tartare/}{tartare} package.}
+#' \item{Automated quality control sample 1 (autoQC01) analyzed across different
+#' Thermo Scientific mass spectrometers,
+#' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.}
+#' }
 #'
-#' @return filepath of the sample.raw location
+#'
+#' @return file path of the sample.raw location.
 #' @export sample
 #' @aliases sample.raw
-#' @author Tobias Kockmann 2018
+#' @author Tobias Kockmann, 2018, 2019.
 #' @examples
 #' sample()
 sample <- function(){
@@ -255,15 +266,13 @@ sample <- function(){
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
 #' @param scan a vector of requested scan numbers.
-#' @param tmpdir a non-empty character vector giving the directory name; default
-#' uses \code{tempdir()}.
+#' @param tmpdir a non-empty character vector giving the directory name;
+#' default uses \code{tempdir()}.
 #' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 #'
 #' @description the function derives spectra of a given rawfile and a given
 #' vector of scan numbers.
-#'
-#'
 #'
 #' @aliases readSpectrum plot.rawRSpectrum rawR
 #'
@@ -386,22 +395,26 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @param mono if the mono enviroment should be used.
 #' @param exe the exe file user by mono.
 #'
-#' @seealso Thermo Fisher NewRawfileReader C# code snippets
-#' \url{https://planetorbitrap.com/rawfilereader}.
-#'
 #' @return chromatogram object(s) containing of a vector of \code{times} and a
 #' corresponding vector of \code{intensities}.
-#'
-#' @references
-#' \itemize{
-#'   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-#'   \item{the R function 1st appeared in
-#'     \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
-#' }
+
 #'
 #' @author Christian Trachsel, Tobias Kockmann and
 #' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020.
-#' @seealso \link[rawDiag]{readXICs}
+#'
+#' @seealso
+#' \itemize{
+#' \item{Thermo Fisher NewRawfileReader C# code snippets
+#' \url{https://planetorbitrap.com/rawfilereader}.}
+#' \item{\link[rawDiag]{readXICs} contains a prototype with limited
+#' functionality.}
+#' \item{\url{https://CRAN.R-project.org/package=protViz}}
+#' }
+#'
+#' @references Automated quality control sample 1 (autoQC01) analyzed across different
+#' Thermo Scientific mass spectrometers,
+#' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.
+#'
 #' @export readChromatogram
 #' @exportClass rawRchromatogram
 #' @exportClass rawRchromatogramSet
@@ -436,10 +449,12 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' }
 #'
 #' \dontrun{
-#' # https://fgcz-ms.uzh.ch/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw
-#' # md5 = 00ffee77b82202200e5aec0522729f51
+#' # MSV000086542
+#' # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 #'
-#' rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
+#' rawfile <- file.path(Sys.getenv('HOME'), "Downloads",
+#'   "20181113_010_autoQC01.raw")
+#'
 #' X <- readChromatogram(rawfile, mZ)
 #' }
 #'
@@ -561,11 +576,9 @@ readChromatogram <- function(rawfile,
 #' @param centroidStream Logical indicating if centroided data is available
 #' @param mZ m/z values
 #' @param intensity Intensity values
-#'
+#' @author Tobias Kockmann, 2020.
 #' @return Object of class \code{rawRspectrum}
 #' @export new_rawRspectrum
-#'
-#' @examples
 new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
                              scanType = character(), rtinseconds = numeric(),
                              centroidStream = logical(),
@@ -646,7 +659,7 @@ rawRspectrum <- function(sim = character()) {
 #' @param x object to be validated.
 #'
 #' @usage validate_rawRspectrum(x)
-#'
+#' @author Tobias Kockmann and Christian Panse, 2020.
 #' @return Validated \code{rawRspectrum} object
 #' @export validate_rawRspectrum
 validate_rawRspectrum <- function(x){
@@ -723,7 +736,7 @@ validate_rawRspectrum <- function(x){
 #' @param legend Should legend be printed?
 #' @param diagnostic Should this option be applied? The default is \code{FALSE}.
 #' @param ... function passes arbitrary additional arguments.
-#' @author Tobias Kockmann, 2020
+#' @author Tobias Kockmann, 2020.
 #' @importFrom graphics legend
 plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                               legend = TRUE, diagnostic = FALSE, ...){
@@ -835,7 +848,7 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 }
 
 #' Basic summary function
-#' @author Christian Panse & Tobias Kockmann, 2020
+#' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param object an \code{rawRspectrum} object.
 #' @param \ldots Arguments to be passed to methods.
 summary.rawRspectrum <- function(object, ...){
@@ -850,7 +863,7 @@ summary.rawRspectrum <- function(object, ...){
 }
 
 #' Basic print function faking the look and feel of freestyle's output
-#' @author Christian Panse & Tobias Kockmann, 2020
+#' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param x an \code{rawRspectrum} object.
 #' @param \ldots Arguments to be passed to methods.
 print.rawRspectrum <- function(x, ...){
@@ -943,6 +956,7 @@ print.rawRspectrum <- function(x, ...){
 #' @param x The object to be tested.
 #'
 #' @usage is.rawRchromatogram(x)
+#' @author Tobias Kockmann, 2020.
 #'
 #' @return Boolean
 #' @export is.rawRchromatogram
@@ -959,7 +973,7 @@ is.rawRchromatogram <- function(x){
 #' @param x A \code{rawRchromatogram} object to be plotted.
 #' @param legend Should legend be printed?
 #' @param ... Passes additional arguments.
-#'
+#' @author Tobias Kockmann, 2020.
 #' @export plot.rawRchromatogram
 #'
 #' @examples rawfile <- sample()
@@ -1002,7 +1016,7 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
 #' @param x A \code{rawRchromatogramSet} object to be plotted.
 #' @param ... Passes additional arguments.
 #' @param diagnostic Show diagnostic legend?
-#'
+#' @author Tobias Kockmann, 2020.
 #' @export plot.rawRchromatogramSet
 #' @importFrom grDevices hcl.colors
 #' @importFrom graphics lines text

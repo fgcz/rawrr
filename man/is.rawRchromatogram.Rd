@@ -20,3 +20,6 @@ rawfile <- sample()
 C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
 is.rawRchromatogram(C[[1]])
 }
+\author{
+Tobias Kockmann, 2020.
+}

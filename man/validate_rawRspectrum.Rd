@@ -15,3 +15,6 @@ Validated \code{rawRspectrum} object
 \description{
 Checks the validity of \code{rawRspectrum} object attributes.
 }
+\author{
+Tobias Kockmann and Christian Panse, 2020.
+}
