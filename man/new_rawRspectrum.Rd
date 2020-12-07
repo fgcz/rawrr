@@ -71,3 +71,4 @@ Developer function.
 \examples{
 S <- new_rawRspectrum()
 }
+

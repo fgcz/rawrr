@@ -16,3 +16,6 @@
 \description{
 Plot \code{rawRchromatogramSet} objects
 }
+\author{
+Tobias Kockmann, 2020.
+}
