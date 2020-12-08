@@ -250,7 +250,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #'
 #'
 #' @return file path of the sample.raw location.
-#' @export sample
+#' @export sampleFilePath
 #' @aliases sample.raw
 #' @author Tobias Kockmann, 2018, 2019.
 #' @examples

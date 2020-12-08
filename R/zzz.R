@@ -3,8 +3,8 @@
 #' @importFrom utils packageVersion
 .onAttach <- function(lib, pkg){
 	if(interactive()){
-		version <- packageVersion('rawR')
-		packageStartupMessage("Package 'rawR' version ", version)
+		version <- packageVersion('rawrr')
+		packageStartupMessage("Package 'rawrr' version ", version)
 	  invisible()
 	}
     .isMonoAssemblyWorking()
