@@ -52,19 +52,19 @@
         TRUE
     }
 
-#' Test if object is instance of class \code{rawRspectrum}
+#' Test if object is instance of class \code{rawrrSpectrum}
 #'
 #' @param x object to be tested
 #'
 #' @return TRUE or FALSE
-#' @export is.rawRspectrum
+#' @export is.rawrrSpectrum
 #'
 #' @examples
-#' rawfile <- sample()
+#' rawfile <- sampleFilePath()
 #' S <- readSpectrum(rawfile, scan = 1:10)
-#' is.rawRspectrum(S[[1]])
-is.rawRspectrum <- function(x){
-    class(x) == "rawRspectrum"
+#' is.rawrrSpectrum(S[[1]])
+is.rawrrSpectrum <- function(x){
+    class(x) == "rawrrSpectrum"
 }
 
 
@@ -178,14 +178,14 @@ readFileHeader <- function(rawfile,
 #' @seealso \link[rawDiag]{read.raw}
 #'
 #' @examples
-#' rawfile <- sample()
+#' rawfile <- sampleFilePath()
 #'
 #' Idx <- readIndex(rawfile)
 #' table(Idx$scanType)
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 readIndex <- function(rawfile, tmpdir=tempdir()){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- system.file('exec/rawR.exe', package = 'rawR')
+    exe <- system.file('exec/rawR.exe', package = 'rawrr')
 
     rawfile <- normalizePath(rawfile)
 
@@ -254,10 +254,10 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @aliases sample.raw
 #' @author Tobias Kockmann, 2018, 2019.
 #' @examples
-#' sample()
-sample <- function(){
-    # path.package(package = 'rawR')
-    rawfile <- file.path(system.file(package = 'rawR'), 'extdata', 'sample.raw')
+#' sampleFilePath()
+sampleFilePath <- function(){
+    # path.package(package = 'rawrr')
+    rawfile <- file.path(system.file(package = 'rawrr'), 'extdata', 'sample.raw')
     stopifnot(file.exists(rawfile))
     rawfile
 }
@@ -290,7 +290,7 @@ sample <- function(){
 #' @seealso \link[rawDiag]{readScans}
 #'
 #' @examples
-#' (rawfile <- sample())
+#' (rawfile <- sampleFilePath())
 #'
 #' S <- readSpectrum(rawfile, scan = 1:9)
 #'
@@ -424,7 +424,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @examples
 #'
 #' # Example 1: not meaning full but proof-of-concept
-#' (rawfile <- sample())
+#' (rawfile <- sampleFilePath())
 #'
 #' XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 #' plot(XIC)
@@ -961,7 +961,7 @@ print.rawrrSpectrum <- function(x, ...){
 #' @return Boolean
 #' @export is.rawrrChromatogram
 #'
-#' @examples rawfile <- sample()
+#' @examples rawfile <- sampleFilePath()
 #' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
 #' is.rawrrChromatogram(C[[1]])
 is.rawrrChromatogram <- function(x){
@@ -976,7 +976,7 @@ is.rawrrChromatogram <- function(x){
 #' @author Tobias Kockmann, 2020.
 #' @export plot.rawrrChromatogram
 #'
-#' @examples rawfile <- sample()
+#' @examples rawfile <- sampleFilePath()
 #' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
 #' plot(C[[1]])
 plot.rawrrChromatogram <- function(x, legend = TRUE, ...){
