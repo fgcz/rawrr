@@ -25,6 +25,8 @@ The main objectives are:
 *Showcase dynamic application (daily changing input data).
 *Demonstrate multicore computation by applying the `parallel` package.
 
+The automatically updated output of this R script can be viewer at [https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html]
+
 Note: The analyzed sample (termed autoQC01) consists of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 RP material at a constant flow rate of 300 nl/min.
 
 
