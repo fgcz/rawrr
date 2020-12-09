@@ -2,7 +2,6 @@
 % Please edit documentation in R/rawrr.R
 \name{readSpectrum}
 \alias{readSpectrum}
-\alias{plot.rawrrSpectrum}
 \alias{rawrr}
 \title{Read a Set of Spectra}
 \usage{

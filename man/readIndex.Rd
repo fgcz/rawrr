@@ -25,6 +25,12 @@ rawfile <- sampleFilePath()
 Idx <- readIndex(rawfile)
 table(Idx$scanType)
 plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
+
+table(Idx$MSOrder)
+
+
+# given you have a raw file with depende
+
 }
 \seealso{
 \link[rawDiag]{read.raw}
