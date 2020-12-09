@@ -183,6 +183,12 @@ readFileHeader <- function(rawfile,
 #' Idx <- readIndex(rawfile)
 #' table(Idx$scanType)
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
+#'
+#' table(Idx$MSOrder)
+#'
+#'
+#' # given you have a raw file with depende
+#'
 readIndex <- function(rawfile, tmpdir=tempdir()){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- system.file('exec/rawR.exe', package = 'rawrr')
@@ -221,7 +227,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
     DF
 }
 
-' Validate output of the readIndex function
+#' Validate output of the readIndex function
 #'
 #' @description Checks the validity of an \code{readIndex} returned object.
 #'
@@ -234,6 +240,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @examples
 #' Idx <- readIndex(sampleFilePath())
 #' validate_rawrrIndex(Idx)
+#' @importFrom stats na.omit
 validate_rawrrIndex <- function(x){
     valideIndex <- TRUE
 
@@ -267,7 +274,6 @@ validate_rawrrIndex <- function(x){
         message("Master scan not in scan index.")
         valideIndex <- FALSE
     }
-
 
     if (!is.logical(x$dependencyType))
     {
@@ -343,7 +349,7 @@ sampleFilePath <- function(){
 #' @description the function derives spectra of a given rawfile and a given
 #' vector of scan numbers.
 #'
-#' @aliases readSpectrum plot.rawrrSpectrum rawrr
+#' @aliases readSpectrum rawrr
 #'
 #' @export readSpectrum
 #' @exportClass rawrrSpectrum
