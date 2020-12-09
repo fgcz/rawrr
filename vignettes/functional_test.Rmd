@@ -15,30 +15,48 @@ bibliography: rawR.bib
 knitr::include_graphics("images/hex-rmarkdown.png")
 ```
 
-This script processes recent orbitrap files of each instrument at the [Functional Genomics Center Zurich](https://fgcz.ch/) [proteomics unit](https://fgcz.ch/omics_areas/prot.html) using the latest R development and the [rawR](https://github.com/fgcz/rawR) package version [@Kockmann2020].
-The objectives are: 1. demonstrate functionality on different orbitrap instrument models, 2. show the robustness of the package in a real-world setup (daily changing input), and 3. to demonstrate how it performs together with using the `parallel` R package.
+This R script processes raw files recorded across different Thermo Scientific MS at the [FGCZ proteomics unit](https://fgcz.ch/omics_areas/prot.html) using the latest `R` development and [rawR](https://github.com/fgcz/rawR) package versions.
 
+`<!--
+TK: Asking myself if this couldn't be done using GitHub actions? It sounds sooooo much like continuous integration (CI).
+-->
+
+The main objectives are:
+
+*Demonstrate code robustness with respect to different instrument models.
+*Showcase dynamic application (daily changing input data).
+*Demonstrate multicore computation by applying the `parallel` package.
+
+The automatically updated output of this R script can be viewer at [https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html]
+
+Note: The analyzed sample (termed autoQC01) consists of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 RP material at a constant flow rate of 300 nl/min.
 
 
 ```{r}
 library(rawR)
 library(parallel)
 
-# for computing the peptide spectrum matches
+# only used for computing PSMs
 library(protViz)
 ```
 
 
-# Input 
+# Input data
 
-Load a listing of recent generated raw files.
-The analyzed sample consists of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 RP material at a constant flow rate of 300 nl/min.
+A static snapshot of raw files was deposited as MassIVE dataset (MSV000086542)[https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542].
+For local computation please download the raw files using [ftp://massive.ucsd.edu/MSV000086542/].
+
+```{r generate input.txt}
+## TODO
+```
+
+Loads raw file listing.
 
 ```{r input}
 input <- scan("input.txt", as.character())
 ```
 
-define iRT peptide weights and scores.
+Defines iRT peptide m/z values and scores.
 
 ```{r defineIrtMass}
 iRT.mZ <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
@@ -52,7 +70,7 @@ names(iRT.mZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 		 "LFLQFGAQGSPFLK")
 ```
 
-# Parameters
+# Parameters for multicore computation
 
 Lets use up to 24 cores.
 
@@ -60,9 +78,9 @@ Lets use up to 24 cores.
 options(mc.cores = 24)
 ```
 
-# Check/demonstrate read functions
+# Check/demonstrate `rawR` reader functions
 
-Below we check the functionallity of all reader functions of the rawR package.
+Below we check the functionality of all reader functions of the rawR package.
 
 |Function Name|Description|Return value|
 |:------------|-------------------------------|:------------------|
@@ -80,7 +98,7 @@ Read a list of meta data for each raw file.
 H <- mclapply(FUN=rawR::readFileHeader, input)
 ```
 
-The table below lists the FCGZ internal instrument identifier, a filename of the measurement, and the instrument method.
+The table below lists the instrument identifier, a file name, and the acquisition method:
 
 ```{r results='asis'}
 DF.instrument <- do.call('rbind',
@@ -94,14 +112,18 @@ knitr::kable(DF.instrument)
 
 ## Index and spectrum
 
-The R snippet below defines some basic heuristic to determine the best match. 
+The R code chunk below defines some basic heuristic to determine peptide to
+spectrum matches for the iRT peptides: 
 
 ```{r defineComputeBestPeptideSpectrumMatch}
-.computeBestPeptideSpectrumMatch <- function(rawfile="/Users/cp/Downloads/20180220_14_autoQC01.raw",
-                         pepSeq = c("LGGNEQVTR", "GAGSSEPVTGLDAK", "VEATFGVDESNAK",
-                                    "TPVISGGPYEYR", "YILAGVENSK", "TPVITGAPYEYR", "DGLDAASYYAPVR",
-                                    "ADVTPADFSEWSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR", "LFLQFGAQGSPFLK"),
-                         peptideMassTolerance = 0.003, fragmentIonMassTolerance = 0.01){
+.computeBestPeptideSpectrumMatch <- function(rawfile = "/Users/cp/Downloads/20180220_14_autoQC01.raw",
+                                             pepSeq = c("LGGNEQVTR", "GAGSSEPVTGLDAK", "VEATFGVDESNAK",
+                                                        "TPVISGGPYEYR", "YILAGVENSK", "TPVITGAPYEYR",
+                                                        "DGLDAASYYAPVR", "ADVTPADFSEWSK", "GTFIIDPGGVIR",
+                                                        "GTFIIDPAAVIR", "LFLQFGAQGSPFLK"),
+                                             peptideMassTolerance = 0.003,
+                                             fragmentIonMassTolerance = 0.01) {
+    
     mass2Hplus <- (parentIonMass(pepSeq) + 1.008) / 2
 
     S <- readIndex(rawfile)
@@ -123,21 +145,21 @@ The R snippet below defines some basic heuristic to determine the best match.
 
         intensity.max <- max(sapply(pp, function(x) sum(x$intensity)))
 
-	# derive scores for each match
+	## derive scores for each match
         score <- sapply(1:length(pp),
                         function(j){                                                                                                   
-#TODO: implement some more sophisticated score from the literature
-# intensityOfMatches <- sum(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.1])
-# nomalizedIntensityOfMatches <- median(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.01]) / intensity.max
+## TODO: implement some more sophisticated score from the literature
+## intensityOfMatches <- sum(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.1])
+## nomalizedIntensityOfMatches <- median(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.01]) / intensity.max
 
 			    # hard constraint
                             nIonHits <- sum(abs(pp[[j]]$mZ.Da.error) < fragmentIonMassTolerance)
 			    nIonHits
                           }) 
-	# determine best scoring spectra
+	## determine best scoring spectra
         bestFirstMatch <- which(max(score, na.rm = TRUE) == score)[1]
          
-	# return the winner
+	## return the winner
         data.frame(scan=scanNumbers[[i]][bestFirstMatch], peptide=pepSeq[i], rawfile=rawfile)
     })
 
@@ -146,7 +168,7 @@ The R snippet below defines some basic heuristic to determine the best match.
 
 ```
 
-Perform the peptide spectrum match number crunching for the `r names(iRT.mZ)[1]` peptide on all raw files ...
+Perform the peptide spectrum match number crunching for the `r names(iRT.mZ)[1]` peptide on all raw files:
 
 ```{r computeBestMatches}
 start_time <- Sys.time()
@@ -155,7 +177,7 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
-Visualize the results ...
+Visualize the results:
 
 ```{r plotBestMatches, error=TRUE}
 start_time <- Sys.time()
@@ -250,8 +272,7 @@ xyplot(intensities ~ mZ | peptide, group=instrument, data=DF,
 
 ## Chromatograms
 
-
-Derives the chromatograms of all iRT peptides applying the mass filter option and an ion tolerance of 10ppm.
+Derives chromatograms for all iRT peptides applying the mass filter option and an ion tolerance of 10ppm:
 
 ```{r readChromatogram, error=TRUE}
 start_time <- Sys.time()
@@ -260,11 +281,17 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
+<<<<<<< HEAD
 \newpage
 
 Visualize the chromatograms and applying a linear regression one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values (iRTs) and *vice versa* [@Escher2012].
 
 ```{r plotChromatogram, fig.height=10, fig.retina=3, error=TRUE}
+=======
+Visualize the chromatograms and apply a linear regression:
+
+```{r plotChromatogram, fig.retina=3, error=TRUE}
+>>>>>>> de37be6409d8d8b9f9cc0046ba8c0cd066cd833e
 rv <- mapply(FUN=function(x, i){
     par(mfrow=c(2,1))
     
@@ -273,7 +300,7 @@ rv <- mapply(FUN=function(x, i){
     rt <- sapply(x, function(x) x$times[which.max(x$intensities)[1]])
     if (length(rt) == length(iRT.score)){
     fit <- lm(rt ~ iRT.score)
-    plot(rt ~ iRT.score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16,frame.plot = FALSE)
+    plot(rt ~ iRT.score, ylab = 'Retention time [min]', xlab = "iRT score", pch=16, frame.plot = FALSE)
     abline(fit, col = 'grey')
     abline(v = 0, col = "grey", lty = 2)
     legend("topleft",
@@ -288,7 +315,7 @@ rv <- mapply(FUN=function(x, i){
 ```
 
 
-# System information
+# `R` Session information
 
 ```{r monoInfo, message=TRUE, echo=TRUE}
 rawR:::.monoInfo()
@@ -297,5 +324,3 @@ rawR:::.monoInfo()
 ```{r sessionInfo}
 sessionInfo()
 ```
-
-# References

@@ -5,5 +5,9 @@
 .*.rawR.xml$
 .*exec.README.txt
 .*.idea.
-.*vignettes.*
+.*vignettes.*func.*
 .*github.*
+.*figure-latex.*
+.*american-chemical-society.csl
+.*bash$
+.*rawRcolor.*

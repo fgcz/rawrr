@@ -22,7 +22,7 @@
 }
 
 .isMonoAssemblyWorking <-
-    function(exe = system.file('exec/rawR.exe',package = 'rawR')){
+    function(exe = system.file('exec/rawR.exe',package = 'rawrr')){
         if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
             if (Sys.which('mono') == ""){
                 warning("Can not find Mono JIT compiler. check SystemRequirements.")
@@ -52,19 +52,19 @@
         TRUE
     }
 
-#' Test if object is instance of class \code{rawRspectrum}
+#' Test if object is instance of class \code{rawrrSpectrum}
 #'
 #' @param x object to be tested
 #'
 #' @return TRUE or FALSE
-#' @export is.rawRspectrum
+#' @export is.rawrrSpectrum
 #'
 #' @examples
-#' rawfile <- sample()
+#' rawfile <- sampleFilePath()
 #' S <- readSpectrum(rawfile, scan = 1:10)
-#' is.rawRspectrum(S[[1]])
-is.rawRspectrum <- function(x){
-    class(x) == "rawRspectrum"
+#' is.rawrrSpectrum(S[[1]])
+is.rawrrSpectrum <- function(x){
+    class(x) == "rawrrSpectrum"
 }
 
 
@@ -98,13 +98,13 @@ is.rawRspectrum <- function(x){
 #' @export readFileHeader
 #'
 #' @examples
-#' (rawfile <- file.path(path.package(package = 'rawR'), 'extdata',
+#' (rawfile <- file.path(path.package(package = 'rawrr'), 'extdata',
 #'   'sample.raw'))
 #'
 #' M <- readFileHeader(rawfile)
 readFileHeader <- function(rawfile,
    mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-   exe = file.path(system.file(package = 'rawR'), 'exec', 'rawR.exe'),
+   exe = file.path(system.file(package = 'rawrr'), 'exec', 'rawR.exe'),
    mono_path = "",
    argv = "infoR",
    system2_call = TRUE,
@@ -178,14 +178,20 @@ readFileHeader <- function(rawfile,
 #' @seealso \link[rawDiag]{read.raw}
 #'
 #' @examples
-#' rawfile <- sample()
+#' rawfile <- sampleFilePath()
 #'
 #' Idx <- readIndex(rawfile)
 #' table(Idx$scanType)
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
+#'
+#' table(Idx$MSOrder)
+#'
+#'
+#' # given you have a raw file with depende
+#'
 readIndex <- function(rawfile, tmpdir=tempdir()){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- system.file('exec/rawR.exe', package = 'rawR')
+    exe <- system.file('exec/rawR.exe', package = 'rawrr')
 
     rawfile <- normalizePath(rawfile)
 
@@ -214,39 +220,119 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
                        stdout=tfstdout)
     }
 
-    DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';')
+    DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
+    DF$dependencyType <- as.logical(DF$dependencyType)
 
     unlink(c(tfi, tfo, tfstdout))
     DF
 }
 
+#' Validate output of the readIndex function
+#'
+#' @description Checks the validity of an \code{readIndex} returned object.
+#'
+#' @param x object to be validated.
+#'
+#' @usage validate_rawrrIndex(x)
+#' @author Tobias Kockmann and Christian Panse, 2020-12-09.
+#' @return Validated \code{data.frame} of \code{readIndex} object
+#' @export validate_rawrrIndex
+#' @examples
+#' Idx <- readIndex(sampleFilePath())
+#' validate_rawrrIndex(Idx)
+#' @importFrom stats na.omit
+validate_rawrrIndex <- function(x){
+    valideIndex <- TRUE
+
+    if (!is.data.frame(x)){
+        message("Object is not a 'data.frame'.")
+        valideIndex <- FALSE
+    }
+
+    if(ncol(x) < 8){
+        message("Object has incorrect number of columns.")
+        valideIndex <- FALSE
+    }
+
+    IndexColNames <- c("scan", "scanType", "rtinseconds", "precursorMass",
+                       "MSOrder", "charge", "masterScan", "dependencyType")
+
+    for (i in IndexColNames){
+        if (!(i %in% colnames(x))){
+            message(paste0("Missing column ", i, "."))
+            valideIndex <- FALSE
+        }
+    }
+
+    if (!is.integer(x$scan)){
+        message("Column 'scan' is not an integer.")
+        valideIndex <- FALSE
+    }
+
+
+    if (!all(na.omit(x$masterScan) %in% x$scan)){
+        message("Master scan not in scan index.")
+        valideIndex <- FALSE
+    }
+
+    if (!is.logical(x$dependencyType))
+    {
+        message("'dependencyType' is not logical.")
+        valideIndex <- FALSE
+    }
+
+    if(!all(x$dependencyType[!is.na(x$masterScan)])){
+        message("'dependencyType' violates master scan logic.")
+        valideIndex <- FALSE
+    }
+
+    if (!all(1:nrow(x), x$scan)){
+        warning("Index does not corresbind to scan number. Missing scans?")
+    }
+
+    stopifnot(valideIndex)
+
+    return(x)
+}
+
 #' {\code{sample.raw}}
 #'
-#' @description Thermo Fisher Scientific Q Exactive HF-X raw file
-#' of size 1.5M bytes and checksum
-#' \code{MD5 (sample.raw) = fe67058456c79af7442316c474d20e96}.
-#'
-#' @details
-#' The binary example file sample.raw contains 574 fourier-transformed orbi trap
+#' @description
+#' The binary example file sample.raw contains 574 Fourier-transformed orbitrap
 #' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 #' mass spectrometer was operated in line with a nano electrospray source (NSI)
 #' in positive mode (+). All spectra were written to disk after applying
-#' centroiding (c) and lock mass correction. Additional raw data for
-#' demonstration and extended testing is available through the
+#' centroiding (c) and lock mass correction.
+#'
+#' @details Thermo Fisher Scientific Q Exactive HF-X raw file
+#' of size 1.5M bytes and checksum
+#' \code{MD5 (sample.raw) = fe67058456c79af7442316c474d20e96}.
+#' Additional raw data for
+#' demonstration and extended testing is available through
+#' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}
+#' and the
+#' \href{https://bioconductor.org/packages/tartare/}{tartare} package.
 #' \strong{Lions love raw meat!}
 #'
-#' @seealso
-#' \href{tartare package}{https://bioconductor.org/packages/tartare/}.
+#' @references
+#' \itemize{
+#' \item{Bioconductor
+#' \href{https://bioconductor.org/packages/tartare/}{tartare} package.}
+#' \item{Automated quality control sample 1 (autoQC01) analyzed across different
+#' Thermo Scientific mass spectrometers,
+#' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.}
+#' }
 #'
-#' @return filepath of the sample.raw location
-#' @export sample
+#'
+#' @return file path of the sample.raw location.
+#' @export sampleFilePath
 #' @aliases sample.raw
-#' @author Tobias Kockmann 2018
+#' @author Tobias Kockmann, 2018, 2019.
 #' @examples
-#' sample()
-sample <- function(){
-    # path.package(package = 'rawR')
-    rawfile <- file.path(system.file(package = 'rawR'), 'extdata', 'sample.raw')
+#' sampleFilePath()
+sampleFilePath <- function(){
+    # path.package(package = 'rawrr')
+    rawfile <- file.path(system.file(package = 'rawrr'), 'extdata', 'sample.raw')
     stopifnot(file.exists(rawfile))
     rawfile
 }
@@ -255,25 +341,23 @@ sample <- function(){
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
 #' @param scan a vector of requested scan numbers.
-#' @param tmpdir a non-empty character vector giving the directory name; default
-#' uses \code{tempdir()}.
+#' @param tmpdir a non-empty character vector giving the directory name;
+#' default uses \code{tempdir()}.
 #' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 #'
 #' @description the function derives spectra of a given rawfile and a given
 #' vector of scan numbers.
 #'
-#'
-#'
-#' @aliases readSpectrum plot.rawRSpectrum rawR
+#' @aliases readSpectrum rawrr
 #'
 #' @export readSpectrum
-#' @exportClass rawRspectrum
-#' @exportS3Method plot rawRspectrum
-#' @exportS3Method print rawRspectrum
-#' @exportS3Method summary rawRspectrum
+#' @exportClass rawrrSpectrum
+#' @exportS3Method plot rawrrSpectrum
+#' @exportS3Method print rawrrSpectrum
+#' @exportS3Method summary rawrrSpectrum
 #'
-#' @return a nested list of \code{rawRspectrum} objects containing more than 50
+#' @return a nested list of \code{rawrrSpectrum} objects containing more than 50
 #' values of scan information, e.g., the charge state, two vectors containing
 #' the mZ and its corresponding intensity values or the AGC information,
 #' mass calibration, ion optics \ldots
@@ -281,7 +365,7 @@ sample <- function(){
 #' @seealso \link[rawDiag]{readScans}
 #'
 #' @examples
-#' (rawfile <- sample())
+#' (rawfile <- sampleFilePath())
 #'
 #' S <- readSpectrum(rawfile, scan = 1:9)
 #'
@@ -329,7 +413,7 @@ sample <- function(){
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- file.path(system.file(package = 'rawR'), 'exec', 'rawR.exe')
+    exe <- file.path(system.file(package = 'rawrr'), 'exec', 'rawR.exe')
 
 
     if (!file.exists(rawfile)){
@@ -365,9 +449,9 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 
 
     rv <- lapply(e$Spectrum,
-                 function(x){class(x) <- c('rawRspectrum'); x})
+                 function(x){class(x) <- c('rawrrSpectrum'); x})
     if(validate){
-        rv <- lapply(rv, validate_rawRspectrum)
+        rv <- lapply(rv, validate_rawrrSpectrum)
     }
 
     rv
@@ -386,32 +470,36 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @param mono if the mono enviroment should be used.
 #' @param exe the exe file user by mono.
 #'
-#' @seealso Thermo Fisher NewRawfileReader C# code snippets
-#' \url{https://planetorbitrap.com/rawfilereader}.
-#'
 #' @return chromatogram object(s) containing of a vector of \code{times} and a
 #' corresponding vector of \code{intensities}.
-#'
-#' @references
-#' \itemize{
-#'   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-#'   \item{the R function 1st appeared in
-#'     \url{https://doi.org/10.1021/acs.jproteome.8b00173}}
-#' }
+
 #'
 #' @author Christian Trachsel, Tobias Kockmann and
 #' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020.
-#' @seealso \link[rawDiag]{readXICs}
+#'
+#' @seealso
+#' \itemize{
+#' \item{Thermo Fisher NewRawfileReader C# code snippets
+#' \url{https://planetorbitrap.com/rawfilereader}.}
+#' \item{\link[rawDiag]{readXICs} contains a prototype with limited
+#' functionality.}
+#' \item{\url{https://CRAN.R-project.org/package=protViz}}
+#' }
+#'
+#' @references Automated quality control sample 1 (autoQC01) analyzed across different
+#' Thermo Scientific mass spectrometers,
+#' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.
+#'
 #' @export readChromatogram
-#' @exportClass rawRchromatogram
-#' @exportClass rawRchromatogramSet
-#' @exportS3Method plot rawRchromatogram
-#' @exportS3Method plot rawRchromatogramSet
+#' @exportClass rawrrChromatogram
+#' @exportClass rawrrChromatogramSet
+#' @exportS3Method plot rawrrChromatogram
+#' @exportS3Method plot rawrrChromatogramSet
 #' @importFrom utils read.csv2
 #' @examples
 #'
 #' # Example 1: not meaning full but proof-of-concept
-#' (rawfile <- sample())
+#' (rawfile <- sampleFilePath())
 #'
 #' XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 #' plot(XIC)
@@ -436,10 +524,12 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' }
 #'
 #' \dontrun{
-#' # https://fgcz-ms.uzh.ch/p2692/Proteomics/QEXACTIVEHFX_1/tobiasko_20180220_scanSpeed/20180220_14_autoQC01.raw
-#' # md5 = 00ffee77b82202200e5aec0522729f51
+#' # MSV000086542
+#' # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 #'
-#' rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20180220_14_autoQC01.raw")
+#' rawfile <- file.path(Sys.getenv('HOME'), "Downloads",
+#'   "20181113_010_autoQC01.raw")
+#'
 #' X <- readChromatogram(rawfile, mZ)
 #' }
 #'
@@ -449,7 +539,7 @@ readChromatogram <- function(rawfile,
                              filter = "ms",
                              type = 'xic',
                              mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-    			     exe = file.path(system.file(package = 'rawR'), 'exec', 'rawR.exe')){
+    			     exe = file.path(system.file(package = 'rawrr'), 'exec', 'rawR.exe')){
 
     if (!file.exists(rawfile)){
         stop(paste0('File ', rawfile, ' is not available.'))
@@ -507,7 +597,7 @@ readChromatogram <- function(rawfile,
                      function(x){
                          attr(x , 'filename') <- rawfile
                          attr(x, 'type') <- 'xic'
-                         class(x) <- 'rawRchromatogram';
+                         class(x) <- 'rawrrChromatogram';
                          x})
 
     }else{
@@ -516,7 +606,7 @@ readChromatogram <- function(rawfile,
         }else{
             rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)), stdout=tfstdout)
         }
-        DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';')
+        DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
 
 
         if (type == 'tic'){
@@ -537,20 +627,20 @@ readChromatogram <- function(rawfile,
     if (type=='xic'){
         attr(rv, 'type') <- 'xic'
         attr(rv, 'tol') <- tol
-        class(rv) <- 'rawRchromatogramSet'
+        class(rv) <- 'rawrrChromatogramSet'
     }else if (type=='tic'){
         attr(rv, 'type') <- 'tic'
-        class(rv) <- 'rawRchromatogram'
+        class(rv) <- 'rawrrChromatogram'
     }else{
         attr(rv, 'type') <- 'bpc'
-        class(rv) <- 'rawRchromatogram'
+        class(rv) <- 'rawrrChromatogram'
     }
 
     rv
 }
 
 
-#' Create instances of class \code{rawRspectrum}
+#' Create instances of class \code{rawrrSpectrum}
 #'
 #' Developer function.
 #'
@@ -561,12 +651,10 @@ readChromatogram <- function(rawfile,
 #' @param centroidStream Logical indicating if centroided data is available
 #' @param mZ m/z values
 #' @param intensity Intensity values
-#'
-#' @return Object of class \code{rawRspectrum}
-#' @export new_rawRspectrum
-#'
-#' @examples
-new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
+#' @author Tobias Kockmann, 2020.
+#' @return Object of class \code{rawrrSpectrum}
+#' @export new_rawrrSpectrum
+new_rawrrSpectrum <- function(scan = numeric(), massRange = numeric(),
                              scanType = character(), rtinseconds = numeric(),
                              centroidStream = logical(),
                              mZ = numeric(), intensity = numeric()){
@@ -582,34 +670,34 @@ new_rawRspectrum <- function(scan = numeric(), massRange = numeric(),
                    scanType = scanType, rtinseconds = rtinseconds,
                    centroidStream = centroidStream,
                    mZ = mZ, intensity = intensity),
-              class = "rawRspectrum")
+              class = "rawrrSpectrum")
 
 }
 
-#' Create \code{rawRspectrum} objects
+#' Create \code{rawrrSpectrum} objects
 #'
 #' @description High-level constructor for instances of class
-#' \code{rawRspectrum}, also named helper function. Currently, mainly to support
+#' \code{rawrrSpectrum}, also named helper function. Currently, mainly to support
 #' testing and for demonstration.
 #'
 #'
 #' @param sim Either \code{example_1} or \code{TESTPEPTIDE}
 #'
-#' @return Function returns a validated \code{rawRspectrum} object
-#' @export rawRspectrum
+#' @return Function returns a validated \code{rawrrSpectrum} object
+#' @export rawrrSpectrum
 #'
 #' @examples
 #'
-#' plot(rawRspectrum(sim = "TESTPEPTIDE"))
-#' rawRspectrum(sim = "example_1")
+#' plot(rawrrSpectrum(sim = "TESTPEPTIDE"))
+#' rawrrSpectrum(sim = "example_1")
 #'
 #' @author Tobias Kockmann, 2020.
-rawRspectrum <- function(sim = character()) {
+rawrrSpectrum <- function(sim = character()) {
 
     stopifnot(is.character(sim))
 
     if (sim == "example_1") {
-        S <- new_rawRspectrum(scan = 1,
+        S <- new_rawrrSpectrum(scan = 1,
                               massRange = c(90, 1510),
                               rtinseconds = 1,
                               scanType = "simulated",
@@ -620,7 +708,7 @@ rawRspectrum <- function(sim = character()) {
     }
 
     if (sim == "TESTPEPTIDE") {
-        S <- new_rawRspectrum(scan = 1,
+        S <- new_rawrrSpectrum(scan = 1,
                               massRange = c(90, 1510),
                               rtinseconds = 1,
                               scanType = "simulated",
@@ -635,21 +723,21 @@ rawRspectrum <- function(sim = character()) {
 
     ## more examples?
 
-    validate_rawRspectrum(S)
+    validate_rawrrSpectrum(S)
 
 }
 
-#' Validate instance of class rawRSpectrum
+#' Validate instance of class rawrrSpectrum
 #'
-#' @description Checks the validity of \code{rawRspectrum} object attributes.
+#' @description Checks the validity of \code{rawrrSpectrum} object attributes.
 #'
 #' @param x object to be validated.
 #'
-#' @usage validate_rawRspectrum(x)
-#'
-#' @return Validated \code{rawRspectrum} object
-#' @export validate_rawRspectrum
-validate_rawRspectrum <- function(x){
+#' @usage validate_rawrrSpectrum(x)
+#' @author Tobias Kockmann and Christian Panse, 2020.
+#' @return Validated \code{rawrrSpectrum} object
+#' @export validate_rawrrSpectrum
+validate_rawrrSpectrum <- function(x){
     values <- unclass(x)
 
     if (values$scan < 1) {
@@ -702,16 +790,16 @@ validate_rawRspectrum <- function(x){
     x
 }
 
-#' Basic plotting function for instances of \code{rawRspectrum}
+#' Basic plotting function for instances of \code{rawrrSpectrum}
 #'
-#' \code{plot.rawRspectrum} is a low level function that calls
-#' \code{base::plot} for plotting \code{rawRspectrum} objects. It passes all
+#' \code{plot.rawrrSpectrum} is a low level function that calls
+#' \code{base::plot} for plotting \code{rawrrSpectrum} objects. It passes all
 #' additional arguments to \code{plot()}
 #'
-#' @description Plot method for objects of class \code{rawRspectrum}.
+#' @description Plot method for objects of class \code{rawrrSpectrum}.
 #' @details Is usually called by method dispatch.
 #'
-#' @param x an object of class \code{rawRspectrum}.
+#' @param x an object of class \code{rawrrSpectrum}.
 #'
 #' @param relative If set to \code{TRUE} enforces plotting of relative
 #' intensities rather than absolute.
@@ -723,12 +811,12 @@ validate_rawRspectrum <- function(x){
 #' @param legend Should legend be printed?
 #' @param diagnostic Should this option be applied? The default is \code{FALSE}.
 #' @param ... function passes arbitrary additional arguments.
-#' @author Tobias Kockmann, 2020
+#' @author Tobias Kockmann, 2020.
 #' @importFrom graphics legend
-plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
+plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                               legend = TRUE, diagnostic = FALSE, ...){
 
-    stopifnot(is.rawRspectrum(x))
+    stopifnot(is.rawrrSpectrum(x))
 
     if (centroid) {
 
@@ -835,10 +923,10 @@ plot.rawRspectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 }
 
 #' Basic summary function
-#' @author Christian Panse & Tobias Kockmann, 2020
-#' @param object an \code{rawRspectrum} object.
+#' @author Christian Panse and Tobias Kockmann, 2020.
+#' @param object an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
-summary.rawRspectrum <- function(object, ...){
+summary.rawrrSpectrum <- function(object, ...){
     cat("Total Ion Current:\t", object$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", object$massRange[1], fill = TRUE)
     cat("Scan High Mass:\t", object$massRange[2], fill = TRUE)
@@ -850,10 +938,10 @@ summary.rawRspectrum <- function(object, ...){
 }
 
 #' Basic print function faking the look and feel of freestyle's output
-#' @author Christian Panse & Tobias Kockmann, 2020
-#' @param x an \code{rawRspectrum} object.
+#' @author Christian Panse and Tobias Kockmann, 2020.
+#' @param x an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
-print.rawRspectrum <- function(x, ...){
+print.rawrrSpectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", x$massRange[1], fill = TRUE)
     cat("Scan High Mass:\t", x$massRange[2], fill = TRUE)
@@ -938,35 +1026,36 @@ print.rawRspectrum <- function(x, ...){
     }
 }
 
-#' Check if object is instance of class \code{rawRchromatogram}
+#' Check if object is instance of class \code{rawrrChromatogram}
 #'
 #' @param x The object to be tested.
 #'
-#' @usage is.rawRchromatogram(x)
+#' @usage is.rawrrChromatogram(x)
+#' @author Tobias Kockmann, 2020.
 #'
 #' @return Boolean
-#' @export is.rawRchromatogram
+#' @export is.rawrrChromatogram
 #'
-#' @examples rawfile <- sample()
+#' @examples rawfile <- sampleFilePath()
 #' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
-#' is.rawRchromatogram(C[[1]])
-is.rawRchromatogram <- function(x){
-    "rawRchromatogram" %in% class(x)
+#' is.rawrrChromatogram(C[[1]])
+is.rawrrChromatogram <- function(x){
+    "rawrrChromatogram" %in% class(x)
 }
 
-#' Plot \code{rawRchromatogram} objects
+#' Plot \code{rawrrChromatogram} objects
 #'
-#' @param x A \code{rawRchromatogram} object to be plotted.
+#' @param x A \code{rawrrChromatogram} object to be plotted.
 #' @param legend Should legend be printed?
 #' @param ... Passes additional arguments.
+#' @author Tobias Kockmann, 2020.
+#' @export plot.rawrrChromatogram
 #'
-#' @export plot.rawRchromatogram
-#'
-#' @examples rawfile <- sample()
+#' @examples rawfile <- sampleFilePath()
 #' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
 #' plot(C[[1]])
-plot.rawRchromatogram <- function(x, legend = TRUE, ...){
-    stopifnot(is.rawRchromatogram(x))
+plot.rawrrChromatogram <- function(x, legend = TRUE, ...){
+    stopifnot(is.rawrrChromatogram(x))
 
     plot(x = x$times, y = x$intensities,
          xlab = "Retention Time [min]",
@@ -997,19 +1086,19 @@ plot.rawRchromatogram <- function(x, legend = TRUE, ...){
     }
 }
 
-#' Plot \code{rawRchromatogramSet} objects
+#' Plot \code{rawrrChromatogramSet} objects
 #'
-#' @param x A \code{rawRchromatogramSet} object to be plotted.
+#' @param x A \code{rawrrChromatogramSet} object to be plotted.
 #' @param ... Passes additional arguments.
 #' @param diagnostic Show diagnostic legend?
-#'
-#' @export plot.rawRchromatogramSet
+#' @author Tobias Kockmann, 2020.
+#' @export plot.rawrrChromatogramSet
 #' @importFrom grDevices hcl.colors
 #' @importFrom graphics lines text
-plot.rawRchromatogramSet <- function(x, diagnostic = FALSE, ...){
+plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
 
     #should become is.Class function in the future
-    stopifnot(attr(x, "class") == "rawRchromatogramSet")
+    stopifnot(attr(x, "class") == "rawrrChromatogramSet")
 
     ## so far only XIC branch available
 

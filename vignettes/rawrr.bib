@@ -20,7 +20,7 @@
   number = {8},
   pages = {2908--2914},
   author = {Christian Trachsel and Christian Panse and Tobias Kockmann and Witold E. Wolski and Jonas Grossmann and Ralph Schlapbach},
-  title = {\href{https://github.com/fgcz/rawDiag}{rawDiag}: {An R Package Supporting Rational {LC}{\textendash}{MS} Method Optimization for Bottom-up Proteomics}},
+  title = {{\href{https://github.com/fgcz/rawDiag}{{rawDiag}}}: {An R Package Supporting Rational {LC}{\textendash}{MS} Method Optimization for Bottom-up Proteomics}},
   journal = {Journal of Proteome Research}
 }
 
@@ -66,10 +66,20 @@
   journal = {Molecules}
 }
 
-@Manual{protViz,
+@ONLINE{R,
+    title = {R: A Language and Environment for Statistical Computing},
+    author = {{R Core Team}},
+    organization = {R Foundation for Statistical Computing},
+    address = {Vienna, Austria},
+    year = {2020},
+    url = {https://www.R-project.org/},
+  }
+
+@ONLINE{protViz,
     title = {protViz: Visualizing and Analyzing Mass Spectrometry Related Data in Proteomics},
     author = {Christian Panse and Jonas Grossmann},
     year = {2020},
+    address = {Zurich, Switzerland},
     note = {R package version 0.6},
     url = {https://CRAN.R-project.org/package=protViz}
   }
@@ -85,7 +95,7 @@
   title = {Universal Spectrum Explorer: A standalone (web-)application for cross-resource spectrum comparison}
 }
 
-@misc{biocspectra,
+@ONLINE{biocspectra,
   doi = {10.18129/B9.BIOC.SPECTRA},
   url = {https://bioconductor.org/packages/Spectra},
   author = {{RforMassSpectrometry Package Maintainer,  Laurent Gatto,  Johannes Rainer,  Sebastian Gibb}},
@@ -94,42 +104,37 @@
   year = {2020}
 }
 
-@misc{RFR,
+@ONLINE{RFR,
         author = {Jim Shofstahl},
-        title = {{New RawFileReader from Thermo Fisher Scientific}},
+        title = {{New RawFileReader from Thermo Fisher Scientific},
+        \url{http://planetorbitrap.com/rawfilereader}},
         year = {2018},
         URL = {http://planetorbitrap.com/rawfilereader#.WvWESK3QPmE},
         note = {version 4.0.22},
 }
 
-@Manual{R,
-    title = {R: A Language and Environment for Statistical Computing},
-    author = {{R Core Team}},
-    organization = {R Foundation for Statistical Computing},
-    address = {Vienna, Austria},
-    year = {2020},
-    url = {https://www.R-project.org/},
-  }
-  
-  
-  @article{Gehrig2020,
+
+@article{Gehrig2020,
   doi = {10.1021/jasms.0c00040},
-  note = {Accepted Manuscripts, Manuscript ID: js-2020-000405.R3},
+  url = {https://doi.org/10.1021/jasms.0c00040},
   year = {2020},
-  month = {},
-  journal = {Journal of the American Society for Mass Spectrometry},
-  author = {Gehrig, Peter and others},
-  title = {Gas-phase Fragmentation of ADP-ribosylated Peptides: Arginine-Specific Side-Chain Losses and their Implication in Database Searches}
+  month = nov,
+  publisher = {American Chemical Society ({ACS})},
+  author = {Peter M. Gehrig and Kathrin Nowak and Christian Panse and Mario Leutert and Jonas Grossmann and Ralph Schlapbach and Michael O. Hottiger},
+  title = {Gas-Phase Fragmentation of {ADP}-Ribosylated Peptides: Arginine-Specific Side-Chain Losses and Their Implication in Database Searches},
+  journal = {Journal of the American Society for Mass Spectrometry}
 }
 
-@Manual{tartare,
-    title = {tartare: Raw ground spectra recorded on Thermo Fisher Scientific mass
-spectrometers},
-    author = {Christian Panse and Tobias Kockmann},
-    year = {2020},
-    note = {R package version 1.3.0},
-    url = {https://github.com/cpanse/tartare},
-  }
+
+
+@ONLINE{tartare,
+  doi = {10.18129/B9.BIOC.TARTARE},
+  url = {https://bioconductor.org/packages/tartare},
+  author = {{Christian Panse,  Tobias Kockmann}},
+  title = {tartare},
+  publisher = {Bioconductor},
+  year = {2019}
+}
 
 
 @book{newS,
@@ -199,7 +204,7 @@ spectrometers},
   journal = {Journal of The American Society for Mass Spectrometry}
 }
 
-@misc{https://doi.org/10.18129/b9.bioc.msstats,
+@ONLINE{https://doi.org/10.18129/b9.bioc.msstats,
   doi = {10.18129/B9.BIOC.MSSTATS},
   url = {https://bioconductor.org/packages/MSstats},
   author = {{Meena Choi [Aut,  Cre],  Cyril Galitzine [Aut],  Tsung-Heng Tsai[Aut],  Olga Vitek [Aut]}},
@@ -262,4 +267,14 @@ spectrometers},
   author = {Matthew C Chambers and Brendan Maclean and Robert Burke and Dario Amodei and Daniel L Ruderman and Steffen Neumann and Laurent Gatto and Bernd Fischer and Brian Pratt and Jarrett Egertson and Katherine Hoff and Darren Kessner and Natalie Tasman and Nicholas Shulman and Barbara Frewen and Tahmina A Baker and Mi-Youn Brusniak and Christopher Paulse and David Creasy and Lisa Flashner and Kian Kani and Chris Moulding and Sean L Seymour and Lydia M Nuwaysir and Brent Lefebvre and Frank Kuhlmann and Joe Roark and Paape Rainer and Suckau Detlev and Tina Hemenway and Andreas Huhmer and James Langridge and Brian Connolly and Trey Chadick and Krisztina Holly and Josh Eckels and Eric W Deutsch and Robert L Moritz and Jonathan E Katz and David B Agus and Michael MacCoss and David L Tabb and Parag Mallick},
   title = {A cross-platform toolkit for mass spectrometry and proteomics},
   journal = {Nature Biotechnology}
+}
+
+@ONLINE{MSV000086542,
+  doi = {10.25345/C5MZ14},
+  url = {https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542},
+  author = {Kockmann,  Tobias},
+  language = {en},
+  title = {MassIVE MSV000086542 - Automated quality control sample 1 (autoQC01) analyzed across different Thermo Scientific mass spectrometers},
+  publisher = {MassIVE},
+  year = {2020}
 }

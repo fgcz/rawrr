@@ -2,15 +2,15 @@
 
 context("spectrum")
 
-library(rawR)
+library(rawrr)
 
 .is.peaklist <- function(x){
-	sum(c("scan", "scanType", "rtinseconds", "pepmass", "charge", "mZ", "intensity") %in% names(x))>6
+	sum(c("scan", "scanType", "rtinseconds", "pepmass", "charge", "mZ", "intensity") %in% names(x)) > 6
 }
 
 test_that("check readSpectrum function names.", {
 
-  rawfile <- sample()
+  rawfile <- sampleFilePath()
 
   S <- readSpectrum(rawfile, 1:22)
 
@@ -20,10 +20,10 @@ test_that("check readSpectrum function names.", {
 
 test_that("check readSpectrum 23.", {
 
-  rawfile <- sample()
+  rawfile <- sampleFilePath()
   S <- readSpectrum(rawfile, 23)[[1]]
 
-  DF <- read.table(file.path(path.package(package = 'rawR'), 'extdata', 'scan23_peakList.txt'), sep="\t", header=TRUE)
+  DF <- read.table(file.path(path.package(package = 'rawrr'), 'extdata', 'scan23_peakList.txt'), sep="\t", header=TRUE)
 
   expect_true(sum(S$mZ %in% DF$m.z) >= 720)
   expect_true(sum(S$intensity %in% DF$Intensity) >= 720)
@@ -38,7 +38,7 @@ test_that("check readSpectrum error.", {
   rawfile <- "this file does not exists"
   expect_error(S<-readSpectrum(rawfile))
 
-  rawfile <- sample()
+  rawfile <- sampleFilePath()
   expect_error(S<-readSpectrum(rawfile))
   expect_error(S<-readSpectrum(rawfile, scan = NULL))
 })

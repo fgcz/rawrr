@@ -162,11 +162,14 @@
              	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             	    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
 
-		    int idx_CHARGE = rawFile.GetChargeIdx();
+		    int idxCharge = rawFile.GetIndexOfPattern();
+		    int idxMasterScan = rawFile.GetIndexOfPattern("Master Scan Number:");
+		    int idxDependencyType = rawFile.GetIndexOfPattern("Dependency Type:");
 
                     double charge, precursorMass;
+		    int masterScan, dependencyType;
 
-                    Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge");
+                    Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge;masterScan;dependencyType");
 
              	    for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
@@ -182,45 +185,59 @@
 		        }
 
 		        try{
-                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
+                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
                         } catch {
 			        charge = -1;
 		        }
 
-                    Console.WriteLine("{0};{1};{2};{3};{4};{5}", scanNumber,
+		        try{
+                    	    masterScan = int.Parse(scanTrailer.Values.ToArray()[idxMasterScan]);
+                        } catch {
+			        masterScan= -1;
+		        }
+
+		        try{
+                    	    dependencyType = int.Parse(scanTrailer.Values.ToArray()[idxDependencyType]);
+                        } catch {
+			        dependencyType = -1;
+		        }
+
+
+
+                    Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}", scanNumber,
 		    	scanStatistics.ScanType.ToString(),
 			Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
 			precursorMass,
 			scanFilter.MSOrder.ToString(),
-			charge);
+			charge, masterScan, dependencyType);
 		    }
 	    }
 
-	    private static int GetChargeIdx(this IRawDataPlus rawFile){
+	    private static int GetIndexOfPattern(this IRawDataPlus rawFile, string pattern="Charge State"){
                     var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
 
-		    int idx_CHARGE = -1;
+		    int idx = -1;
                         try
                         {
-                            idx_CHARGE = trailerFields
+                            idx = trailerFields
                                 .Select((item, index) => new
                                 {
                                     name = item.Label.ToString(),
                                     Position = index
                                 })
-                                .First(x => x.name.Contains("Charge State")).Position;
+                                .First(x => x.name.Contains(pattern)).Position;
                         }
                         catch
                         {
 		        }
-			return (idx_CHARGE);
+			return (idx);
 	    }
 
             public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
             {
 
 
-		    int idx_CHARGE = rawFile.GetChargeIdx();
+		    int idxCharge = rawFile.GetIndexOfPattern();
              	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             	    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
 		        int charge = -1;
@@ -245,7 +262,7 @@
 		        }
 
 		        try{
-                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idx_CHARGE]);
+                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
                         }
 		        catch {
 			        charge=-1;
@@ -440,7 +457,7 @@
             {
                 // This local variable controls if the AnalyzeAllScans method is called
                 // bool analyzeScans = false;
-                string rawR_version = "0.0.1";
+                string rawR_version = "0.1.5";
 
                 // Get the memory used at the beginning of processing
                 Process processBefore = Process.GetCurrentProcess();
@@ -502,13 +519,16 @@
                     }
 
                     // Check to see if the specified RAW file exists
-                    if (!File.Exists(filename))
+                   // if (!File.Exists(filename))
+		   /*
+		   if(false)
                     {
                         Console.WriteLine("rawR version = {}", rawR_version);
                         Console.WriteLine(@"The file doesn't exist in the specified location - {0}", filename);
 
                         return;
                     }
+		    */
 
                     // Create the IRawDataPlus object for accessing the RAW file
                     var rawFile = RawFileReaderAdapter.FileFactory(filename);

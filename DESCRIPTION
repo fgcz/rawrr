@@ -1,7 +1,7 @@
-Package: rawR
+Package: rawrr
 Type: Package
 Title: Access to Thermo Fisher Scientific raw files from R
-Version: 0.1.5
+Version: 0.1.7
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -18,7 +18,7 @@ Suggests:
 	lattice,
 	parallel,
 	testthat
-Description: provides interface for Thermo Fisher Scientifc raw files
+Description: Provides an interface for Thermo Fisher Scientifc raw files
         branched from rawDiag. This package wraps the functionality
 	of the RawFileReader .NET assembly. Within the R environment
 	spectra and chromatograms are represented by S3 objects.
@@ -29,7 +29,7 @@ Description: provides interface for Thermo Fisher Scientifc raw files
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
-URL: https://github.com/fgcz/rawDiag/
+URL: https://github.com/fgcz/rawR/
 BugReports: https://github.com/fgcz/rawR/issues
 Encoding: UTF-8
 LazyData: true

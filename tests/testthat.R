@@ -2,6 +2,6 @@
 
 library(testthat)
 
-suppressPackageStartupMessages(library(rawR))
+suppressPackageStartupMessages(library(rawrr))
 
-test_check("rawR")
+test_check("rawrr")

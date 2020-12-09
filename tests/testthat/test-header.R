@@ -2,11 +2,11 @@
 
 context("header")
 
-library(rawR)
+library(rawrr)
 
 test_that("check readFileHeader", {
 
-  M <- readFileHeader(sample())
+  M <- readFileHeader(sampleFilePath())
 
 
   expect_identical(M$`Scan range`, c(1, 574))
