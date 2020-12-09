@@ -105,12 +105,6 @@ Table: lists the most important `rawrr` package functions connected to reading f
 
 ## Use Case I - Analyzing Orbitrap Spectra
 
-<!---
-scp fgcz-r-035.uzh.ch:/export/lv_iduzh06/projects/p1000/Proteomics/QEXACTIVEHF_2/tobiasko_20181113/20181113_010_autoQC01.raw ~/Downloads/
-
-http://fgcz-ms.uzh.ch/~cpanse/20181113_010_autoQC01.raw
-MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
--->
 ```{r readFileHeader, echo=FALSE, message=FALSE}
 library(rawrr)
 rawfile <- rawrr::sampleFilePath()
@@ -120,6 +114,11 @@ H <- rawrr::readFileHeader(rawfile = rawfile)
 The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HRAM) data on a time scale that is compatible with chromatographic analysis (LC-MS). Therefore. it is heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data transformation to exchange formats like mz(X)ML. This use case shows how easy it is to work directly with the binary raw data after installing our `R` package `rawrr` that applies vendor APIs for data access. We use a complete LC-MS run recorded on a `r H$"Instrument model"` for demonstration purposes. The `r H$"Time range"[2]` min run resulted in `r H$"Number of scans"` scans that were written to the file. Already typesetting the above lines uses `rawrr` functionality, since the instrument model, the time range of data acquisition, and the number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader()` and returns a simple `R` object of type `list` (see Table 1).
 
 Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawrrspectrum` object or `rawrrspectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Figure 1 shows the resulting plot for scan `9594`:
+
+<!---
+ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
+MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
+-->
 
 ```{r plotrawrrspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawrr)
