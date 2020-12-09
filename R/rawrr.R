@@ -215,9 +215,78 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
     }
 
     DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
+    DF$dependencyType <- as.logical(DF$dependencyType)
 
     unlink(c(tfi, tfo, tfstdout))
     DF
+}
+
+' Validate output of the readIndex function
+#'
+#' @description Checks the validity of an \code{readIndex} returned object.
+#'
+#' @param x object to be validated.
+#'
+#' @usage validate_rawrrIndex(x)
+#' @author Tobias Kockmann and Christian Panse, 2020-12-09.
+#' @return Validated \code{data.frame} of \code{readIndex} object
+#' @export validate_rawrrIndex
+#' @examples
+#' Idx <- readIndex(sampleFilePath())
+#' validate_rawrrIndex(Idx)
+validate_rawrrIndex <- function(x){
+    valideIndex <- TRUE
+
+    if (!is.data.frame(x)){
+        message("Object is not a 'data.frame'.")
+        valideIndex <- FALSE
+    }
+
+    if(ncol(x) < 8){
+        message("Object has incorrect number of columns.")
+        valideIndex <- FALSE
+    }
+
+    IndexColNames <- c("scan", "scanType", "rtinseconds", "precursorMass",
+                       "MSOrder", "charge", "masterScan", "dependencyType")
+
+    for (i in IndexColNames){
+        if (!(i %in% colnames(x))){
+            message(paste0("Missing column ", i, "."))
+            valideIndex <- FALSE
+        }
+    }
+
+    if (!is.integer(x$scan)){
+        message("Column 'scan' is not an integer.")
+        valideIndex <- FALSE
+    }
+
+
+    if (!all(na.omit(x$masterScan) %in% x$scan)){
+        message("Master scan not in scan index.")
+        valideIndex <- FALSE
+    }
+
+
+    if (!is.logical(x$dependencyType))
+    {
+        message("'dependencyType' is not logical.")
+        valideIndex <- FALSE
+    }
+
+    if(!all(x$dependencyType[!is.na(x$masterScan)])){
+        message("'dependencyType' violates master scan logic.")
+        valideIndex <- FALSE
+    }
+
+    if (!all(1:nrow(x), x$scan)){
+        warning("Index does not corresbind to scan number. Missing scans?")
+    }
+
+    stopifnot(valideIndex)
+
+    return(x)
 }
 
 #' {\code{sample.raw}}
