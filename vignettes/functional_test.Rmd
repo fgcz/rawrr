@@ -6,6 +6,8 @@ output:
   html_document:
     df_print: paged
     toc: true
+  pdf_document:
+    toc: true
 bibliography: rawR.bib
 ---
 
@@ -258,10 +260,13 @@ end_time <- Sys.time()
 end_time - start_time
 ```
 
+\newpage
+
 Visualize the chromatograms and applying a linear regression one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values (iRTs) and *vice versa* [@Escher2012].
-```{r plotChromatogram, fig.retina=3, error=TRUE}
+
+```{r plotChromatogram, fig.height=10, fig.retina=3, error=TRUE}
 rv <- mapply(FUN=function(x, i){
-    par(mfrow=c(1,2))
+    par(mfrow=c(2,1))
     
     plot(x); legend("topright", legend=i, title='Instrument Model', bty = "n", cex=0.75)
     
