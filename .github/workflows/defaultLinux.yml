@@ -31,7 +31,7 @@ jobs:
         run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex 
 
       - name: install R suggested R packages
-        run: Rscript -e "install.packages(c('protViz', 'knitr', 'testthat'), repos='https://cloud.r-project.org')"
+        run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat'), repos='https://cloud.r-project.org')"
       - name: fetch and check rawR package
         run: |
           curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
