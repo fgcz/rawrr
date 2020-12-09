@@ -214,7 +214,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
                        stdout=tfstdout)
     }
 
-    DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';')
+    DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
 
     unlink(c(tfi, tfo, tfstdout))
     DF
@@ -531,7 +531,7 @@ readChromatogram <- function(rawfile,
         }else{
             rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)), stdout=tfstdout)
         }
-        DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';')
+        DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
 
 
         if (type == 'tic'){
