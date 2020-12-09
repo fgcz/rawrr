@@ -503,6 +503,7 @@
 
                     // Check to see if the specified RAW file exists
                    // if (!File.Exists(filename))
+		   /*
 		   if(false)
                     {
                         Console.WriteLine("rawR version = {}", rawR_version);
@@ -510,6 +511,7 @@
 
                         return;
                     }
+		    */
 
                     // Create the IRawDataPlus object for accessing the RAW file
                     var rawFile = RawFileReaderAdapter.FileFactory(filename);
