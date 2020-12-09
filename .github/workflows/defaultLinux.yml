@@ -28,7 +28,8 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: install Linux packages
-        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra
+        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex 
+
       - name: install R suggested R packages
         run: Rscript -e "install.packages(c('protViz', 'knitr', 'testthat'), repos='https://cloud.r-project.org')"
       - name: fetch and check rawR package
