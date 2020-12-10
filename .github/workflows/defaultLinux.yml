@@ -6,7 +6,7 @@
 # See https://github.com/r-lib/actions/tree/master/examples#readme for
 # additional example workflows available for the R community.
 
-name: rwaR
+name: rawrr build check including render vignettes
 env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 on:
@@ -28,7 +28,7 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: install Linux packages
-        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex 
+        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc  
 
       - name: install R suggested R packages
         run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat'), repos='https://cloud.r-project.org')"
