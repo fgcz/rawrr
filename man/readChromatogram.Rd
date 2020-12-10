@@ -11,7 +11,7 @@ readChromatogram(
   filter = "ms",
   type = "xic",
   mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
-  exe = file.path(system.file(package = "rawrr"), "exec", "rawR.exe")
+  exe = .rawrrAssembly()
 )
 }
 \arguments{
