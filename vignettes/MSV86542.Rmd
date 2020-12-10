@@ -76,20 +76,16 @@ H <- mclapply(FUN=rawrr::readFileHeader, input)
 
 ```{r defineInfo, echo=FALSE}
 .getInstrumentInformation <- function(x){
-  x$`RAW file version`
-  x$`Instrument model`
-  x$`Serial number`
-  x$`Creation date`
-  
-  data.frame(rawFileVersion=x$`RAW file version`,
+  data.frame(
              model=x$`Instrument model`,
              serialNumber=x$`Serial number`,
-             creationDate=x$`Creation date`)
-
+             #method=x$`Instrument method`,
+             softwareVersion=x$`Software version`,
+             nMS2=x$`Number of ms2 scans`)
 }
 ```
 
-The table below lists the instrument information:
+The table below lists some instrument information:
 
 ```{r knitr, results='asis'}
 knitr::kable(instrumentInformation<-do.call('rbind', lapply(H, .getInstrumentInformation)))
