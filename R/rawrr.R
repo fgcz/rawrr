@@ -1136,3 +1136,24 @@ plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
         }
     }
 }
+
+#' Retrieve master scan of scan listed in scan index
+#'
+#' @param x A scan index returned by \code{readIndex}.
+#' @param scanNumber The scan number that should be inspected for the presence
+#' of a master scan.
+#'
+#' @return Returns the scan number of the master scan or NA if no master scan
+#' exists.
+#' @export masterScan
+#'
+#' @examples Idx <- readIndex(rawfile = sampleFilePath())
+#' masterScan(Idx, scanNumber = 1)
+masterScan <- function(x, scanNumber){
+    stopifnot(is.data.frame(x), "masterScan" %in% colnames(x), "dependencyType" %in% colnames(x))
+    if (is.na(x[scanNumber, "masterScan"])) {
+        warning(paste("Scan", scanNumber, "does NOT have a master scan! Returning NA.",
+                      "The corresponding dependencyType is", x[scanNumber, "dependencyType"]))
+    }
+    x[scanNumber, "masterScan"]
+}
