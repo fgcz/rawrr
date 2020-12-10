@@ -33,7 +33,7 @@ jobs:
         run: |
              mkdir -p ~/Downloads/ \
              && cd ~/Downloads/ \
-             && ftp ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw        
+             && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
       - name: install R suggested R packages
         run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat'), repos='https://cloud.r-project.org')"
       - name: fetch and check rawR package
