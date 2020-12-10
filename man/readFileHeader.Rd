@@ -7,7 +7,7 @@
 readFileHeader(
   rawfile,
   mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
-  exe = file.path(system.file(package = "rawrr"), "exec", "rawR.exe"),
+  exe = .rawrrAssembly(),
   mono_path = "",
   argv = "infoR",
   system2_call = TRUE,

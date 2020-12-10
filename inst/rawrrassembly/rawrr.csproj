@@ -1,0 +1,20 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AssemblyName>rawrr</AssemblyName>
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="rawrr.cs" />
+  </ItemGroup>
+
+  <Target Name="Build">
+    <MakeDir Directories="$(OutputPath)" Condition="!Exists('$(OutputPath)')" />
+    <Csc Sources="@(Compile)" OutputAssembly="$(OutputPath)$(AssemblyName).exe" References="@(Reference)" AdditionalLibPaths="$(MONO_PATH)"/>
+  </Target>
+
+  <ItemGroup>
+    <Reference Include="ThermoFisher.CommonCore.Data.dll"/>
+    <Reference Include="ThermoFisher.CommonCore.MassPrecisionEstimator.dll"/>
+    <Reference Include="ThermoFisher.CommonCore.RawFileReader.dll"/>
+ </ItemGroup>
+</Project>

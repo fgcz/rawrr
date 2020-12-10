@@ -21,8 +21,14 @@
 
 }
 
+
+.rawrrAssembly <- function(){
+       f <- system.file('rawrrassembly/bin/rawrr.exe', package = 'rawrr')
+       return(f)
+}
+
 .isMonoAssemblyWorking <-
-    function(exe = system.file('exec/rawR.exe',package = 'rawrr')){
+    function(exe = .rawrrAssembly()){
         if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
             if (Sys.which('mono') == ""){
                 warning("Can not find Mono JIT compiler. check SystemRequirements.")
@@ -31,7 +37,7 @@
         }
 
         if (!file.exists(exe)){
-            warning("rawR.exe is not availble.")
+            warning("rawrr.exe is not availble.")
             return (FALSE)
         }
 
@@ -45,7 +51,7 @@
 
         # expect that string
         if (rvs != "No RAW file specified!"){
-            warning("Mono JIT compiler and rawR.exe assembly are not working.")
+            warning("Mono JIT compiler and rawrr.exe assembly are not working.")
             return (FALSE)
         }
 
@@ -104,7 +110,7 @@ is.rawrrSpectrum <- function(x){
 #' M <- readFileHeader(rawfile)
 readFileHeader <- function(rawfile,
    mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-   exe = file.path(system.file(package = 'rawrr'), 'exec', 'rawR.exe'),
+   exe = .rawrrAssembly(),
    mono_path = "",
    argv = "infoR",
    system2_call = TRUE,
@@ -191,7 +197,7 @@ readFileHeader <- function(rawfile,
 #'
 readIndex <- function(rawfile, tmpdir=tempdir()){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- system.file('exec/rawR.exe', package = 'rawrr')
+    exe <- .rawrrAssembly()
 
     rawfile <- normalizePath(rawfile)
 
@@ -413,7 +419,7 @@ sampleFilePath <- function(){
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- file.path(system.file(package = 'rawrr'), 'exec', 'rawR.exe')
+    exe <- .rawrrAssembly()
 
 
     if (!file.exists(rawfile)){
@@ -539,7 +545,7 @@ readChromatogram <- function(rawfile,
                              filter = "ms",
                              type = 'xic',
                              mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-    			     exe = file.path(system.file(package = 'rawrr'), 'exec', 'rawR.exe')){
+                             exe = .rawrrAssembly()){
 
     if (!file.exists(rawfile)){
         stop(paste0('File ', rawfile, ' is not available.'))
