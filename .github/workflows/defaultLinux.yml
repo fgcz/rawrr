@@ -9,12 +9,12 @@
 name: rawrr build check including render vignettes
 env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+    MONO_PATH: '/usr/local/lib/RawFileReader'
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -28,7 +28,12 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: install Linux packages
-        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc  
+        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc
+      - name: install RawFileReader assemblies
+        run: |
+          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
+          && sudo mkdir -p $MONO_PATH \
+          && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
       - name: download 20181113_010_autoQC01.raw from MSV000086542 
         run: |
              mkdir -p ~/Downloads/ \
@@ -36,13 +41,6 @@ jobs:
              && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
       - name: install R suggested R packages
         run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
-      - name: install RawFileReader assemblies
-        env:
-          MONO_PATH: "/usr/local/lib/RawFileReader"
-        run: |
-          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
-          && mkdir -p  $(MONO_PATH) \
-          && cp /tmp/rawR/exec/*.dll $(MONO_PATH)
       - name: R CMD check
         env:
           MONO_PATH: "/usr/local/lib/RawFileReader"
