@@ -1157,3 +1157,23 @@ masterScan <- function(x, scanNumber){
     }
     x[scanNumber, "masterScan"]
 }
+
+
+#' Retrieve dependent scan(s) of a scan listed in scan index
+#'
+#' @param x A scan index returned by \code{readIndex}.
+#' @param scanNumber The scan number that should be inspected for dependent scans.
+#'
+#' @return The scan number of the dependent scan(s).
+#' @export dependentScan
+#'
+#' @examples Idx <- readIndex(rawfile = sampleFilePath())
+#' dependentScan(Idx, scanNumber = 1)
+dependentScan <- function(x, scanNumber){
+    stopifnot(is.data.frame(x), "masterScan" %in% colnames(x), "scan" %in% colnames(x))
+    i <- x[which(x$masterScan == scanNumber), "scan"]
+    if (length(i) == 0) {
+        warning(paste("NO dependent scans found for scan", scanNumber, "!"))
+    }
+    return(i)
+}
