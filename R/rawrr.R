@@ -51,7 +51,7 @@
 
         # expect that string
         if (rvs != "No RAW file specified!"){
-            warning("Mono JIT compiler and rawR.exe assembly are not working.")
+            warning("Mono JIT compiler and rawrr.exe assembly are not working.")
             return (FALSE)
         }
 

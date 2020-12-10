@@ -6,17 +6,13 @@ output:
   pdf_document: 
     keep_tex: yes
     latex_engine: xelatex
-  html_document:
-    df_print: paged
-  word_document: default
   citation_package: natbib
 bibliography: rawrr.bib
 csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{rawrr JPR Technical Note}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{rawrr - Technical Note}
   %\VignetteEngine{knitr::rmarkdown}
 urlcolor: blue
 header-includes:
@@ -115,13 +111,10 @@ The orbitrap detector has been a tremendous success story in MS, since it offers
 
 Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawrrspectrum` object or `rawrrspectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile and the corresponding Figure 1 shows the resulting plot for scan `9594`:
 
-<!---
-ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
-MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
--->
-
 ```{r plotrawrrspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and injection of 100'000 charges (AGC target). Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawrr)
+# ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
+# MD5: (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
 ## scan numbers (PSMs) derived from DB search
 i <- c(9594, 11113, 11884, 12788, 12677, 13204, 13868, 14551, 16136, 17193, 17612)
