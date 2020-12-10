@@ -41,9 +41,6 @@ jobs:
              && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
       - name: install R suggested R packages
         run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
-      - name: R CMD check
-        env:
-          MONO_PATH: "/usr/local/lib/RawFileReader"
-        run: |
-          run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
-          shell: Rscript {0}
+      - name: rcmdcheck::rcmdcheck
+        run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
+        shell: Rscript {0}
