@@ -1,9 +1,9 @@
 This folder should contain the following files:
 
-ThermoFisher.CommonCore.Data.dll
-ThermoFisher.CommonCore.MassPrecisionEstimator.dll
-ThermoFisher.CommonCore.RawFileReader.dll
-rawrr.exe
+`ThermoFisher.CommonCore.Data.dll`
+`ThermoFisher.CommonCore.MassPrecisionEstimator.dll`
+`ThermoFisher.CommonCore.RawFileReader.dll`
+`rawrr.exe`
 
 In general, ThermoFisher.CommonCore dlls can be obtained through:
 
