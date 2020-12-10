@@ -14,7 +14,7 @@
 #' @export scanNumber
 #' @details This accessor function returns the scan number of a mass spectrum
 #' stored as \code{rawrrSpectrum} object. Scan numbers are equal to the scan index
-#' $j$ running from 1 to $n$ with $n$ being the last scan of a raw file.
+#' \eqn{j} running from 1 to \eqn{n} with \eqn{n} being the last scan of a raw file.
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
 #' scanNumber(S[[1]])
