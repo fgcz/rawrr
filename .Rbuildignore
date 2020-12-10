@@ -11,3 +11,5 @@
 .*american-chemical-society.csl
 .*bash$
 .*rawRcolor.*
+vignettes.MSV86542.Rmd
+vignettes.functional_test.Rmd
