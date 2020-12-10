@@ -8,6 +8,7 @@ output:
     latex_engine: xelatex
   citation_package: natbib
 bibliography: rawrr.bib
+csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
