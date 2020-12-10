@@ -27,6 +27,4 @@ These contain the dlls and the rawR.exe already!
 
 as alternative you can set the MONO_PATH enviroment, e.g., 
 
-```
-export MONO_PATH="/path/to/ThermoFisher/CommonCore/DLL/files""
-```
+`export MONO_PATH="/path/to/ThermoFisher/CommonCore/DLL/files"`
