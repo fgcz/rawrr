@@ -35,12 +35,17 @@ jobs:
              && cd ~/Downloads/ \
              && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
       - name: install R suggested R packages
-        run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat'), repos='https://cloud.r-project.org')"
-      - name: fetch and check rawR package
+        run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+      - name: install RawFileReader assemblies
+        env:
+          MONO_PATH: "/usr/local/lib/RawFileReader"
         run: |
           curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
-          && curl -s https://codeload.github.com/fgcz/rawrr/zip/master > /tmp/rawrr-master.zip \
-          && cd /tmp && unzip rawrr-master.zip \
-          && cp rawR/exec/*.dll rawrr-master/exec \
-          && cd rawrr-master/src && make \
-          && cd /tmp/ && R CMD build rawrr-master && R CMD check rawrr*tar.gz
+          && mkdir -p  $(MONO_PATH) \
+          && cp /tmp/rawR/exec/*.dll $(MONO_PATH)
+      - name: R CMD check
+        env:
+          MONO_PATH: "/usr/local/lib/RawFileReader"
+        run: |
+          run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
+          shell: Rscript {0}
