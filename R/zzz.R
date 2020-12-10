@@ -9,7 +9,8 @@
 
 	if(interactive()){
 		version <- packageVersion('rawrr')
-		packageStartupMessage("Package 'rawrr' version ", version)
+		thermocopyright <- "RawFileReader reading tool. Copyright © 2016 by Thermo Fisher Scientific, Inc. All rights reserved."
+		packageStartupMessage("Package 'rawrr' version ", version, " using\n", thermocopyright)
 	  invisible()
         }
 
