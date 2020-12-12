@@ -8,6 +8,7 @@ output:
     latex_engine: xelatex
   citation_package: natbib
 bibliography: rawrr.bib
+csl: american-chemical-society.csl
 vignette: |
   %\usepackage[utf8]{inputenc}
   %\VignetteEncoding{UTF-8}
@@ -89,12 +90,12 @@ The file sample.raw contains 574 Fourier-transformed orbitrap spectra (FTMS) rec
 
 The following sections are inspired by real-world research/infrastructure projects but have been stripped down to the bare scientific essentials to put more weight on the software application. We display source code in grey-shaded boxes, including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package.
 
-|Function Name|Description|Return value|
-|:------------|-------------------------------|:------------------|
-|`readFileHeader`|Reads meta information from a rawfile header.|`list`|
-|`readIndex`|Reads scan index from a rawfile.|`data.frame`|
-|`readSpectrum`|Reads spectral data from a rawfile|`rawrrspectrum(Set)`|
-|`readChromatogram`|Extracts chromatograms (TIC, BPC, or XIC) from a rawfile|`rawrrchromatogram(Set)`|
+|Function Name     |Description                                             |Return value            |
+|:-----------------|--------------------------------------------------------|:-----------------------|
+|`readFileHeader`  |Reads meta information from a rawfile header.           |`list`                  |
+|`readIndex`       |Reads scan index from a rawfile.                        |`data.frame`            |
+|`readSpectrum`    |Reads spectral data from a rawfile                      |`rawrrSpectrum(Set)`    |
+|`readChromatogram`|Extracts chromatograms (TIC, BPC, or XIC) from a rawfile|`rawrrChromatogram(Set)`|
 
 Table: lists the most important `rawrr` package functions connected to reading functionality. More details can be found in the package documentation.
 
