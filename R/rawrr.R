@@ -927,9 +927,9 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                                           "Resolution: "),
                                         c(x$`Ion Injection Time (ms)`,
                                           x$`Max. Ion Time (ms)`,
-                                          x$`AGC Target`,
-                                          x$`FT Resolution`)),
-               bty = "n", cex = 0.75, text.col = "grey")
+                                          format(x$`AGC Target`, scientific = TRUE),
+                                          format(x$`FT Resolution`, scientific = TRUE))),
+               bty = "n", cex = 0.5, text.col = "grey")
     }
 
 }
