@@ -129,7 +129,7 @@ S[[1]]$`FT Resolution:`
 ```
 
 
-The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting since orbitrap detectors follow $S/N \propto charges \cdot \sqrt R$ with $S/N$ being the signal to noise ratio, $charges$ meaning elementary charges in the orbitrap, and $R$ being the resolving power of the scan [@Kelstrup2014]. Signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure 2 shows that all y-ion signals are several ten or even hundred folds above the noise estimate (Note: The spectrum shown in Figure 2 is decorated with y-ions calculated for LGGNEQVTR++ using the [ProtViz]([https://CRAN.R-project.org/package=protViz]) package.).
+The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting since orbitrap detectors follow $S/N \propto charges \cdot \sqrt R$ with $S/N$ being the signal to noise ratio, $charges$ meaning elementary charges in the orbitrap, and $R$ being the resolving power of the scan [@Kelstrup2014]. Signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure 2 shows that all y-ion signals are several ten or even hundred folds above the noise estimate (Note: The spectrum shown in Figure 2 is decorated with y-ions calculated for LGGNEQVTR++ using the [protViz]([https://CRAN.R-project.org/package=protViz]) package.).
 
 ```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using signal-to-noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]. The horizontal blue line indicates a signal to noise ratio of 5."}
 plot(S[[1]], centroid=TRUE, SN = TRUE)
@@ -144,7 +144,7 @@ axis(3, yIonSeries, names(yIonSeries))
 ```
 
 
-More sophisticated analysis workflows applying `rawrr` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross-compared at different collision energies. Be aware that such things are convenient since the `rawrrspectrum` object provides easy access to normalized and absolute collision energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
+More sophisticated analysis workflows applying `rawrr` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross-compared at different collision energies. Be aware that such things are convenient since the `rawrrSpectrum` object provides easy access to normalized and absolute HCD energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
 
 
 ## Use Case II - iRT Regression for System Suitability Monitoring
