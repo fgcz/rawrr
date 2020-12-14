@@ -121,11 +121,17 @@ plot(S[[1]], centroid=TRUE)
 ```
 
 ```{r checkScan, echo=FALSE, message=FALSE, eval=FALSE}
+## AGC-related
 S[[1]]$`AGC:`
 S[[1]]$`AGC Target:`
+## Injection time-related
 S[[1]]$`Ion Injection Time (ms)`
 S[[1]]$`Max. Ion Time (ms):`
+## Resolving power-related
 S[[1]]$`FT Resolution:`
+## HCD-related
+S[[1]]$`HCD Energy:`
+S[[1]]$`HCD Energy eV:`
 ```
 
 
@@ -142,7 +148,6 @@ names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
 abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
-
 
 More sophisticated analysis workflows applying `rawrr` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross-compared at different collision energies. Be aware that such things are convenient since the `rawrrSpectrum` object provides easy access to normalized and absolute HCD energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
 
