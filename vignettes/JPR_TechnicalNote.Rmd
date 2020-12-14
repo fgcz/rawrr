@@ -1,5 +1,5 @@
 ---
-title: "The rawrr R package – Direct access to orbitrap data and beyond"
+title: "The rawrr R package – Direct Access to Orbitrap Data and Beyond"
 author: "Tobias Kockmann^1‡\\*^ & Christian Panse^1,2‡^"
 date: "`r Sys.time()`"
 output:
