@@ -1,0 +1,18 @@
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s", meta$Version)
+
+
+bibentry(bibtype = "Article",
+  title        = "The rawrr R package - Direct Access to Orbitrap Data and Beyond",
+  author       = c(person(given = "Tobias",
+                        family = "Kockmann",
+                        email = "Tobias.Kockmann@fgcz.ethz.ch"),
+  		     person(given = "Christian",
+                        family = "Panse",
+                        email = "cp@fgcz.ethz.ch")),
+  journal      = "Cold Spring Harbor Laboratory",
+  year         = "2020",
+  doi          = "10.1101/2020.10.30.362533",
+
+  header       = "To cite the package rawrr in publications use:"
+)
