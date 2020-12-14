@@ -148,6 +148,8 @@ abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
+In total, the API provides `r length(S[[1]])` data items for this particular scan covering ion optics settings, mass calibration, and other diagnostic data (use `print()` to gain an overview). It needs to be mentioned that this list is highly dynamic and changes with instrument model and installed instrument control software version. Our reader method is designed in a flexible way so that also newly introduced items will be passed onto the R environment. 
+
 More sophisticated analysis workflows applying `rawrr` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross-compared at different collision energies. Be aware that such things are convenient since the `rawrrSpectrum` object provides easy access to normalized and absolute HCD energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
 
 
