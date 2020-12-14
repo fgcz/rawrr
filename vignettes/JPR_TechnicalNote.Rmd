@@ -108,7 +108,7 @@ H <- rawrr::readFileHeader(rawfile = rawfile)
 
 The orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HRAM) data on a time scale that is compatible with chromatographic analysis (LC-MS)[@Makarov2000]. Therefore, it is heavily used for bottom-up proteomics, but analyzing orbitrap data in `R` has so far only been possible after raw data conversion to exchange formats like mz(X)ML. Unfortunately, conversion is accompanied by a loss of orbitrap-specific information. This use case shows how easy it is to work directly with raw-formated orbitrap data after installing our `R` package `rawrr` that applies vendor APIs for data access. We use a complete LC-MS run recorded on a `r H$"Instrument model"` by parallel reaction monitoring (PRM)[@Gallien2012] for demonstration purposes (File name: `r H$"RAW file"`). The `r H$"Time range"[2]` min run resulted in `r format(H$"Number of scans")` scans that were written to the file. Already typesetting the above lines uses `rawrr` functionality, since the instrument model, the file name, the time range of data acquisition, and the number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader()` and returns a simple `R` object of type `list` (see Table 1).
 
-Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile (Scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: mzspec:MSV86543:20181113_010_autoQC01.raw:scan:9528:LGGNEQVTR/2) assigned to the iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
+Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile (Scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2) assigned to the iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
 
 ```{r plotrawrrspectrum, fig.cap="Plot of scan number 9594 showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an orbitrap detector incl. lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and an AGC target of 100'000 charges. Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawrr)
@@ -121,15 +121,21 @@ plot(S[[1]], centroid=TRUE)
 ```
 
 ```{r checkScan, echo=FALSE, message=FALSE, eval=FALSE}
+## AGC-related
 S[[1]]$`AGC:`
 S[[1]]$`AGC Target:`
+## Injection time-related
 S[[1]]$`Ion Injection Time (ms)`
 S[[1]]$`Max. Ion Time (ms):`
+## Resolving power-related
 S[[1]]$`FT Resolution:`
+## HCD-related
+S[[1]]$`HCD Energy:`
+S[[1]]$`HCD Energy eV:`
 ```
 
 
-The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting since orbitrap detectors follow $S/N \propto charges \cdot \sqrt R$ with $S/N$ being the signal to noise ratio, $charges$ meaning elementary charges in the orbitrap, and $R$ being the resolving power of the scan [@Kelstrup2014]. Signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure 2 shows that all y-ion signals are several ten or even hundred folds above the noise estimate (Note: The spectrum shown in Figure 2 is decorated with y-ions calculated for LGGNEQVTR++ using the [ProtViz]([https://CRAN.R-project.org/package=protViz]) package.).
+The plot shows typical orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting since orbitrap detectors follow $S/N \propto charges \cdot \sqrt R$ with $S/N$ being the signal to noise ratio, $charges$ meaning elementary charges in the orbitrap, and $R$ being the resolving power of the scan [@Kelstrup2014]. Signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure 2 shows that all y-ion signals are several ten or even hundred folds above the noise estimate (Note: The spectrum shown in Figure 2 is decorated with y-ions calculated for LGGNEQVTR++ using the [protViz]([https://CRAN.R-project.org/package=protViz]) package.).
 
 ```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using signal-to-noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]. The horizontal blue line indicates a signal to noise ratio of 5."}
 plot(S[[1]], centroid=TRUE, SN = TRUE)
@@ -143,8 +149,7 @@ abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
-
-More sophisticated analysis workflows applying `rawrr` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross-compared at different collision energies. Be aware that such things are convenient since the `rawrrspectrum` object provides easy access to normalized and absolute collision energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
+More sophisticated analysis workflows applying `rawrr` functionality have been described in [@Gehrig2020]. In short, marker ions found in HCD MS2 spectra for ADP-ribosylated peptides were annotated and cross-compared at different collision energies. Be aware that such things are convenient since the `rawrrSpectrum` object provides easy access to normalized and absolute HCD energies. A small molecule application using UVPD dissociation is described in [@Panse2020]. 
 
 
 ## Use Case II - iRT Regression for System Suitability Monitoring
