@@ -179,7 +179,7 @@ readFileHeader <- function(rawfile,
 #' @return returns a \code{data.frame} with the column names
 #' scanType, rtinseconds, precursorMass, and charge of all spectra.
 #' @export readIndex
-#' @importFrom utils read.csv2
+#' @importFrom utils read.table
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
 #' @seealso \link[rawDiag]{read.raw}
 #'
@@ -226,7 +226,13 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
                        stdout=tfstdout)
     }
 
-    DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
+    DF <- read.table(tfstdout,
+      header = TRUE,
+      comment.char = "#",
+      sep = ';',
+      na.string="-1",
+      colClasses=c('integer', 'character', 'numeric', 'numeric', 'character', 'integer', 'integer', 'integer'))
+
     DF$dependencyType <- as.logical(DF$dependencyType)
 
     unlink(c(tfi, tfo, tfstdout))
