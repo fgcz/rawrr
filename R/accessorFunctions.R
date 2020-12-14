@@ -23,3 +23,18 @@ scanNumber <- function(x) {
   stopifnot(is.rawrrSpectrum(x))
   as.integer(x$scan)
 }
+
+faimsVoltageOn <- function(x) {
+  stopifnot(is.rawrrSpectrum(x))
+  if ("FAIMS Voltage On:" %in% names(x)) {
+
+    y <- x$`FAIMS Voltage On:`
+    lookup <- c(No = "FALSE", Yes = "TRUE")
+    return(as.logical(lookup[y]))
+
+  } else {
+
+    stop("FAIMS Voltage On: is not available!")
+
+  }
+}
