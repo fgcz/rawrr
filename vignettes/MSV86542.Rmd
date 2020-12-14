@@ -14,6 +14,8 @@ abstract: |
   using the latest stable `R` and [rawrr](https://github.com/fgcz/rawrr)
   package versions.
 toc: true
+header-includes:
+  - \usepackage{pdfpages}
 ---
 \renewcommand{\thepage}{S--\arabic{page}}
 \renewcommand{\tablename}{Supp. Table}
@@ -38,9 +40,11 @@ The automatically updated output of this R script can be viewer at https://fgcz-
 
 Of note, The analyzed sample (termed autoQC01) consists of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 RP material at a constant flow rate of 300 nl/min.
 
+<!--
 ```{r prefssure, echo=FALSE, fig.cap="The package logo. Lions love raw meat!", out.width = '20%', fig.align='center'}
 knitr::include_graphics("rawRcolor.png")
 ```
+-->
 
 # Download raw files
 
@@ -375,3 +379,9 @@ The following assemblies of the ThermoRawFileReader.4.0.22 version were used:
 sessionInfo()
 ```
 
+
+## `rawrr` package Documentation
+
+On the next pages the output of `R CMD Rd2pdf` is attached.
+
+\includepdf[pages={-}, pagecommand={}]{rawrr.pdf}
