@@ -1030,7 +1030,7 @@ print.rawrrSpectrum <- function(x, ...){
     for (i in keys){
         value <- x[i]
 
-        if (value == "NULL"){
+        if (value == "NULL" && substr(i, 1, 2) != "=="){
             #cat(i, "\t\n", fill = TRUE)
         }else{
             cat(paste(i, x[i],sep='\t'), fill = TRUE)
