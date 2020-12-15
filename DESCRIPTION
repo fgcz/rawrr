@@ -1,6 +1,6 @@
 Package: rawrr
 Type: Package
-Title: Access to Thermo Fisher Scientific raw files from R
+Title: Direct Access to Orbitrap Data and Beyond
 Version: 0.1.7
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",

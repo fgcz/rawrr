@@ -23,9 +23,9 @@ TK: Asking myself if this couldn't be done using GitHub actions? It sounds soooo
 
 The main objectives are:
 
-*Demonstrate code robustness with respect to different instrument models.
-*Showcase dynamic application (daily changing input data).
-*Demonstrate multicore computation by applying the `parallel` package.
+* Demonstrate code robustness with respect to different instrument models.
+* Showcase dynamic application (daily changing input data).
+* Demonstrate multicore computation by applying the `parallel` package.
 
 The automatically updated output of this R script can be viewer at [https://fgcz-ms.uzh.ch/~cpanse/rawR/test/functional_test.html]
 
