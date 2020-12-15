@@ -24,6 +24,15 @@ scanNumber <- function(x) {
   as.integer(x$scan)
 }
 
+#' Is FAIMS Voltage on?
+#'
+#' @param x A rawrrSpectrum object
+#'
+#' @return A boolean
+#' @export faimsVoltageOn
+#'
+#' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
+#' try(faimsVoltageOn(S[[1]]))
 faimsVoltageOn <- function(x) {
   stopifnot(is.rawrrSpectrum(x))
   if ("FAIMS Voltage On:" %in% names(x)) {
