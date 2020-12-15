@@ -40,11 +40,9 @@ The automatically updated output of this R script can be viewer at https://fgcz-
 
 Of note, The analyzed sample (termed autoQC01) consists of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 RP material at a constant flow rate of 300 nl/min.
 
-<!--
 ```{r prefssure, echo=FALSE, fig.cap="The package logo. Lions love raw meat!", out.width = '20%', fig.align='center'}
 knitr::include_graphics("rawRcolor.png")
 ```
--->
 
 # Download raw files
 
@@ -57,10 +55,12 @@ wget ftp://massive.ucsd.edu/MSV000086542/raw/*.raw
 
 # Load R packages
 
-```{r library}
+```{r libraryrawrr}
 # see https://github.com/fgcz/rawrr/releases
 library(rawrr)
+```
 
+```{r library}
 # https://CRAN.R-project.org/package=protViz
 library(protViz)
 
@@ -174,7 +174,8 @@ names(iRT.mZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 
 ## Note: implement some more sophisticated score from the literature
 ## intensityOfMatches <- sum(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.1])
-## nomalizedIntensityOfMatches <- median(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.01]) / intensity.max    
+## nomalizedIntensityOfMatches 
+##   <- median(PL[[j]]$intensity[abs(pp[[j]]$mZ.Da.error) < 0.01]) / intensity.max    
 ## derive scores for each match
     score <- sapply(1:length(pp),
       function(j){                                                                                                   
