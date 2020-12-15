@@ -384,7 +384,8 @@ sessionInfo()
 
 ```{r}
 #retrieve master scan of first ddMS2 scan in a rawfile
-Idx <- rawrr::readIndex(rawfile = input[[4]])
+f <- "FUSION_2__oltm_20201201_PCT_ONvsSTD__20201201_006_autoQC01.raw"
+Idx <- rawrr::readIndex(rawfile = f)
 head(ddMS2 <- Idx[Idx$dependencyType & Idx$MSOrder == "Ms2",])
 (master <- rawrr::masterScan(Idx, scanNumber = ddMS2[1, "scan"]))
 
@@ -392,7 +393,7 @@ head(ddMS2 <- Idx[Idx$dependencyType & Idx$MSOrder == "Ms2",])
 rawrr::dependentScan(Idx, master)
 
 #subsetting of index
-head(Idx[dependentScan(Idx, master),])
+Idx[dependentScan(Idx, master),]
 
 ```
 
