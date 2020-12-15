@@ -121,15 +121,15 @@ plot(S[[1]], centroid=TRUE)
 ```
 
 ```{r checkScan, echo=FALSE, message=FALSE, eval=FALSE}
-## AGC-related
+# AGC-related
 S[[1]]$`AGC:`
 S[[1]]$`AGC Target:`
-## Injection time-related
+# Injection time-related
 S[[1]]$`Ion Injection Time (ms)`
 S[[1]]$`Max. Ion Time (ms):`
-## Resolving power-related
+# Resolving power-related
 S[[1]]$`FT Resolution:`
-## HCD-related
+# HCD-related
 S[[1]]$`HCD Energy:`
 S[[1]]$`HCD Energy eV:`
 ```
@@ -138,9 +138,9 @@ The plot shows typical orbitrap peak attributes like resolution (R) and charge (
 
 ```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using signal-to-noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]. The horizontal blue line indicates a signal to noise ratio of 5. Diagnostic information related to AGC is shown in grey."}
 plot(S[[1]], centroid=TRUE, SN = TRUE, diagnostic = TRUE)
-## S/N threshold indicator
+# S/N threshold indicator
 abline(h = 5, lty = 2, col = "blue")
-## decorate plot with y-ion series of target peptide LGGNEQVTR++
+# decorate plot with y-ion series of target peptide LGGNEQVTR++
 yIonSeries <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791,
                 803.4006, 860.4221)
 names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
@@ -151,13 +151,13 @@ axis(3, yIonSeries, names(yIonSeries))
 In total, the API provides `r length(S[[1]])` data items for this particular scan covering ion optics settings, mass calibration, and other diagnostic data (use `print()` to gain an overview). It needs to be mentioned that this list is highly dynamic and changes with instrument model and installed instrument control software version. Our reader method is designed in a flexible way so that also newly introduced items will be passed onto the `R` environment in the future. In general, access to `rawrrSpectrum` items are provided by the subsetting operators `$` and `[[`. But for programmatic access we highly recommend using accessor functions like `scanNumber` instead of using `$scan` or `[[scan]]`, since the accessors will also take care of casting values stored as-returned by the API (mostly type `character`). Another argument for favoring the accessor function mechanism is the more restrictive error handling in case the requested information is not available and more descriptive function names without white spaces. The following code chunk demonstrates the above mentioned aspects:
 
 ```{r}
-## $ operator access vs. accessor function
-## aspect 1 : casting
+# $ operator access vs. accessor function
+# aspect 1 : casting
 (x <- S[[1]]$scan)
 class(x)
 (y <- scanNumber(S[[1]]))
 class(y)
-## aspect 2 : error handling
+# aspect 2 : error handling
 S[[1]]$`FAIMS Voltage On:`
 try(faimsVoltageOn(S[[1]]))
 ```
@@ -169,17 +169,17 @@ More sophisticated analysis workflows applying `rawrr` functionality have been d
 
 By applying linear regression, one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values and *vice versa* [@Escher2012]. This can be used for retention time calibration/prediction. In addition, fitted iRT regression models provide highly valuable information about LC-MS run performance. This example shows how easy it is to perform iRT regression in `R` by just using the raw measurement data, our package `rawrr`, and well known `base R` functions supporting linear modeling. To get a first impression of the data we calculate a TIC using the `readChromatogram()` function. Plotting the TIC shows chromatographic peaks between 15 and 28 min that could be of peptidic origin. Of note, there is also a `type = "bpc"` option if you prefer a BPC:
 
-```{r TIC, fig.cap="TIC"}
+```{r TIC, fig.cap="Total ion chromatogram (TIC) calculated from all MS1-level scans contained in 20181113_010_autoQC01.raw."}
 plot(rawrr::readChromatogram(rawfile = rawfile, type = "tic"))
 ```
 
-```{r BPC, fig.cap="BPC", eval=FALSE}
+```{r BPC, fig.cap="BPC", eval=FALSE, include=FALSE}
 plot(rawrr::readChromatogram(rawfile = rawfile, type = "bpc"))
 ```
 
-The initial step of iRT regression is to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, given they were spiked into the sample matrix prior to data acquisition. Fortunately, our example data is iRT peptides in a tryptic digest of BSA. The code chunk below demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawrrchromatogramSet` object of the type `xic`. This object is plotted for visual inspection.
+The initial step of iRT regression is to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, given they were spiked into the sample matrix prior to data acquisition. Fortunately, our example data is iRT peptides in a tryptic digest of BSA. The code chunk below demonstrates how the function `readChromatogram()` is called on the R command line to return a `rawrrChromatogramSet` object of the type `xic`. This object is plotted for visual inspection.
 
-```{r plotrawrrchromatogram, fig.cap="XICs for iRT peptides precursors. Each XIC was calculated using a tolerance of 10 ppm around the target mass and using only MS1 scans.", error=TRUE}
+```{r plotrawrrchromatogram, fig.cap="Extracted ion chromatograms (XIC) for iRT peptide precursors. Each XIC was calculated using a tolerance of 10 ppm around the target mass and using only MS1-level scans.", error=TRUE}
 iRTmZ <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
@@ -189,10 +189,11 @@ names(iRTmZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "LFLQFGAQGSPFLK")
 
 C <- rawrr::readChromatogram(rawfile, mass = iRTmZ, tol = 10, type = "xic", filter = "ms")
+class(C)
 plot(C, diagnostic = TRUE)
 ```
 
-Be reminded that the intensity traces are not computed within `R`, for instance, by reading all scans of a raw file and subsequently iterating over a scan subset. Of note, this would be a greedy and slow performing solution. Instead, traces are directly calculated by a `C#` method (reference method code) that calls the vendor API. The API takes care of the filtering process (checks filter validity and applies the filter). On the `R` code level there is no need to know *a priori* which scans match the filter rule or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawrrchromatogram` objects. By changing the filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++:
+Be reminded that the intensity traces are not computed within `R`, for instance, by reading all scans of a raw file and subsequently iterating over a scan subset. Of note, this would be a greedy and slow performing solution. Instead, traces are retrieved by a `C#` method that calls the vendor API. The API takes care of the filtering process (checks filter validity and applies the filter). On the `R` code level there is no need to know *a priori* which scans match the filter rule or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawrrChromatogram` objects. By changing the filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++:
 
 ```{r fragmentIonTraces, fig.cap="XICs for LGGNEQVTR++ fragment ions y6 to y8", fig.retina=1}
 plot(rawrr::readChromatogram(rawfile = rawfile,
@@ -201,8 +202,7 @@ plot(rawrr::readChromatogram(rawfile = rawfile,
       filter = "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
 ```
 
-It becomes obvious that our example data was actually recorded using parallel reaction monitoring (PRM) since 487.2567 was targeted in regular spaced intervals. You could confirm this by using the `readIndex()` function which returns a `data.frame` that indexes all scans found in a raw file and subsetting it for the scans of interest. The delta between consecutive scans is always 22 scans:
-
+It becomes obvious that the example data was recorded using parallel reaction monitoring (PRM) since 487.2567 was targeted in regularly-spaced intervals for fragment ion recording. You could confirm this by using the `readIndex()` function which returns a `data.frame` that indexes all scans found in a raw file and subsetting it for the scans of interest:
 
 ```{r readIndex}
 Idx <- rawrr::readIndex(rawfile = rawfile)
@@ -210,7 +210,7 @@ head(subset(Idx,
   scanType == "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
 ```
 
-For regression, we now extract the RTs at the maximum of the intensity traces stored in the chromatogram object and fit a linear model of the form: $$rt = a + b\cdot score$$ In theory, we could do this at the precursor or fragment ion level. For simplicity, we show only the first option.  
+The delta between consecutive scans is always 22 scans (one PRM cycle) and the `depedencyType` of the MS2 scans is FALSE. For regression, we now extract the RTs at the maximum of the intensity traces stored in the chromatogram object and fit a linear model of the form $rt = a + b\cdot score$ In theory, we could do this at the precursor or fragment ion level. For simplicity, we show only the first option.  
 
 ```{r iRTscoreFit, error=TRUE}
 iRTscore <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
@@ -218,7 +218,7 @@ rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
 fit <- lm(rt ~ iRTscore)
 ```
 
-The fitted model can then be inspected using standard procedures. The output of code chunk `iRTscoreFitPlot` in Figure 6, shows a visual inspection by plotting observed RTs as a function of iRT score together with the fitted model regression line. The corresponding R squared indicates that the RTs behave highly linear. This is expected since the iRT peptides were separated on a 20 min linear gradient from 5% buffer B to 35% buffer B using C18 reversed-phase material (the change rate is therefore 1.5% buffer B / min). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide `GAGSSEPVTGLDAK` since it was defined to have a zero score on the iRT scale.
+The fitted model can then be inspected using standard procedures. Figure 6, shows a visual inspection by plotting observed RTs as a function of iRT score together with the fitted model regression line. The corresponding `R` squared indicates that the RTs behave highly linear. This is expected since the iRT peptides were separated on a 20 min linear gradient from 5% buffer B to 35% buffer B using C18 reversed-phase material (the change rate is therefore 1.5% per minute). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide `GAGSSEPVTGLDAK` since it was defined to have a zero score on the iRT scale.
 
 
 ```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="iRT score fit plot with regression line."}
@@ -239,8 +239,9 @@ text(iRTscore, rt, iRTmZ, pos=1,cex=0.5)
 
 ## Extension
 
-An extended and dynamic version of the above use cases can be found at (https://fgcz-ms.uzh.ch/~cpanse/rawrr/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of raw files recorded approximately every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are out of service). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. We reuse the resulting raw files to showcase `rawrr`'s functionality across different orbitrap instrument models/generations. In order to find the highest-scoring MS2 scan for `r names(iRTmZ)[1]`++ per file, we now use a simple scoring function, implemented directly in `R` (it counts the number of matching y-ions), instead of running an external search engine (see supplementary file: R script functional test). The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the source code is executed in a full parallel fashion (each core processes one raw file) on a Linux server. This shows how scalable analysis pipelines can be constructed starting from basic building blocks (code chunks). It demonstrates that (i) `rawrr`'s data access mechanism works for all types of instrument models and (ii) over network-attached storage.
+An extended and dynamic version of the above use cases can be found at (https://fgcz-ms.uzh.ch/~cpanse/rawrr/test/functional_test.html). The web page displays spectra and iRT regression models obtained over a set of raw files recorded approximately every 12 hours on different orbitrap mass spectrometers at the FGCZ (some systems are out of service). The original purpose of these injections is automated longitudinal system suitability monitoring and quality control. We reuse the resulting raw files to showcase `rawrr`'s functionality across different orbitrap instrument models/generations. In order to find the highest-scoring MS2 scan for iRT peptides we now use a simple scoring function implemented in `R` (it counts the number of matching y-ions), instead of running an external search engine. The web page automatically updates every 30 min using the most recent two files per system as input data. Be aware that the code is executed in a full parallel fashion (each core processes one raw file) on a Linux server with network-attached storage. 
 
+The R script that renders the html page is also available as supplementary information. The correspoding [R markdown file](https://github.com/fgcz/rawrr/blob/master/vignettes/JPR_supplement.Rmd) is part of the `rawrr` package and can be processed locally after downloading a snapshot of the above described input data from [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542) [@MSV000086542]. In summary, this shows how scalable analysis pipelines can be constructed starting from basic building blocks. It demonstrates that `rawrr`'s data access mechanism works for all types of orbitrap instrument models.
 
 # Conclusions
 
