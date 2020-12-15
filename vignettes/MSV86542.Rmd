@@ -381,7 +381,7 @@ sessionInfo()
 ```
 
 
-## `rawrr` package Documentation
+# `rawrr` package Documentation
 
 On the next pages the output of `R CMD Rd2pdf` is attached.
 
