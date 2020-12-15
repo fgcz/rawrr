@@ -380,6 +380,22 @@ The following assemblies of the ThermoRawFileReader.4.0.22 version were used:
 sessionInfo()
 ```
 
+# Analyzing the relation of dependent scans
+
+```{r}
+#retrieve master scan of first ddMS2 scan in a rawfile
+Idx <- rawrr::readIndex(rawfile = input[[4]])
+head(ddMS2 <- Idx[Idx$dependencyType & Idx$MSOrder == "Ms2",])
+(master <- rawrr::masterScan(Idx, scanNumber = ddMS2[1, "scan"]))
+
+#retrieve all dependent scans numbers of the master scan
+rawrr::dependentScan(Idx, master)
+
+#subsetting of index
+head(Idx[dependentScan(Idx, master),])
+
+```
+
 
 # `rawrr` package Documentation
 
