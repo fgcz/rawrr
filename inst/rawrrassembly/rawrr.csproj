@@ -9,7 +9,7 @@
 
   <Target Name="Build">
     <MakeDir Directories="$(OutputPath)" Condition="!Exists('$(OutputPath)')" />
-    <Csc Sources="@(Compile)" OutputAssembly="$(OutputPath)$(AssemblyName).exe" References="@(Reference)" AdditionalLibPaths="$(MONO_PATH)"/>
+    <Csc Sources="@(Compile)" OutputAssembly="$(OutputPath)$(AssemblyName).exe" References="@(Reference)" AdditionalLibPaths="$(MONO_PATH)" Optimize="true" Platform="anycpu"/>
   </Target>
 
   <ItemGroup>
