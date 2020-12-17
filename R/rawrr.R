@@ -230,8 +230,8 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
       header = TRUE,
       comment.char = "#",
       sep = ';',
-      na.string="-1",
-      colClasses=c('integer', 'character', 'numeric', 'numeric', 'character', 'integer', 'integer', 'integer'))
+      na.strings = "-1",
+      colClasses = c('integer', 'character', 'numeric', 'numeric', 'character', 'integer', 'integer', 'integer'))
 
     DF$dependencyType <- as.logical(DF$dependencyType)
 
