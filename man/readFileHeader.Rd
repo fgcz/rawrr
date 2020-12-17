@@ -50,7 +50,7 @@ The function extracts meta information from a given rawfile.
 M <- readFileHeader(rawfile)
 }
 \references{
-Thermo Fisher NewRawfileReader C# code snippets
+Thermo Fisher Scientific's NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}.
 }
 \seealso{

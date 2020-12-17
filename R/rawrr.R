@@ -58,11 +58,11 @@
         TRUE
     }
 
-#' Test if object is instance of class \code{rawrrSpectrum}
+#' Check if object is instance of class \code{rawrrSpectrum}
 #'
-#' @param x object to be tested
+#' @param x object to be tested.
 #'
-#' @return TRUE or FALSE
+#' @return \code{TRUE} or \code{FALSE}
 #' @export is.rawrrSpectrum
 #'
 #' @examples
@@ -86,7 +86,7 @@ is.rawrrSpectrum <- function(x){
 #' @param method instrument vendor
 #' @description The function extracts meta information from a given rawfile.
 #' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020.
-#' @references Thermo Fisher NewRawfileReader C# code snippets
+#' @references Thermo Fisher Scientific's NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #'
 #' @seealso \link[rawDiag]{read.raw.info}
@@ -310,7 +310,8 @@ validate_rawrrIndex <- function(x){
 #' {\code{sample.raw}}
 #'
 #' @description
-#' The binary example file sample.raw contains 574 Fourier-transformed orbitrap
+#' The binary example file sample.raw, shipped with the package, contains
+#' 574 Fourier-transformed orbitrap
 #' spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 #' mass spectrometer was operated in line with a nano electrospray source (NSI)
 #' in positive mode (+). All spectra were written to disk after applying
@@ -331,7 +332,7 @@ validate_rawrrIndex <- function(x){
 #' \item{Bioconductor
 #' \href{https://bioconductor.org/packages/tartare/}{tartare} package.}
 #' \item{Automated quality control sample 1 (autoQC01) analyzed across different
-#' Thermo Scientific mass spectrometers,
+#' Thermo Fisher Scientific mass spectrometers,
 #' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.}
 #' }
 #'
@@ -949,7 +950,7 @@ summary.rawrrSpectrum <- function(object, ...){
     cat("Scan Mode:\t", object$scanType, fill = TRUE)
 }
 
-#' Basic print function faking the look and feel of freestyle's output
+#' Print method imitate the look and feel of Thermo Fisher Scientific FreeStyle's output
 #' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param x an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
@@ -1045,7 +1046,7 @@ print.rawrrSpectrum <- function(x, ...){
 #' @usage is.rawrrChromatogram(x)
 #' @author Tobias Kockmann, 2020.
 #'
-#' @return Boolean
+#' @return \code{TRUE} or \code{FALSE}
 #' @export is.rawrrChromatogram
 #'
 #' @examples rawfile <- sampleFilePath()
