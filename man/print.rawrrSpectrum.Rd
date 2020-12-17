@@ -2,7 +2,7 @@
 % Please edit documentation in R/rawrr.R
 \name{print.rawrrSpectrum}
 \alias{print.rawrrSpectrum}
-\title{Basic print function faking the look and feel of freestyle's output}
+\title{Print method imitate the look and feel of Thermo Fisher Scientific FreeStyle's output}
 \usage{
 \method{print}{rawrrSpectrum}(x, ...)
 }
@@ -12,7 +12,7 @@
 \item{\ldots}{Arguments to be passed to methods.}
 }
 \description{
-Basic print function faking the look and feel of freestyle's output
+Print method imitate the look and feel of Thermo Fisher Scientific FreeStyle's output
 }
 \author{
 Christian Panse and Tobias Kockmann, 2020.

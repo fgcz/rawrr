@@ -11,7 +11,8 @@ sampleFilePath()
 file path of the sample.raw location.
 }
 \description{
-The binary example file sample.raw contains 574 Fourier-transformed orbitrap
+The binary example file sample.raw, shipped with the package, contains
+574 Fourier-transformed orbitrap
 spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 mass spectrometer was operated in line with a nano electrospray source (NSI)
 in positive mode (+). All spectra were written to disk after applying
@@ -36,7 +37,7 @@ sampleFilePath()
 \item{Bioconductor
 \href{https://bioconductor.org/packages/tartare/}{tartare} package.}
 \item{Automated quality control sample 1 (autoQC01) analyzed across different
-Thermo Scientific mass spectrometers,
+Thermo Fisher Scientific mass spectrometers,
 \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.}
 }
 }

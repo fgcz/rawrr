@@ -85,11 +85,11 @@ The file sample.raw contains 574 Fourier-transformed Orbitrap spectra (FTMS) rec
 
 The following sections are inspired by real-world research/infrastructure projects but have been stripped down to the bare scientific essentials to put more weight on the software application. We display source code in grey-shaded boxes, including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package. Additional graphical elements were added using base `R` plotting functions to increase the comprehensibility.
 
-|Function Name     |Description                                             |Return value            |
-|:-----------------|--------------------------------------------------------|:-----------------------|
-|`readFileHeader`  |Reads meta information from a rawfile header.           |`list`                  |
-|`readIndex`       |Reads scan index from a rawfile.                        |`data.frame`            |
-|`readSpectrum`    |Reads spectral data from a rawfile                      |`rawrrSpectrum(Set)`    |
+|Function Name     |Description                                         |Return value             |
+|:-----------------|----------------------------------------------------|:------------------------|
+|`readFileHeader`  |Reads meta information from a rawfile header.       |`list`                   |
+|`readIndex`       |Reads scan index from a rawfile.                    |`data.frame`             |
+|`readSpectrum`    |Reads spectral data from a rawfile                  |`rawrrSpectrum(Set)`     |
 |`readChromatogram`|Reads chromatograms (TIC, BPC, or XIC) from a rawfile|`rawrrChromatogram(Set)`|
 
 Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation.

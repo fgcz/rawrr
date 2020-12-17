@@ -10,7 +10,7 @@ is.rawrrChromatogram(x)
 \item{x}{The object to be tested.}
 }
 \value{
-Boolean
+\code{TRUE} or \code{FALSE}
 }
 \description{
 Check if object is instance of class \code{rawrrChromatogram}
