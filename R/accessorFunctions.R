@@ -2,7 +2,7 @@
 ## These functions are used to encapsulate data retrival, since (1) key:value
 ## pairs returned by the RawFileReader API can have cryptic keys including white
 ## spaces and special characters, (2) returned values are mostly transfered as-is
-## without casting to specific primitive types (numeric, integer, ...), (3) it
+## without casting to specific types, (3) it
 ## is not always obvious what these key:value pairs mean due to a missing
 ## documentation from Thermo Fisher Scientific.
 
