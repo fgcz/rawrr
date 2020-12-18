@@ -87,7 +87,7 @@ is.rawrrSpectrum <- function(x){
 #' @description The function extracts meta information from a given rawfile.
 #' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020.
 #' @references Thermo Fisher Scientific's NewRawfileReader C# code snippets
-#' \url{https://planetOrbitrap.com/rawfilereader}.
+#' \url{https://planetorbitrap.com/rawfilereader}.
 #'
 #' @seealso \link[rawDiag]{read.raw.info}
 #'
@@ -418,7 +418,7 @@ sampleFilePath <- function(){
 #' }
 #' @references \itemize{
 #'   \item{Thermo Fisher NewRawfileReader C# code snippets
-#'     \url{https://planetOrbitrap.com/rawfilereader}}.
+#'     \url{https://planetorbitrap.com/rawfilereader}}.
 #'   \item{\url{https://doi.org/10.5281/zenodo.2640013}}
 #'   \item{the R function 1st appeared in
 #'     \url{https://doi.org/10.1021/acs.jproteome.8b00173}.
@@ -493,7 +493,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' @seealso
 #' \itemize{
 #' \item{Thermo Fisher NewRawfileReader C# code snippets
-#' \url{https://planetOrbitrap.com/rawfilereader}.}
+#' \url{https://planetorbitrap.com/rawfilereader}.}
 #' \item{\link[rawDiag]{readXICs} contains a prototype with limited
 #' functionality.}
 #' \item{\url{https://CRAN.R-project.org/package=protViz}}
