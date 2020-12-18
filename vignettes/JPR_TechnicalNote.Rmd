@@ -83,16 +83,7 @@ The file sample.raw contains 574 Fourier-transformed Orbitrap spectra (FTMS) rec
 
 # Results
 
-The following sections are inspired by real-world research/infrastructure projects but have been stripped down to the bare scientific essentials to put more weight on the software application. We display source code in grey-shaded boxes, including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package. Additional graphical elements were added using base `R` plotting functions to increase the comprehensibility.
-
-|Function Name     |Description                                         |Return value             |
-|:-----------------|----------------------------------------------------|:------------------------|
-|`readFileHeader`  |Reads meta information from a rawfile header.       |`list`                   |
-|`readIndex`       |Reads scan index from a rawfile.                    |`data.frame`             |
-|`readSpectrum`    |Reads spectral data from a rawfile                  |`rawrrSpectrum(Set)`     |
-|`readChromatogram`|Reads chromatograms (TIC, BPC, or XIC) from a rawfile|`rawrrChromatogram(Set)`|
-
-Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation.
+The following sections are inspired by real-world research/infrastructure projects but have been stripped down to the bare scientific essentials to put more emphasis on the software application. We display source code in grey-shaded boxes, including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package. Additional graphical elements were added using base `R` plotting functions to increase the comprehensibility.
 
 ## Use Case I - Analyzing Orbitrap Spectra
 
@@ -103,6 +94,15 @@ H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
 
 The Orbitrap detector has been a tremendous success story in MS, since it offers high resolution, accurate mass (HRAM) data on a time scale that is compatible with chromatographic analysis (LC-MS)[@Makarov2000]. Therefore, it is heavily used for bottom-up proteomics, but analyzing Orbitrap data in `R` has so far only been possible after raw data conversion to exchange formats like mz(X)ML. Unfortunately, conversion is accompanied by a loss of Orbitrap-specific information. This use case shows how easy it is to work directly with raw-formated Orbitrap data after installing our `R` package `rawrr` that applies vendor APIs for data access. We use a complete LC-MS run recorded on a `r H$"Instrument model"` by parallel reaction monitoring (PRM)[@Gallien2012] for demonstration purposes (File name: `r H$"RAW file"`). The `r H$"Time range"[2]` min run resulted in `r format(H$"Number of scans")` scans that were written to the file. Already typesetting the above lines uses `rawrr` functionality, since the instrument model, the file name, the time range of data acquisition, and the number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader()` and returns a simple `R` object of type `list` (see Table 1).
+
+|Function Name     |Description                                         |Return value             |
+|:-----------------|----------------------------------------------------|:------------------------|
+|`readFileHeader`  |Reads meta information from a raw file header       |`list`                   |
+|`readIndex`       |Generates a scan index from a raw file              |`data.frame`             |
+|`readSpectrum`    |Reads spectral data from a raw file                 |`rawrrSpectrum(Set)`     |
+|`readChromatogram`|Reads chromatographic data from a raw file          |`rawrrChromatogram(Set)` |
+
+Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation.
 
 Individual scans or collection (sets) of scans can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the rawfile (Scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2) assigned to the iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
 
