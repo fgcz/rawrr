@@ -20,12 +20,13 @@ Suggests:
 	rmarkdown,
 	testthat
 Description: Provides an interface for Thermo Fisher Scientifc raw files
-        branched from rawDiag. This package wraps the functionality
+        branched from rawDiag <doi:10.1021/acs.jproteome.8b00173>.
+	This package wraps the functionality
 	of the RawFileReader .NET assembly. Within the R environment
 	spectra and chromatograms are represented by S3 objects.
 	All objects are currently kept in memory.
 	(Kockmann T. et al (2020) <doi:10.1101/2020.10.30.362533>)
-        The package is developed, tested and used at the Functional
+        The package is developed, tested, and used at the Functional
         Genomics Center Zurich, Switzerland <https://fgcz.ch>.
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
