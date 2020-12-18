@@ -76,7 +76,7 @@ knitr::kable(data.frame(Id=1:length(input), rawfile=input),
              caption="Input files available through MSV000086542.")
 ```
 
-# Check/demonstrate `rawrr` reader functions
+# Demonstrate `rawrr` reader functions on different Orbitrap models
 
 Below we check the functionality of all reader functions of the `rawrr` package.
 

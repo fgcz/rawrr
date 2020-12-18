@@ -12,7 +12,7 @@ file path of the sample.raw location.
 }
 \description{
 The binary example file sample.raw, shipped with the package, contains
-574 Fourier-transformed orbitrap
+574 Fourier-transformed Orbitrap
 spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The
 mass spectrometer was operated in line with a nano electrospray source (NSI)
 in positive mode (+). All spectra were written to disk after applying
