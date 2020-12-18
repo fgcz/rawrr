@@ -1,3 +1,6 @@
+
+![rawrrRCMDcheck](https://github.com/fgcz/rawrr/workflows/rawrrRCMDcheck/badge.svg)
+
 ![rawRHexSticker](https://github.com/cpanse/rawR/blob/master/rawRcolor10%25.png)
 
 # rawrr
