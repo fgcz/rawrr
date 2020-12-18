@@ -467,6 +467,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
         rv <- lapply(rv, validate_rawrrSpectrum)
     }
 
+    class(rv) <- 'rawrrSpectrumSet'
     rv
 }
 
