@@ -12,7 +12,7 @@ Please install the latest release from https://github.com/fgcz/rawR/releases acc
 
 ## System requirements
 
-- [R](https://cran.r-project.org/) (>= 4.0)
+[R](https://cran.r-project.org/) (>= 4.0)
  
 ### MS Windows
 
