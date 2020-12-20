@@ -6,7 +6,41 @@
 ## is not always obvious what these key:value pairs mean due to a missing
 ## documentation from Thermo Fisher Scientific.
 
-#' Prototype accessor function for  \code{rawrrSpectrum} objects
+#' Make accessor function for key value pair returned by RawFileReader
+#'
+#' @param key An object name found in instance of class \code{rawrrSpectrum}
+#' @param returnType The type used for casting of values
+#'
+#' @return An accessor function
+#' @export makeAccessor
+#'
+#' @details This function factory creates accessor functions for class \code{rawrrSpectrum}.
+#'
+#'
+#' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
+#' maxIonTime <- makeAccessor(key = "Max. Ion Time (ms):", returnType = "double")
+#' maxIonTime(S[[1]])
+makeAccessor <- function(key, returnType = "integer"){
+
+  function(x) {
+
+    stopifnot(is.rawrrSpectrum(x))
+    if (key %in% names(x)) {
+
+      cl <- call(paste0("as.", returnType), x[[key]])
+      eval(cl)
+
+    } else {
+
+      stop(paste0(key, " is not available!"))
+
+    }
+
+  }
+
+}
+
+#' Accessor function for scan number of \code{rawrrSpectrum} objects
 #'
 #' @param x A rawrrSpectrum object
 #'
