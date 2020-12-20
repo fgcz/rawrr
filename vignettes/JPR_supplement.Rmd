@@ -13,6 +13,7 @@ abstract: |
   [FGCZ proteomics unit](https://fgcz.ch/omics_areas/prot.html)
   using the latest stable `R` and [rawrr](https://github.com/fgcz/rawrr)
   package versions.
+urlcolor: blue
 toc: true
 header-includes:
   - \usepackage{pdfpages}

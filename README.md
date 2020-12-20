@@ -1,7 +1,10 @@
-![rawRHexSticker](https://github.com/cpanse/rawR/blob/master/rawRcolor10%25.png)
+
+![rawrrRCMDcheck](https://github.com/fgcz/rawrr/workflows/rawrrRCMDcheck/badge.svg)
+
+![rawrrHexSticker](https://github.com/fgcz/rawrr/blob/master/rawrr_logo.png)
 
 # rawrr
-R interface for Thermo Fisher Scientifc raw files branched from [rawDiag](https://github.com/fgcz/rawDiag). This package wraps the functionality of the [RawFileReader](https://planetorbitrap.com/rawfilereader) .NET assembly. Within the R environment spectra and chromatograms are represented by S3 objects. All objects are currently kept in memory. Later versions will support on-disc backend processing and laisy evaluation. 
+R interface for Thermo Fisher Scientifc raw files branched from [rawDiag](https://github.com/fgcz/rawDiag). This package wraps the functionality of the [RawFileReader](https://planetorbitrap.com/rawfilereader) .NET assembly. Within the R environment spectra and chromatograms are represented by S3 objects. All objects are currently kept in memory. Later versions will support on-disc backend processing and lazy evaluation. 
 
 ## Install
 
@@ -9,7 +12,7 @@ Please install the latest release from https://github.com/fgcz/rawR/releases acc
 
 ## System requirements
 
-- [R](https://cran.r-project.org/) (>= 4.0)
+[R](https://cran.r-project.org/) (>= 4.0)
  
 ### MS Windows
 
