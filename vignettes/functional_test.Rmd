@@ -57,10 +57,6 @@ library(protViz)
 A static snapshot of raw files was deposited as MassIVE dataset (MSV000086542)[https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542].
 For local computation please download the raw files using [ftp://massive.ucsd.edu/MSV000086542/].
 
-```{r generate input.txt}
-## TODO
-```
-
 Loads raw file listing.
 
 ```{r input}
