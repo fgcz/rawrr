@@ -1,5 +1,5 @@
 ---
-title: "Supporting Information: The rawrr R package – Direct Access to Orbitrap Data and Beyond"
+title: "Supporting Information:\n The rawrr R package – Direct Access to Orbitrap Data and Beyond"
 author: 
   - Tobias Kockmann^[Functional Genomics Center Zurich (FGCZ), ETH Zurich / University of Zurich, Winterthurerstrasse 190, 8057 Zurich, Switzerland]
   - Christian Panse^[FGCZ and Swiss Institute of Bioinformatics, Quartier Sorge - Batiment Amphipole, 1015 Lausanne, Switzerland]
