@@ -1,8 +1,9 @@
+#R
 ## This file contains accessor functions for the class rawrrSpectrum
 ## These functions are used to encapsulate data retrival, since (1) key:value
 ## pairs returned by the RawFileReader API can have cryptic keys including white
-## spaces and special characters, (2) returned values are mostly transfered as-is
-## without casting to specific types, (3) it
+## spaces and special characters, (2) returned values are mostly transfered as
+## is without casting to specific types, (3) it
 ## is not always obvious what these key:value pairs mean due to a missing
 ## documentation from Thermo Fisher Scientific.
 
@@ -14,10 +15,12 @@
 #' @return An accessor function
 #' @export makeAccessor
 #'
-#' @details This function factory creates accessor functions for class \code{rawrrSpectrum}.
+#' @details This function factory creates accessor functions for class
+#' \code{rawrrSpectrum}.
+#' @author Tobias Kockmann, 2020
 #'
-#'
-#' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
+#' @examples
+#' S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
 #' maxIonTime <- makeAccessor(key = "Max. Ion Time (ms):", returnType = "double")
 #' maxIonTime(S[[1]])
 makeAccessor <- function(key, returnType = "integer"){
@@ -33,11 +36,8 @@ makeAccessor <- function(key, returnType = "integer"){
     } else {
 
       stop(paste0(key, " is not available!"))
-
     }
-
   }
-
 }
 
 #' Accessor function for scan number of \code{rawrrSpectrum} objects
@@ -70,14 +70,10 @@ scanNumber <- function(x) {
 faimsVoltageOn <- function(x) {
   stopifnot(is.rawrrSpectrum(x))
   if ("FAIMS Voltage On:" %in% names(x)) {
-
     y <- x$`FAIMS Voltage On:`
     lookup <- c(No = "FALSE", Yes = "TRUE")
     return(as.logical(lookup[y]))
-
   } else {
-
     stop("FAIMS Voltage On: is not available!")
-
   }
 }
