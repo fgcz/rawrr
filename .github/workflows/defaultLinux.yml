@@ -50,7 +50,7 @@ jobs:
             path: check/rawrr.Rcheck/rawrr/doc/JPR_TechnicalNote.pdf
             if-no-files-found: warn
       - uses: actions/upload-artifact@v2
-         with:
+        with:
             name: rawrr_manual
             path: check/rawrr.Rcheck/rawrr-manual.pdf
             if-no-files-found: warn
