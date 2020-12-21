@@ -44,7 +44,7 @@ jobs:
 
       - name: Cache R packages
         id: cache-rpkgs
-	uses: actions/cache@v2
+        uses: actions/cache@v2
         with:
             path: ~/.local/share/renv
             key: ${{ runner.os }}-rpkgs
