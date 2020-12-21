@@ -40,7 +40,14 @@ jobs:
              && cd ~/Downloads/ \
              && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
       - name: install R suggested R packages
-        run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+        run: Rscript -e "install.packages(c('devtools', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
+      - name: find
+        run: find . > find.txt
+      - uses: actions/upload-artifact@v2
+        with:
+            name: my-artifact
+            path: find.txt
+            if-no-files-found: warn
