@@ -47,7 +47,8 @@ jobs:
 	uses: actions/cache@v2
         with:
             path: ~/.local/share/renv
-            key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
+            key: ${{ runner.os }}-rpkgs
+
       - name: install R suggested R packages
         if: steps.cache-rpkgs.outputs.cache-hit != 'true'
         run: Rscript -e "install.packages(c('devtools', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
