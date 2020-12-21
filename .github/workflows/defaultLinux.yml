@@ -23,30 +23,38 @@ jobs:
         r-version: [4.0, 4.0.3]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up R ${{ matrix.r-version }}
-        uses: r-lib/actions/setup-r@v1
-        with:
-          r-version: ${{ matrix.r-version }}
-      - name: install Linux packages
-        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc
-      - name: install RawFileReader assemblies
-        run: |
-          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
-          && sudo mkdir -p $MONO_PATH \
-          && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
-      - name: download 20181113_010_autoQC01.raw from MSV000086542 
-        run: |
-             mkdir -p ~/Downloads/ \
-             && cd ~/Downloads/ \
-             && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
-      - name: install R suggested R packages
-        run: Rscript -e "install.packages(c('devtools', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+
       - uses: actions/cache@v2
+        id: cache
         with:
             path: ~/.local/share/renv
             key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
             restore-keys: |
                 ${{ runner.os }}-renv-
+
+      - name: Set up R ${{ matrix.r-version }}
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.r-version }}
+      - name: install Linux packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc
+      - name: install RawFileReader assemblies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
+          && sudo mkdir -p $MONO_PATH \
+          && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
+      - name: download 20181113_010_autoQC01.raw from MSV000086542 
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+             mkdir -p ~/Downloads/ \
+             && cd ~/Downloads/ \
+             && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
+      - name: install R suggested R packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: Rscript -e "install.packages(c('devtools', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
