@@ -44,11 +44,10 @@ jobs:
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
-      - name: devtools::build_vignettes('.')
-        run: devtools::build_vignettes("rawrr")
-        shell: Rscript {0}
+      - name: find
+        run: find . > find.txt
       - uses: actions/upload-artifact@v2
         with:
             name: my-artifact
-            path: doc/JPR_TechnicalNote.pdf
+            path: find.txt
             if-no-files-found: warn
