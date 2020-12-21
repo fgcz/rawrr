@@ -20,7 +20,7 @@ jobs:
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r-version }}
-      - name: install Linux packages
+      - name: Install Linux packages
         run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc
 
       - name: Cache RawFileReader assemblies
