@@ -41,7 +41,9 @@ jobs:
              mkdir -p ~/Downloads/ \
              && cd ~/Downloads/ \
              && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
-      - uses: actions/cache@v2
+
+      - name: cache rpkgs
+        uses: actions/cache@v2
 	id: cache-rpkgs
         with:
             path: ~/.local/share/renv
@@ -49,6 +51,7 @@ jobs:
       - name: install R suggested R packages
         if: steps.cache-rpkgs.outputs.cache-hit != 'true'
         run: Rscript -e "install.packages(c('devtools', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
