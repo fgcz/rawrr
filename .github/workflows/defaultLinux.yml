@@ -36,6 +36,14 @@ jobs:
           curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
           && sudo mkdir -p $MONO_PATH \
           && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
+
+      - name: Cache raw files
+        id: cache-raw
+        uses: actions/cache@v2
+        with:
+            path: ~/Downloads/
+            key: ${{ runner.os }}-raw
+
       - name: download 20181113_010_autoQC01.raw from MSV000086542 
         run: |
              mkdir -p ~/Downloads/ \
@@ -51,7 +59,7 @@ jobs:
 
       - name: install R suggested R packages
         if: steps.cache-rpkgs.outputs.cache-hit != 'true'
-        run: Rscript -e "install.packages(c('devtools', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+        run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
 
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
