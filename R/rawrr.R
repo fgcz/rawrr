@@ -148,7 +148,7 @@ readFileHeader <- function(rawfile,
             ## the R file can be parsed
             r_file <- readLines(tf)
             r_file[12] <- gsub('\\\\','/',r_file[12])
-            writeLines(r_file,tf)
+            writeLines(r_file, tf)
 
             rv <- try({
                 e <- new.env();
@@ -159,7 +159,7 @@ readFileHeader <- function(rawfile,
                 e$info$`Instrument method` <- basename(e$info$`Instrument method`)
 
                 #message(paste("unlinking", tf, "..."))
-                #unlink(tf)
+                unlink(tf)
                 return(e$info)
             }, NULL)
 
@@ -231,7 +231,8 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
       comment.char = "#",
       sep = ';',
       na.strings = "-1",
-      colClasses = c('integer', 'character', 'numeric', 'numeric', 'character', 'integer', 'integer', 'integer'))
+      colClasses = c('integer', 'character', 'numeric', 'numeric', 'character',
+                     'integer', 'integer', 'integer'))
 
     DF$dependencyType <- as.logical(DF$dependencyType)
 
@@ -345,9 +346,9 @@ validate_rawrrIndex <- function(x){
 #' sampleFilePath()
 sampleFilePath <- function(){
     # path.package(package = 'rawrr')
-    rawfile <- file.path(system.file(package = 'rawrr'), 'extdata', 'sample.raw')
-    stopifnot(file.exists(rawfile))
-    rawfile
+    f <- file.path(system.file(package = 'rawrr'), 'extdata', 'sample.raw')
+    stopifnot(file.exists(f))
+    f
 }
 
 #' Read a Set of Spectra
@@ -427,7 +428,6 @@ sampleFilePath <- function(){
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- .rawrrAssembly()
-
 
     if (!file.exists(rawfile)){
         stop(paste0('File ', rawfile, ' is not available.'))
