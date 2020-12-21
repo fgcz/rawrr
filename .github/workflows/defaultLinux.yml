@@ -49,5 +49,5 @@ jobs:
         shell: Rscript {0}
       - uses: actions/upload-artifact@v2
         with:
-          name: my-artifact
-          path: */doc/JPR_TechnicalNote.pdf        
+            name: my-artifact
+            path: */doc/JPR_TechnicalNote.pdf        
