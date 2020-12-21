@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v2
         with:
             path: ~/Downloads/
-            key: ${{ runner.os }}-raw
+            key: ${{ runner.os }}-MSV000086542
 
       - name: Download MSV000086542 raw files
         if: steps.cache-MSV000086542.outputs.cache-hit != 'true'
