@@ -53,5 +53,4 @@ jobs:
          with:
             name: rawrr_manual
             path: check/rawrr.Rcheck/rawrr-manual.pdf
-            if-no-files-found: warn            
-            check/rawrr.Rcheck/rawrr-manual.pdf
+            if-no-files-found: warn
