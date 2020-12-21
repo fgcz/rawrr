@@ -42,9 +42,9 @@ jobs:
              && cd ~/Downloads/ \
              && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
 
-      - name: cache rpkgs
-        uses: actions/cache@v2
+      - name: Cache R packages
 	id: cache-rpkgs
+	uses: actions/cache@v2
         with:
             path: ~/.local/share/renv
             key: ${{ runner.os }}-renv-${{ hashFiles('**/renv.lock') }}
