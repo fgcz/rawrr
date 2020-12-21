@@ -14,33 +14,34 @@ output:
 bibliography: rawrr.bib
 urlcolor: blue
 abstract: |
-  Thermo Fisher Scientific raw files were recorded across different MS devices using an internal quality control sample at the
+  Thermo Fisher Scientific raw files were recorded across different
+  mass spectrometer (MS) devices using an internal quality control sample at the
   [FGCZ proteomics unit](https://fgcz.ch/omics_areas/prot.html)
   using the latest stable `R` and [rawrr](https://github.com/fgcz/rawrr)
-  package versions.
-  A Rmarkdown [script](https://github.com/fgcz/rawrr/blob/master/vignettes/functional_test.Rmd) process generates this report.
+  package versions. A Rmarkdown
+  [script](https://github.com/fgcz/rawrr/blob/master/vignettes/functional_test.Rmd)
+  process generates this report. The main objectives are:
+  (1) Demonstrate code robustness concerning different instrument models.
+  (2) Showcase dynamic application (daily changing input data).
+  (3) Demonstrate multicore computation by applying the `parallel` package.
+  The automatically updated output of this R script can be viewed at
+  [functional test web page](https://fgcz-ms.uzh.ch/~cpanse/rawrr/test/functional_test.html).
+  Of note, the analyzed sample (termed autoQC01) consists of the iRT peptide mix
+  (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min
+  linear gradient on C18 RP material at a constant flow rate of 300 nl/min.
 ---
+
 
 ```{r sticker, out.width="25%", fig.align="center", fig.cap=" Lions love raw meat!", echo=FALSE}
 knitr::include_graphics("images/hex-rmarkdown.png")
 ```
 
-This R script processes raw files recorded across different Thermo Fisher Scientific Mass Spectrometers at the [FGCZ proteomics unit](https://fgcz.ch/omics_areas/prot.html) using the latest `R` development and [rawrr](https://github.com/fgcz/rawrr) package versions.
-
 `<!--
 TK: Asking myself if this couldn't be done using GitHub actions? It sounds sooooo much like continuous integration (CI).
 -->
 
-The main objectives are:
 
-* Demonstrate code robustness with respect to different instrument models.
-* Showcase dynamic application (daily changing input data).
-* Demonstrate multicore computation by applying the `parallel` package.
-
-The automatically updated output of this R script can be viewed at [https://fgcz-ms.uzh.ch/~cpanse/rawrr/test/functional_test.html]
-
-Note: The analyzed sample (termed autoQC01) consists of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 RP material at a constant flow rate of 300 nl/min.
-
+# Load R libraries and define input data
 
 ```{r}
 library(rawrr)
@@ -51,22 +52,20 @@ library(protViz)
 ```
 
 
-# Input data
-
-A static snapshot of raw files was deposited as MassIVE dataset (MSV000086542)[https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542].
-For local computation, please download the raw files using [ftp://massive.ucsd.edu/MSV000086542/].
-
-Loads raw file listing.
+Read raw file listing.
 
 ```{r input}
 input <- scan("input.txt", as.character())
 ```
 
-
 ```{r list}
 knitr::kable(data.frame(Id=1:length(input), rawfile=input),
              caption="Input files available through MSV000086542.")
 ```
+
+Of note, a static snapshot of raw files was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542).
+For local computation, please download the raw files using ftp://massive.ucsd.edu/MSV000086542/.
+
 
 # Demonstrate `rawrr` reader functions on different Orbitrap models
 
