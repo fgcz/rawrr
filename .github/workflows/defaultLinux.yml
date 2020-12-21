@@ -54,8 +54,8 @@ jobs:
         id: cache-rpkgs
         uses: actions/cache@v2
         with:
-            path: ~/.local/share/renv
-            key: ${{ runner.os }}-rpkgs
+            path: ~/work/_temp/Library/
+            key: ${{ runner.os }}-Rpkgs
 
       - name: install R suggested R packages
         if: steps.cache-rpkgs.outputs.cache-hit != 'true'
