@@ -50,4 +50,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
             name: my-artifact
-            path: */doc/JPR_TechnicalNote.pdf        
+            path: doc/JPR_TechnicalNote.pdf
+            if-no-files-found: warn
