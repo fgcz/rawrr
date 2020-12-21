@@ -1,4 +1,3 @@
-
 ![rawrrRCMDcheck](https://github.com/fgcz/rawrr/workflows/rawrrRCMDcheck/badge.svg)
 
 ![rawrrHexSticker](https://github.com/fgcz/rawrr/blob/master/rawrr_logo.png)
