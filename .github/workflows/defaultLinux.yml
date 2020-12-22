@@ -72,6 +72,11 @@ jobs:
             if-no-files-found: warn
       - uses: actions/upload-artifact@v2
         with:
+            name: rawrr_MSV000086542
+            path: check/rawrr.Rcheck/rawrr/doc/JPR_supplement.pdf
+            if-no-files-found: warn
+      - uses: actions/upload-artifact@v2
+        with:
             name: rawrr_manual
             path: check/rawrr.Rcheck/rawrr-manual.pdf
             if-no-files-found: warn
