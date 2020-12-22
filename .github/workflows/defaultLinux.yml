@@ -27,7 +27,7 @@ jobs:
         id: cache-RawFileReaderDLLs
         uses: actions/cache@v2
         with:
-            path: $MONO_PATH
+            path: /usr/local/lib/RawFileReader/
             key: ${{ runner.os }}-RawFileReaderDLLs
       - name: Install RawFileReader assemblies
         if: steps.cache-RawFileReaderDLLs.outputs.cache-hit != 'true'
