@@ -93,18 +93,18 @@ rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw
 H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
 
-The Orbitrap detector has been a tremendous success story in MS, since it offers HRAM data on a time scale that is compatible with chromatographic analysis (LC-MS)[@Makarov2000] and is therefore heavily used in bottom-up proteomics. However, analyzing Orbitrap data in `R` has so far only been possible after raw data conversion to exchange formats like mz(X)ML. Unfortunately, conversion is accompanied by a loss of Orbitrap-specific information. This use case shows how easy it is to work directly with raw-formated Orbitrap data after installing our `R` package `rawrr` which applies vendor APIs for data access. We use a complete LC-MS run recorded on a `r H$"Instrument model"` by parallel reaction monitoring (PRM)[@Gallien2012] for demonstration purposes (File name: `r H$"RAW file"`). The `r H$"Time range"[2]` min run resulted in `r format(H$"Number of scans")` scans that were written to the file. Already typesetting the above lines uses `rawrr` functionality, since instrument model, file name, time range of data acquisition, and number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader` and returns a simple `R` object of type `list` (see Table 1).
+The Orbitrap detector has been a tremendous success story in MS, since it offers HRAM data on a time scale that is compatible with chromatographic analysis (LC-MS)[@Makarov2000] and is therefore heavily used in bottom-up proteomics. However, analyzing Orbitrap data in `R` has so far only been possible after raw data conversion to exchange formats like mz(X)ML. Unfortunately, conversion is accompanied by a loss of Orbitrap-specific information. This use case shows how easy it is to work directly with raw-formated Orbitrap data after installing our `R` package `rawrr` which applies vendor APIs for data access. We use a complete LC-MS run recorded on a `r H$"Instrument model"` by parallel reaction monitoring (PRM)[@Gallien2012] for demonstration purposes (File name: `r H$"RAW file"`). The `r H$"Time range"[2]` min run resulted in `r format(H$"Number of scans")` scans that were written to the file. Already typesetting the above lines uses `rawrr` functionality, since instrument model, file name, time range of data acquisition, and number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader()` and returns a simple `R` object of type `list` (see Table 1).
 
-|Function Name     |Description                                         |Return value             |
-|:-----------------|----------------------------------------------------|:------------------------|
-|`readFileHeader`  |Reads meta information from a raw file header       |`list`                   |
-|`readIndex`       |Generates a scan index from a raw file              |`data.frame`             |
-|`readSpectrum`    |Reads spectral data from a raw file                 |`rawrrSpectrum(Set)`     |
-|`readChromatogram`|Reads chromatographic data from a raw file          |`rawrrChromatogram(Set)` |
+|Function Name       |Description                                         |Return value             |
+|:-------------------|----------------------------------------------------|:------------------------|
+|`readFileHeader()`  |Reads meta information from a raw file header       |`list`                   |
+|`readIndex()`       |Generates a scan index from a raw file              |`data.frame`             |
+|`readSpectrum()`    |Reads spectral data from a raw file                 |`rawrrSpectrum(Set)`     |
+|`readChromatogram()`|Reads chromatographic data from a raw file          |`rawrrChromatogram(Set)` |
 
 Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation (see supporting information, S-20 onwards).
 
-Individual scans or scan collections (sets) can be read by the function `readSpectrum` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the raw file (scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: `mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2`) assigned to the doubly-charged iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
+Individual scans or scan collections (sets) can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the raw file (scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: `mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2`) assigned to the doubly-charged iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
 
 ```{r plotrawrrspectrum, fig.cap="Plot of scan number 9594 (USI: mzspec:MSV000086542:20181113_010_autoQC01:scan:9594) showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an Orbitrap detector including lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and an AGC target of 100'000 elementary charges. Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
 library(rawrr)
@@ -145,16 +145,15 @@ abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
 ```
 
-In total, the API provides `r length(S[[1]])` data items for this particular scan covering ion optics settings, mass calibration, and other diagnostic data (use `print()` to gain an overview). It needs to be mentioned that this list is highly dynamic and changes with instrument model and installed instrument control software version. Our reader method is designed in a flexible way so that also newly introduced items will be passed onto the `R` environment in the future. In general, access to `rawrrSpectrum` items are provided by the subsetting operators `$` and `[[`. But for programmatic access we highly recommend using accessor functions like `scanNumber` instead of using `$scan` or `[["scan"]]`, since the accessors will also take care of casting values stored as-returned by the API (mostly base type `character`). Another argument for favoring the accessor function mechanism is the more restrictive error handling in case the requested information is not available and more descriptive function names without white spaces. Missing accessor functions can be created by the user applying a function factory named `makeAccessor` or requested from the package maintainers. The following code chunk demonstrates the above mentioned aspects:
+In total, the API provides `r length(S[[1]])` data items for this particular scan covering ion optics settings, mass calibration, and other diagnostic data (use `print()` to gain an overview). It needs to be mentioned that this list is highly dynamic and changes with instrument model and installed instrument control software version. Our reader method is designed in a flexible way so that also newly introduced items will be passed onto the `R` environment in the future. In general, access to `rawrrSpectrum` items are provided by the subsetting operators `$` and `[[`. But for programmatic access we highly recommend using accessor functions like `scanNumber()` instead of using `$scan` or `[["scan"]]`, since the accessors will also take care of casting values stored as-returned by the API (mostly base type `character`). Another argument for favoring the accessor function mechanism is the more restrictive error handling in case the requested information is not available and more descriptive function names without white spaces. Users can create missing accessor functions by applying a function factory named `makeAccessor()` or request them from the package maintainers. The following code chunk demonstrates the above mentioned aspects:
 
 ```{r}
-# $ operator access vs. accessor function
-# aspect 1 : casting
+# value casting
 (x <- S[[1]]$scan)
 class(x)
 (y <- rawrr::scanNumber(S[[1]]))
 class(y)
-# aspect 2 : error handling
+# error handling
 S[[1]]$`FAIMS Voltage On:`
 try(rawrr::faimsVoltageOn(S[[1]]))
 # generating a well-behaved accessor
@@ -179,26 +178,27 @@ plot(rawrr::readChromatogram(rawfile = rawfile, type = "bpc"))
 The initial step of iRT regression is to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, provided they were spiked into the sample matrix prior to data acquisition. The code chunk below demonstrates how the function `readChromatogram()` is called on the `R` command line to return a `rawrrChromatogramSet` object of the type `xic`. This object is plotted for visual inspection (see Figure 4 for resulting plot).
 
 ```{r plotrawrrchromatogram, fig.cap="Extracted ion chromatograms (XIC) for iRT peptide precursors. Each XIC was calculated using a tolerance of 10 ppm around the target mass and using only MS1-level scans.", error=TRUE}
-iRTmZ <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
+iRTmz <- c(487.2571, 547.2984, 622.8539, 636.8695, 644.8230, 669.8384, 683.8282,
             683.8541, 699.3388, 726.8361, 776.9301)
 
-names(iRTmZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
+names(iRTmz) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
                  "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
                  "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
                  "LFLQFGAQGSPFLK")
 
-C <- rawrr::readChromatogram(rawfile, mass = iRTmZ, tol = 10, type = "xic", filter = "ms")
+C <- rawrr::readChromatogram(rawfile, mass = iRTmz, tol = 10, type = "xic", filter = "ms")
 class(C)
 plot(C, diagnostic = TRUE)
 ```
 
-Be reminded that the intensity traces are not computed within `R`, for instance, by reading all scans of a raw file and subsequently iterating over a scan subset. Of note, this would be a greedy and slow performing solution. Instead, traces are retrieved by a `C#` method that calls the vendor API. The API takes care of the filtering process (checks filter validity and applies the filter). On the `R` code level there is no need to know *a priori* which scans match the filter rule or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawrrChromatogram` objects. By changing the filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++ (see Figure 5 for plot output):
+Be reminded that the intensity traces are not computed within `R`, for instance, by reading all scans of a raw file and subsequently iterating over a scan subset. Instead, traces are retrieved by a `C#` method that calls the vendor API. The API takes care of the scan filtering process (checks filter validity and applies the filter). On the `R` code level there is no need to know *a priori* which scans match the filter rule or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawrrChromatogram` objects. By changing the scan filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++ (see Figure 5 for plot output):
 
 ```{r fragmentIonTraces, fig.cap="Extracted ion chromatograms (XICs) for LGGNEQVTR++ fragment ions y6, y7, and y8. Each target ion (see legend) was extracted with a tolerance of 10 ppm from all scans matching the provided filter.", fig.retina=1}
-plot(rawrr::readChromatogram(rawfile = rawfile,
+fC <- rawrr::readChromatogram(rawfile = rawfile,
       mass = yIonSeries[c("y6", "y7", "y8")],
       type = 'xic', tol = 10,
-      filter = "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
+      filter = "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]")
+plot(fC, diagnostic = TRUE)
 ```
 
 By using the `readIndex()` function a `data.frame` that indexes all scans found in a raw file is returned. When subsetting it for our scan type of interest it becomes clear that the example data was recorded using parallel reaction monitoring (PRM) since the parent ion 487.2567 was isolated in regularly-spaced intervals for fragment ion recording:
@@ -233,7 +233,7 @@ legend("topleft", legend = paste("Regression line: ", "rt =",
                                  format(coef(fit)[2], digits = 2), "score",
                                  "\nR2: ", format(summary(fit)$r.squared, digits = 2)),
        bty = "n", cex = 0.75)
-text(iRTscore, rt, iRTmZ, pos=1,cex=0.5)
+text(iRTscore, rt, iRTmz, pos=1,cex=0.5)
 ```
 
 ## Extension
