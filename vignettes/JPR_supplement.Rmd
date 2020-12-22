@@ -359,7 +359,7 @@ Table:System Software Overview.
 mono --version
 ```
 
-```{bash    mcs, message=TRUE, echo=TRUE}
+```{bash mcs, message=TRUE, echo=TRUE}
 mcs --version
 ```
 
