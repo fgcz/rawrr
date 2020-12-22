@@ -397,7 +397,7 @@ Idx[dependentScan(Idx, master),]
 ```
 
 
-# `rawrr` package Documentation
+# `rawrr` package documentation
 
 On the next pages the output of `R CMD Rd2pdf` is attached.
 
