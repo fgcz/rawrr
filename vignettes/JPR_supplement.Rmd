@@ -13,11 +13,6 @@ abstract: |
   using the latest stable `R` and [rawrr](https://github.com/fgcz/rawrr)
   package versions.
   A Rmarkdown [script](https://github.com/fgcz/rawrr/blob/master/vignettes/JPR_supplement.Rmd) process generates this report.
-vignette: |
-  %\usepackage[utf8]{inputenc}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{rawrr - process MSV000086542}
-  %\VignetteEngine{knitr::rmarkdown}
 urlcolor: blue
 toc: true
 header-includes:

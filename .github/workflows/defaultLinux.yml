@@ -37,7 +37,7 @@ jobs:
           && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
 
       - name: Cache MSV000086542 raw files
-        id: cache-MSV000086542
+        id: cache-MSV000086542-20181113_010_autoQC01
         uses: actions/cache@v2
         with:
             path: ~/Downloads/
@@ -48,7 +48,7 @@ jobs:
         run: |
              mkdir -p ~/Downloads/ \
              && cd ~/Downloads/ \
-             && wget ftp://massive.ucsd.edu/MSV000086542/raw/*.raw
+             && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
 
       - name: Cache R packages
         id: cache-rpkgs
@@ -69,11 +69,6 @@ jobs:
         with:
             name: rawrr_vignette
             path: check/rawrr.Rcheck/rawrr/doc/JPR_TechnicalNote.pdf
-            if-no-files-found: warn
-      - uses: actions/upload-artifact@v2
-        with:
-            name: rawrr_MSV000086542
-            path: check/rawrr.Rcheck/rawrr/doc/JPR_supplement.pdf
             if-no-files-found: warn
       - uses: actions/upload-artifact@v2
         with:
