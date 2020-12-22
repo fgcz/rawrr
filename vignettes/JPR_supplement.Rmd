@@ -328,8 +328,6 @@ The following functions were used in this supporting information report.
 # Software and hardware specification
 
 ## Hardware
-The analysis was performed on the authors three years old business laptop
-(hostname: fgcz-113.uzh.ch).
 
 |Attribute                 | Value                     |
 |--------------------------|---------------------------|
