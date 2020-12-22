@@ -1,11 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-#
-# See https://github.com/r-lib/actions/tree/master/examples#readme for
-# additional example workflows available for the R community.
-
 name: rawrrRCMDcheck
 env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
@@ -23,24 +15,63 @@ jobs:
         r-version: [4.0, 4.0.3]
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up R ${{ matrix.r-version }}
         uses: r-lib/actions/setup-r@v1
         with:
           r-version: ${{ matrix.r-version }}
-      - name: install Linux packages
+      - name: Install Linux packages
         run: sudo apt-get install -y libicu-dev pandoc mono-devel wget unzip texlive texlive-latex-extra texlive-fonts-extra texlive-xetex pandoc-citeproc
-      - name: install RawFileReader assemblies
+
+      - name: Cache RawFileReader assemblies
+        id: cache-RawFileReaderDLLs
+        uses: actions/cache@v2
+        with:
+            path: $MONO_PATH
+            key: ${{ runner.os }}-RawFileReaderDLLs
+      - name: Install RawFileReader assemblies
+        if: steps.cache-RawFileReaderDLLs.outputs.cache-hit != 'true'
         run: |
           curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
           && sudo mkdir -p $MONO_PATH \
           && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
-      - name: download 20181113_010_autoQC01.raw from MSV000086542 
+
+      - name: Cache MSV000086542 raw files
+        id: cache-MSV000086542
+        uses: actions/cache@v2
+        with:
+            path: ~/Downloads/
+            key: ${{ runner.os }}-MSV000086542
+
+      - name: Download MSV000086542 raw files
+        if: steps.cache-MSV000086542.outputs.cache-hit != 'true'
         run: |
              mkdir -p ~/Downloads/ \
              && cd ~/Downloads/ \
-             && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
-      - name: install R suggested R packages
+             && wget ftp://massive.ucsd.edu/MSV000086542/raw/*.raw
+
+      - name: Cache R packages
+        id: cache-rpkgs
+        uses: actions/cache@v2
+        with:
+            path: ~/work/_temp/Library/
+            key: ${{ runner.os }}-Rpkgs
+
+      - name: Install suggested R packages
+        if: steps.cache-rpkgs.outputs.cache-hit != 'true'
         run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
+
+      - uses: actions/upload-artifact@v2
+        with:
+            name: rawrr_vignette
+            path: check/rawrr.Rcheck/rawrr/doc/JPR_TechnicalNote.pdf
+            if-no-files-found: warn
+      - uses: actions/upload-artifact@v2
+        with:
+            name: rawrr_manual
+            path: check/rawrr.Rcheck/rawrr-manual.pdf
+            if-no-files-found: warn

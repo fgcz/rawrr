@@ -2,7 +2,7 @@
 % Please edit documentation in R/accessorFunctions.R
 \name{scanNumber}
 \alias{scanNumber}
-\title{Prototype accessor function for  \code{rawrrSpectrum} objects}
+\title{Accessor function for scan number of \code{rawrrSpectrum} objects}
 \usage{
 scanNumber(x)
 }
@@ -13,7 +13,7 @@ scanNumber(x)
 The scan number of type \code{integer}
 }
 \description{
-Prototype accessor function for  \code{rawrrSpectrum} objects
+Accessor function for scan number of \code{rawrrSpectrum} objects
 }
 \details{
 This accessor function returns the scan number of a mass spectrum
