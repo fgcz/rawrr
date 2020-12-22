@@ -72,7 +72,7 @@ library(parallel)
 # List raw files
 
 ```{r list}
-input <- list.files(patter=".*raw$")
+input <- list.files("~/Downloads/", patter=".*raw$")
 knitr::kable(data.frame(Id=1:length(input), rawfile=input),
              caption="Input files available through MSV000086542.")
 ```
