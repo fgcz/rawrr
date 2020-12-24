@@ -1,7 +1,7 @@
 name: R-CMD-check-rawrr
 env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-    MONO_PATH: '/usr/local/lib/RawFileReader'
+    MONO_PATH: '/usr/local/lib/RawFileReader/'
     RAWRR_RELEASE: 'http://fgcz-ms.uzh.ch/~cpanse/rawrr_0.2.0.tar.gz'
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
       - name: Install RawFileReader assemblies
         if: steps.cache-RawFileReaderDLLs.outputs.cache-hit != 'true'
         run: |
-          curl --silent $RAWRR_RELEASE | tar xfvz - --wildcards '*.dll' -C /tmp/ \
+          curl --silent $RAWRR_RELEASE | (cd /tmp/ && tar xfvz - --wildcards '*.dll') \
           && sudo mkdir -p $MONO_PATH \
           && sudo find /tmp/rawrr -type f -exec mv -v {} $MONO_PATH \;
 
