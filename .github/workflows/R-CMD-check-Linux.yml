@@ -55,21 +55,34 @@ jobs:
         uses: actions/cache@v2
         with:
             path: ~/work/_temp/Library/
-            key: ${{ runner.os }}-Rpkgs
+            key: ${{ runner.os }}-RpkgsV1
 
-      - name: Install suggested R packages
+      - name: Install required R packages from CRAN and Bioconductor
         if: steps.cache-rpkgs.outputs.cache-hit != 'true'
-        run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+        run: |
+             install.packages(c('BiocManager', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')
+             BiocManager::install('BiocCheck')
+        shell: Rscript {0}
 
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
+
+      - name: List files in home directory
+        run: find ~/ -type f
+
+      - uses: actions/upload-artifact@v2
+        with:
+            name: files
+            path: files.txt
+            if-no-files-found: warn
 
       - uses: actions/upload-artifact@v2
         with:
             name: rawrr_vignette
             path: check/rawrr.Rcheck/rawrr/doc/JPR_TechnicalNote.pdf
             if-no-files-found: warn
+
       - uses: actions/upload-artifact@v2
         with:
             name: rawrr_manual
