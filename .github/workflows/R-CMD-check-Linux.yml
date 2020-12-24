@@ -86,7 +86,7 @@ jobs:
         run: |
              cp /home/runner/work/rawrr/rawrr/check/rawrr.Rcheck/00_pkg_src/rawrr/vignettes/JPR_supplement.Rmd ~/Downloads \
              && cd ~/Downloads \
-             && R -e "rmarkdown:render('JPR_supplement.Rmd')"
+             && R -e "rmarkdown::render('JPR_supplement.Rmd')"
 
       - name: List files in home directory
         run: find ~/ -type f > files.txt
