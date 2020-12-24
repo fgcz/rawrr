@@ -2,6 +2,7 @@ name: R-CMD-check-rawrr
 env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     MONO_PATH: '/usr/local/lib/RawFileReader'
+    RAWRR_RELEASE: 'http://fgcz-ms.uzh.ch/~cpanse/rawrr_0.2.0.tar.gz'
 on:
   push:
     branches: [ master ]
@@ -28,7 +29,7 @@ jobs:
         uses: actions/cache@v2
         with:
             path: /usr/local/lib/RawFileReader/
-            key: ${{ runner.os }}-RawFileReaderDLLsV1
+            key: ${{ runner.os }}-RawFileReaderDLLsV2
 
       - name: Install RawFileReader assemblies
         if: steps.cache-RawFileReaderDLLs.outputs.cache-hit != 'true'
