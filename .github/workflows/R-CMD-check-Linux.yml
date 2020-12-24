@@ -85,8 +85,8 @@ jobs:
       - name: Render autoQC01 vignette
         run: |
              cp /home/runner/work/rawrr/rawrr/check/rawrr.Rcheck/00_pkg_src/rawrr/vignettes/JPR_supplement.Rmd ~/Downloads \
-	     && cd ~/Downloads \
-	     R -e "rmakrdown:render('JPR_supplement.Rmd')"
+             && cd ~/Downloads \
+             && R -e "rmakrdown:render('JPR_supplement.Rmd')"
 
       - name: List files in home directory
         run: find ~/ -type f > files.txt
