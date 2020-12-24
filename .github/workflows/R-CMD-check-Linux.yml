@@ -28,13 +28,14 @@ jobs:
         uses: actions/cache@v2
         with:
             path: /usr/local/lib/RawFileReader/
-            key: ${{ runner.os }}-RawFileReaderDLLs
+            key: ${{ runner.os }}-RawFileReaderDLLsV1
+
       - name: Install RawFileReader assemblies
         if: steps.cache-RawFileReaderDLLs.outputs.cache-hit != 'true'
         run: |
-          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
+          curl --silent $RAWRR_RELEASE | tar xfvz - --wildcards '*.dll' -C /tmp/ \
           && sudo mkdir -p $MONO_PATH \
-          && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
+          && sudo find /tmp/rawrr -type f -exec mv -v {} $MONO_PATH \;
 
       - name: Cache MSV000086542 raw files
         id: cache-MSV000086542-20181113_010_autoQC01
@@ -61,12 +62,25 @@ jobs:
         if: steps.cache-rpkgs.outputs.cache-hit != 'true'
         run: |
              install.packages(c('BiocManager', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')
+        shell: Rscript {0}
+
+      - name: Cache R packages
+        id: cache-rpkgs-cran-bioc
+        uses: actions/cache@v2
+        with:
+            path: ~/work/_temp/Library/
+            key: ${{ runner.os }}-RpkgsV2
+
+      - name: Install BiocCheck
+        if: steps.cache-rpkgs-cran-bioc.outputs.cache-hit != 'true'
+        run: |
              BiocManager::install('BiocCheck')
         shell: Rscript {0}
 
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
+
 
       - name: List files in home directory
         run: find ~/ -type f > files.txt
