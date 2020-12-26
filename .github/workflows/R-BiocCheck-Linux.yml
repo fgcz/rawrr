@@ -1,4 +1,4 @@
-name: R-CMD-check-rawrr
+name: R-BiocCheck-rawrr
 env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     MONO_PATH: '/usr/local/lib/RawFileReader/'
