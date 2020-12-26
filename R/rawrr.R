@@ -934,13 +934,16 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                bty = "n", cex = 0.5, text.col = "grey")
     }
 
+  invisible(x)
+
 }
 
 #' Basic summary function
 #' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param object an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
-summary.rawrrSpectrum <- function(object, ...){
+summary.rawrrSpectrum <- function(object, ...) {
+
     cat("Total Ion Current:\t", object$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", object$massRange[1], fill = TRUE)
     cat("Scan High Mass:\t", object$massRange[2], fill = TRUE)
@@ -949,6 +952,9 @@ summary.rawrrSpectrum <- function(object, ...){
     cat("Base Peak Intensity:\t", object$basePeak[2], fill = TRUE)
     cat("Base Peak Mass:\t", object$basePeak[1], fill = TRUE)
     cat("Scan Mode:\t", object$scanType, fill = TRUE)
+
+    invisible(object)
+
 }
 
 #' Print method imitate the look and feel of Thermo Fisher Scientific FreeStyle's output
@@ -1038,6 +1044,9 @@ print.rawrrSpectrum <- function(x, ...){
             cat(paste(i, x[i],sep='\t'), fill = TRUE)
         }
     }
+
+    invisible(x)
+
 }
 
 #' Check if object is instance of class \code{rawrrChromatogram}
@@ -1098,6 +1107,9 @@ plot.rawrrChromatogram <- function(x, legend = TRUE, ...){
                    cex = 0.75)
         }
     }
+
+    invisible(x)
+
 }
 
 #' Plot \code{rawrrChromatogramSet} objects
@@ -1149,6 +1161,9 @@ plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
                    bty = "n", cex = 0.75, text.col = "black")
         }
     }
+
+  invisible(x)
+
 }
 
 #' Retrieve master scan of scan listed in scan index
