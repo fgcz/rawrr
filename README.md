@@ -1,4 +1,4 @@
-![rawrrRCMDcheck](https://github.com/fgcz/rawrr/workflows/rawrrRCMDcheck/badge.svg)
+![rawrrRCMDcheck](https://github.com/fgcz/rawrr/workflows/R-CMD-check-rawrr/badge.svg)
 
 
 ![rawrrHexSticker](https://github.com/fgcz/rawrr/blob/master/rawrr_logo.png)

@@ -198,7 +198,7 @@ names(iRT.mZ) <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 ```
 As a proof-of-concept, the R function `.computeBestPeptideSpectrumMatch` defines a basic heuristic to determine feasible peptide to spectrum matches (psm) for the iRT peptides.
 
-The snippet below performs the peptide spectrum match number crunching for the `r names(iRT.mZ)[1]` peptide on all raw files utilizing `r detectCores()` cores:
+The snippet below performs the peptide spectrum match computation for the `r names(iRT.mZ)[1]` peptide on all raw files utilizing `r detectCores()` cores:
 
 ```{r computeBestMatches}
 start_time <- Sys.time()
@@ -328,8 +328,6 @@ The following functions were used in this supporting information report.
 # Software and hardware specification
 
 ## Hardware
-The analysis was performed on the authors three years old business laptop
-(hostname: fgcz-113.uzh.ch).
 
 |Attribute                 | Value                     |
 |--------------------------|---------------------------|
@@ -397,8 +395,10 @@ Idx[dependentScan(Idx, master),]
 ```
 
 
-# `rawrr` package Documentation
+<!--
+# `rawrr` package documentation
 
 On the next pages the output of `R CMD Rd2pdf` is attached.
 
 \includepdf[pages={-}, pagecommand={}]{rawrr.pdf}
+-->

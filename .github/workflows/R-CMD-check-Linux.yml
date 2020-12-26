@@ -1,7 +1,8 @@
-name: rawrrRCMDcheck
+name: R-CMD-check-rawrr
 env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-    MONO_PATH: '/usr/local/lib/RawFileReader'
+    MONO_PATH: '/usr/local/lib/RawFileReader/'
+    RAWRR_RELEASE: 'http://fgcz-ms.uzh.ch/~cpanse/rawrr_0.2.0.tar.gz'
 on:
   push:
     branches: [ master ]
@@ -28,16 +29,17 @@ jobs:
         uses: actions/cache@v2
         with:
             path: /usr/local/lib/RawFileReader/
-            key: ${{ runner.os }}-RawFileReaderDLLs
+            key: ${{ runner.os }}-RawFileReaderDLLsV2
+
       - name: Install RawFileReader assemblies
         if: steps.cache-RawFileReaderDLLs.outputs.cache-hit != 'true'
         run: |
-          curl http://fgcz-ms.uzh.ch/~cpanse/rawR_0.1.5.tar.gz | tar xvfz - -C /tmp/ \
+          curl --silent $RAWRR_RELEASE | (cd /tmp/ && tar xfvz - --wildcards '*.dll') \
           && sudo mkdir -p $MONO_PATH \
-          && sudo cp /tmp/rawR/exec/*.dll $MONO_PATH
+          && sudo find /tmp/rawrr -type f -exec mv -v {} $MONO_PATH \;
 
       - name: Cache MSV000086542 raw files
-        id: cache-MSV000086542-20181113_010_autoQC01
+        id: cache-MSV000086542
         uses: actions/cache@v2
         with:
             path: ~/Downloads/
@@ -48,28 +50,68 @@ jobs:
         run: |
              mkdir -p ~/Downloads/ \
              && cd ~/Downloads/ \
-             && wget ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw
+             && wget ftp://massive.ucsd.edu/MSV000086542/raw/*.raw
 
       - name: Cache R packages
         id: cache-rpkgs
         uses: actions/cache@v2
         with:
             path: ~/work/_temp/Library/
-            key: ${{ runner.os }}-Rpkgs
+            key: ${{ runner.os }}-RpkgsV1
 
-      - name: Install suggested R packages
+      - name: Install required R packages from CRAN and Bioconductor
         if: steps.cache-rpkgs.outputs.cache-hit != 'true'
-        run: Rscript -e "install.packages(c('protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')"
+        run: |
+             install.packages(c('BiocManager', 'protViz', 'knitr', 'rmarkdown', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')
+        shell: Rscript {0}
+
+      - name: Cache R packages
+        id: cache-rpkgs-cran-bioc
+        uses: actions/cache@v2
+        with:
+            path: ~/work/_temp/Library/
+            key: ${{ runner.os }}-RpkgsV2
+
+      - name: Install BiocCheck
+        if: steps.cache-rpkgs-cran-bioc.outputs.cache-hit != 'true'
+        run: BiocManager::install(c('BiocCheck', 'tartare'))
+        shell: Rscript {0}
 
       - name: rcmdcheck::rcmdcheck
         run: rcmdcheck::rcmdcheck(error_on = "warning", check_dir = "check")
         shell: Rscript {0}
+
+      - name: install rawrr
+        run: install.packages(".", repo=NULL)
+        shell: Rscript {0}
+
+      - name: Render autoQC01 vignette
+        run: |
+             cp /home/runner/work/rawrr/rawrr/check/rawrr.Rcheck/00_pkg_src/rawrr/vignettes/JPR_supplement.Rmd ~/Downloads \
+             && cp /home/runner/work/rawrr/rawrr/rawrr_logo.png ~/Downloads \
+             && cd ~/Downloads \
+             && R -e "rmarkdown::render('JPR_supplement.Rmd')"
+
+      - name: List files in home directory
+        run: find ~/ -type f > files.txt
+
+      - uses: actions/upload-artifact@v2
+        with:
+            name: files
+            path: files.txt
+            if-no-files-found: warn
 
       - uses: actions/upload-artifact@v2
         with:
             name: rawrr_vignette
             path: check/rawrr.Rcheck/rawrr/doc/JPR_TechnicalNote.pdf
             if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v2
+        with:
+            name: rawrr_autoQC01
+            path: /home/runner/Downloads/JPR_supplement.pdf
+
       - uses: actions/upload-artifact@v2
         with:
             name: rawrr_manual
