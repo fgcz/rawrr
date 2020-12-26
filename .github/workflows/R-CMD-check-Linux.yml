@@ -110,7 +110,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
             name: rawrr_autoQC01
-            path: Downloads/JPR_supplement.*
+            path: Downloads/JPR_supplement.pdf
 
       - uses: actions/upload-artifact@v2
         with:
