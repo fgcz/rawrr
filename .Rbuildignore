@@ -12,5 +12,6 @@
 .*rawRcolor.*
 vignettes.MSV86542.Rmd
 vignettes.functional_test.Rmd
+vignettes.JPR_supplement.Rmd
 ^doc$
 ^Meta$
