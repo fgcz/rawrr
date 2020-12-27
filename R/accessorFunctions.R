@@ -58,6 +58,43 @@ scanNumber <- function(x) {
   as.integer(x$scan)
 }
 
+#' Base peak of a spectrum
+#'
+#' @param x A rawrrSpectrum object
+#'
+#' @return A double vector of length two. The first component is the base peak
+#' position (m/z). The second component is the base peak intensity.
+#' @export basePeak
+#'
+#' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
+#' basePeak(S[[1]]))
+basePeak <- makeAccessor(key = "basePeak", "double")
+
+#' Total ion current of a spectrum
+#'
+#' @param x A rawrrSpectrum object
+#'
+#' @return A double vector of length one.
+#' @export tic
+#'
+#' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
+#' tic(S[[1]]))
+tic <- makeAccessor(key = "TIC", "double")
+
+#' Acquisition/scan range of spectrum
+#'
+#' @param x A rawrrSpectrum object
+#'
+#' @return A double vector of length two. The first component is the start m/z, the
+#' second is the stop m/z value used by the detector during data acquisition.
+#' Also referred to as scan range.
+#' @export massRange
+#'
+#' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
+#' tic(S[[1]]))
+massRange <- makeAccessor(key = "massRange", "double")
+
+
 #' Is FAIMS Voltage on?
 #'
 #' @param x A rawrrSpectrum object
@@ -76,4 +113,37 @@ faimsVoltageOn <- function(x) {
   } else {
     stop("FAIMS Voltage On: is not available!")
   }
+}
+
+## application of accessor functions for tabulation of scan data
+
+tabulateSpectrum <- function (x, accNames) {
+
+  stopifnot(is.rawrrSpectrum(x), is.character(accNames))
+
+  l <- vector("list", length(accNames))
+
+  for (i in seq_along(accNames)) {
+
+    l[[i]] <- do.call(accNames[i], list(x))
+
+  }
+
+  df <- list2DF(l)
+  names(df) <- accNames
+  return(df)
+
+}
+
+tabulateSpectrumSet <- function (x, accNames){
+
+  if (!requireNamespace("purrr", quietly = TRUE)) {
+    stop("Package \"pkg\" needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+
+  stopifnot(class(x) == "rawrrSpectrumSet")
+
+  purrr::map_df(x, tabulateSpectrum, accNames)
+
 }
