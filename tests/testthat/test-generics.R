@@ -13,6 +13,9 @@ test_that("print, summary, and plot calls right generic for rawrrSpectrum object
   expect_s3_class(summary(S[[1]]), class = "rawrrSpectrum")
   expect_output(summary(S[[1]]), regexp = "Total Ion Current")
 
+  # TODO : change to snapshot tests for plotting
+  # vignette("snapshotting")
+
   png(filename = "rawrrSpectrumPlot.png")
   expect_s3_class(plot(S[[1]]), class = "rawrrSpectrum")
   dev.off()
