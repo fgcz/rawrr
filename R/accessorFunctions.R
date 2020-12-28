@@ -67,7 +67,7 @@ scanNumber <- function(x) {
 #' @export
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
-#' basePeak(S[[1]]))
+#' basePeak(S[[1]])
 basePeak <- makeAccessor(key = "basePeak", "double")
 
 #' Total ion current of a spectrum
@@ -78,7 +78,7 @@ basePeak <- makeAccessor(key = "basePeak", "double")
 #' @export
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
-#' tic(S[[1]]))
+#' tic(S[[1]])
 tic <- makeAccessor(key = "TIC", "double")
 
 #' Acquisition/scan range of spectrum
@@ -91,7 +91,7 @@ tic <- makeAccessor(key = "TIC", "double")
 #' @export
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
-#' tic(S[[1]]))
+#' massRange(S[[1]])
 massRange <- makeAccessor(key = "massRange", "double")
 
 
