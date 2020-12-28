@@ -63,7 +63,7 @@
 #' @param x object to be tested.
 #'
 #' @return \code{TRUE} or \code{FALSE}
-#' @export is.rawrrSpectrum
+#' @export
 #'
 #' @examples
 #' rawfile <- sampleFilePath()
@@ -339,7 +339,7 @@ validate_rawrrIndex <- function(x){
 #'
 #'
 #' @return file path of the sample.raw location.
-#' @export sampleFilePath
+#' @export
 #' @aliases sample.raw
 #' @author Tobias Kockmann, 2018, 2019.
 #' @examples
@@ -699,9 +699,7 @@ new_rawrrSpectrum <- function(scan = numeric(), massRange = numeric(),
 #' @return Function returns a validated \code{rawrrSpectrum} object
 #' @export
 #'
-#' @examples
-#'
-#' plot(rawrrSpectrum(sim = "TESTPEPTIDE"))
+#' @examples plot(rawrrSpectrum(sim = "TESTPEPTIDE"))
 #' rawrrSpectrum(sim = "example_1")
 #'
 #' @author Tobias Kockmann, 2020.
