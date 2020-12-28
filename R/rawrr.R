@@ -667,7 +667,6 @@ readChromatogram <- function(rawfile,
 #' @param intensity Intensity values
 #' @author Tobias Kockmann, 2020.
 #' @return Object of class \code{rawrrSpectrum}
-#' @export new_rawrrSpectrum
 new_rawrrSpectrum <- function(scan = numeric(), massRange = numeric(),
                              scanType = character(), rtinseconds = numeric(),
                              centroidStream = logical(),
@@ -698,7 +697,7 @@ new_rawrrSpectrum <- function(scan = numeric(), massRange = numeric(),
 #' @param sim Either \code{example_1} or \code{TESTPEPTIDE}
 #'
 #' @return Function returns a validated \code{rawrrSpectrum} object
-#' @export rawrrSpectrum
+#' @export
 #'
 #' @examples
 #'
@@ -750,7 +749,7 @@ rawrrSpectrum <- function(sim = character()) {
 #' @usage validate_rawrrSpectrum(x)
 #' @author Tobias Kockmann and Christian Panse, 2020.
 #' @return Validated \code{rawrrSpectrum} object
-#' @export validate_rawrrSpectrum
+#' @export
 validate_rawrrSpectrum <- function(x){
     values <- unclass(x)
 
@@ -825,6 +824,7 @@ validate_rawrrSpectrum <- function(x){
 #' @param legend Should legend be printed?
 #' @param diagnostic Should this option be applied? The default is \code{FALSE}.
 #' @param ... function passes arbitrary additional arguments.
+#' @export
 #' @author Tobias Kockmann, 2020.
 #' @importFrom graphics legend
 plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
@@ -942,6 +942,7 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 #' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param object an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
+#' @export
 summary.rawrrSpectrum <- function(object, ...) {
 
     cat("Total Ion Current:\t", object$TIC, fill = TRUE)
@@ -961,6 +962,7 @@ summary.rawrrSpectrum <- function(object, ...) {
 #' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param x an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
+#' @export
 print.rawrrSpectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", x$massRange[1], fill = TRUE)
@@ -1057,7 +1059,7 @@ print.rawrrSpectrum <- function(x, ...){
 #' @author Tobias Kockmann, 2020.
 #'
 #' @return \code{TRUE} or \code{FALSE}
-#' @export is.rawrrChromatogram
+#' @export
 #'
 #' @examples rawfile <- sampleFilePath()
 #' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
@@ -1072,7 +1074,7 @@ is.rawrrChromatogram <- function(x){
 #' @param legend Should legend be printed?
 #' @param ... Passes additional arguments.
 #' @author Tobias Kockmann, 2020.
-#' @export plot.rawrrChromatogram
+#' @export
 #'
 #' @examples rawfile <- sampleFilePath()
 #' C <- readChromatogram(rawfile, mass = 445.1181, tol = 10)
@@ -1219,7 +1221,7 @@ plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
 #'
 #' @return Returns the scan number of the master scan or NA if no master scan
 #' exists.
-#' @export masterScan
+#' @export
 #'
 #' @examples Idx <- readIndex(rawfile = sampleFilePath())
 #' masterScan(Idx, scanNumber = 1)
@@ -1239,7 +1241,7 @@ masterScan <- function(x, scanNumber){
 #' @param scanNumber The scan number that should be inspected for dependent scans.
 #'
 #' @return The scan number of the dependent scan(s).
-#' @export dependentScan
+#' @export
 #'
 #' @examples Idx <- readIndex(rawfile = sampleFilePath())
 #' dependentScan(Idx, scanNumber = 1)
