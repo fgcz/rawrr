@@ -1112,6 +1112,51 @@ plot.rawrrChromatogram <- function(x, legend = TRUE, ...){
 
 }
 
+#' Text summary of chromatogram
+#'
+#' @param x A \code{rawrrChromatogram} object
+#'
+#' @return A \code{rawrrChromatogram} object
+#' @export summary.rawrrChromatogram
+#'
+#' @examples C <- readChromatogram(rawfile = sampleFilePath(),
+#' mass = c(445.1181, 519.1367))
+#' summary(C[[1]])
+#' summary(C[[2]])
+summary.rawrrChromatogram <- function(x) {
+
+  stopifnot(is.rawrrChromatogram(x))
+
+  cat(toupper(attr(x, "type")), "generated from", basename(attr(x, "filename")),
+      "consisting of", length(x$times), "data points.", fill = TRUE)
+
+  switch (attr(x, "type"),
+    "xic" = {
+
+      cat("   Filter :", x$filter, sep = " ", fill = TRUE)
+      cat("   m/z :", x$mass, sep = " ", fill = TRUE)
+      cat("   Tolerance :", x$ppm, "ppm", sep = " ", fill = TRUE)
+      cat("   RT :", min(x$times), "-", max(x$times), "s" , fill = TRUE)
+
+    },
+    "bpc" = {
+
+      cat("   Filter :", attr(x, "filter"), sep = " ", fill = TRUE)
+      cat("   RT :", min(x$times), "-", max(x$times), "s" , fill = TRUE)
+
+    },
+    "tic" = {
+
+      cat("   Filter :", attr(x, "filter"), sep = " ", fill = TRUE)
+      cat("   RT :", min(x$times), "-", max(x$times), "s" , fill = TRUE)
+
+    },
+  )
+
+  invisible(x)
+
+}
+
 #' Plot \code{rawrrChromatogramSet} objects
 #'
 #' @param x A \code{rawrrChromatogramSet} object to be plotted.
