@@ -13,7 +13,7 @@
 #' @param returnType The type used for casting of values
 #'
 #' @return An accessor function
-#' @export makeAccessor
+#' @export
 #'
 #' @details This function factory creates accessor functions for class
 #' \code{rawrrSpectrum}.
@@ -45,7 +45,7 @@ makeAccessor <- function(key, returnType = "integer"){
 #' @param x A rawrrSpectrum object
 #'
 #' @return The scan number of type \code{integer}
-#' @export scanNumber
+#' @export
 #' @details This accessor function returns the scan number of a mass spectrum
 #' stored as \code{rawrrSpectrum} object. Scan numbers are equal to the scan index
 #' \eqn{j} running from 1 to \eqn{n} with \eqn{n} being the last scan of a raw file.
@@ -64,7 +64,7 @@ scanNumber <- function(x) {
 #'
 #' @return A double vector of length two. The first component is the base peak
 #' position (m/z). The second component is the base peak intensity.
-#' @export basePeak
+#' @export
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
 #' basePeak(S[[1]]))
@@ -75,7 +75,7 @@ basePeak <- makeAccessor(key = "basePeak", "double")
 #' @param x A rawrrSpectrum object
 #'
 #' @return A double vector of length one.
-#' @export tic
+#' @export
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
 #' tic(S[[1]]))
@@ -88,7 +88,7 @@ tic <- makeAccessor(key = "TIC", "double")
 #' @return A double vector of length two. The first component is the start m/z, the
 #' second is the stop m/z value used by the detector during data acquisition.
 #' Also referred to as scan range.
-#' @export massRange
+#' @export
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1)
 #' tic(S[[1]]))
@@ -100,7 +100,7 @@ massRange <- makeAccessor(key = "massRange", "double")
 #' @param x A rawrrSpectrum object
 #'
 #' @return A boolean
-#' @export faimsVoltageOn
+#' @export
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
 #' try(faimsVoltageOn(S[[1]]))
