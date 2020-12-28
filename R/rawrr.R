@@ -1163,7 +1163,7 @@ summary.rawrrChromatogram <- function(object, ...) {
 #' @param ... Passes additional arguments.
 #' @param diagnostic Show diagnostic legend?
 #' @author Tobias Kockmann, 2020.
-#' @export plot.rawrrChromatogramSet
+#' @export
 #' @importFrom grDevices hcl.colors
 #' @importFrom graphics lines text
 plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
