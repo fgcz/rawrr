@@ -365,11 +365,12 @@ sampleFilePath <- function(){
 #'
 #' @aliases readSpectrum rawrr
 #'
-#' @export readSpectrum
-#' @exportClass rawrrSpectrum
-#' @exportS3Method plot rawrrSpectrum
-#' @exportS3Method print rawrrSpectrum
-#' @exportS3Method summary rawrrSpectrum
+#' @export
+##' @export readSpectrum
+##' @exportClass rawrrSpectrum
+##' @exportS3Method plot rawrrSpectrum
+##' @exportS3Method print rawrrSpectrum
+##' @exportS3Method summary rawrrSpectrum
 #'
 #' @return a nested list of \code{rawrrSpectrum} objects containing more than 50
 #' values of scan information, e.g., the charge state, two vectors containing
