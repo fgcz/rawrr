@@ -28,6 +28,13 @@ test_that("print, summary, and plot calls right generic for rawrrSpectrum object
 
 C <- readChromatogram(rawfile = sampleFilePath(), mass = c(445.1181, 519.1367))
 
+test_that("summary method for chromatograms is called", {
+
+  expect_s3_class(summary(C[[1]]), class = "rawrrChromatogram")
+  expect_output(summary(C[[1]]), regexp = "XIC")
+
+})
+
 test_that("plot calls right generic for rawrrChromatogram(Set) object", {
 
   # TODO : change to snapshot tests for plotting
