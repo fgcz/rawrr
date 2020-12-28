@@ -1117,7 +1117,7 @@ plot.rawrrChromatogram <- function(x, legend = TRUE, ...){
 #' @param x A \code{rawrrChromatogram} object
 #'
 #' @return A \code{rawrrChromatogram} object
-#' @export summary.rawrrChromatogram
+#' @export
 #'
 #' @examples C <- readChromatogram(rawfile = sampleFilePath(),
 #' mass = c(445.1181, 519.1367))
