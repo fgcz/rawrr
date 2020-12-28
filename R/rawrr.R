@@ -249,7 +249,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 #' @usage validate_rawrrIndex(x)
 #' @author Tobias Kockmann and Christian Panse, 2020-12-09.
 #' @return Validated \code{data.frame} of \code{readIndex} object
-#' @export validate_rawrrIndex
+#' @export
 #' @examples
 #' Idx <- readIndex(sampleFilePath())
 #' validate_rawrrIndex(Idx)
@@ -505,11 +505,12 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' Thermo Scientific mass spectrometers,
 #' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.
 #'
-#' @export readChromatogram
-#' @exportClass rawrrChromatogram
-#' @exportClass rawrrChromatogramSet
-#' @exportS3Method plot rawrrChromatogram
-#' @exportS3Method plot rawrrChromatogramSet
+#' @export
+##' @export readChromatogram
+##' @exportClass rawrrChromatogram
+##' @exportClass rawrrChromatogramSet
+##' @exportS3Method plot rawrrChromatogram
+##' @exportS3Method plot rawrrChromatogramSet
 #' @importFrom utils read.csv2
 #' @examples
 #'
