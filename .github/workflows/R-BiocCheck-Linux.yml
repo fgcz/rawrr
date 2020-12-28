@@ -4,8 +4,6 @@ env:
     MONO_PATH: '/usr/local/lib/RawFileReader/'
     RAWRR_RELEASE: 'http://fgcz-ms.uzh.ch/~cpanse/rawrr_0.2.0.tar.gz'
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 jobs:
