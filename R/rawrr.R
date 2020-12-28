@@ -1116,8 +1116,8 @@ plot.rawrrChromatogram <- function(x, legend = TRUE, ...){
 
 #' Text summary of chromatogram
 #'
-#' @param x A \code{rawrrChromatogram} object
-#'
+#' @param object A \code{rawrrChromatogram} object
+#' @param ... Function passes additional arguments.
 #' @return A \code{rawrrChromatogram} object
 #' @export
 #'
