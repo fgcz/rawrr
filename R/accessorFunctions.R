@@ -137,10 +137,10 @@ tabulateSpectrum <- function (x, accNames) {
 
 tabulateSpectrumSet <- function (x, accNames){
 
-  if (!requireNamespace("purrr", quietly = TRUE)) {
-    stop("Package \"pkg\" needed for this function to work. Please install it.",
-         call. = FALSE)
-  }
+  #if (!requireNamespace("purrr", quietly = TRUE)) {
+  #  stop("Package \"pkg\" needed for this function to work. Please install it.",
+  #       call. = FALSE)
+  #}
 
   stopifnot(class(x) == "rawrrSpectrumSet")
 
