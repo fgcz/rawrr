@@ -101,7 +101,7 @@ is.rawrrSpectrum <- function(x){
 #' Sample volume, Sample injection volume, Sample row number,
 #' Sample dilution factor, or Sample barcode.
 #'
-#' @export readFileHeader
+#' @export
 #'
 #' @examples
 #' (rawfile <- file.path(path.package(package = 'rawrr'), 'extdata',
