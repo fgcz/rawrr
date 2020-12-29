@@ -18,7 +18,6 @@ High-level constructor for instances of class
 testing and for demonstration.
 }
 \examples{
-
 plot(rawrrSpectrum(sim = "TESTPEPTIDE"))
 rawrrSpectrum(sim = "example_1")
 
