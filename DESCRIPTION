@@ -11,7 +11,7 @@ Authors@R: c(person("Christian", "Panse",
 	role = "aut",
 	comment = c(ORCID = "0000-0002-1847-885X")))
 Depends: R (>= 4.0)
-Imports: purrr
+Imports: 
 Suggests:
 	protViz (>= 0.6),
 	knitr,
