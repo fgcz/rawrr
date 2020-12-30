@@ -53,14 +53,14 @@ jobs:
              && wget ftp://massive.ucsd.edu/MSV000086542/raw/*.raw
 
       - name: Cache R packages
-        id: cache-rpkgs
+        id: cache-rpkgsV2
         uses: actions/cache@v2
         with:
             path: ~/work/_temp/Library/
             key: ${{ runner.os }}-RpkgsV2
 
       - name: Install required R packages from CRAN and Bioconductor
-        if: steps.cache-rpkgs.outputs.cache-hit != 'true'
+        if: steps.cache-rpkgsV2.outputs.cache-hit != 'true'
         run: |
              install.packages(c('BiocManager', 'protViz', 'knitr', 'rmarkdown', 'roxygen2', 'testthat', 'rcmdcheck'), repos='https://cloud.r-project.org')
         shell: Rscript {0}
