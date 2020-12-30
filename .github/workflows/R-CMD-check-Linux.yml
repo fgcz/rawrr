@@ -78,7 +78,7 @@ jobs:
         shell: Rscript {0}
 
       - name: roxygen2::roxygenise
-        run: install.packages('roxygen2'); roxygen2::roxygenise(clean=TRUE)
+        run: install.packages('roxygen2'); roxygen2::roxygenise(clean=TRUE); unlink("inst/rawrrassembly/bin/rawrr.exe")
         shell: Rscript {0}
 
       - name: rcmdcheck::rcmdcheck
