@@ -78,7 +78,7 @@ jobs:
         shell: Rscript {0}
 
       - name: roxygen2::roxygenise
-        run: install.packages('roxygen2'); roxygen2::roxygenise()
+        run: install.packages('roxygen2'); roxygen2::roxygenise(clean=TRUE)
         shell: Rscript {0}
 
       - name: rcmdcheck::rcmdcheck
