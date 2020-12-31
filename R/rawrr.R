@@ -366,11 +366,11 @@ sampleFilePath <- function(){
 #' @aliases readSpectrum rawrr
 #'
 #' @export
-##' @export readSpectrum
-##' @exportClass rawrrSpectrum
-##' @exportS3Method plot rawrrSpectrum
-##' @exportS3Method print rawrrSpectrum
-##' @exportS3Method summary rawrrSpectrum
+## #' @export readSpectrum
+## #' @exportClass rawrrSpectrum
+## #' @exportS3Method plot rawrrSpectrum
+## #' @exportS3Method print rawrrSpectrum
+## #' @exportS3Method summary rawrrSpectrum
 #'
 #' @return a nested list of \code{rawrrSpectrum} objects containing more than 50
 #' values of scan information, e.g., the charge state, two vectors containing
@@ -506,11 +506,11 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' \href{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}{MSV000086542}.
 #'
 #' @export
-##' @export readChromatogram
-##' @exportClass rawrrChromatogram
-##' @exportClass rawrrChromatogramSet
-##' @exportS3Method plot rawrrChromatogram
-##' @exportS3Method plot rawrrChromatogramSet
+## #' @export readChromatogram
+## #' @exportClass rawrrChromatogram
+## #' @exportClass rawrrChromatogramSet
+## #' @exportS3Method plot rawrrChromatogram
+## #' @exportS3Method plot rawrrChromatogramSet
 #' @importFrom utils read.csv2
 #' @examples
 #'
