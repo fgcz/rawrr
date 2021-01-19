@@ -285,12 +285,7 @@ on different Orbitrap instruments.
 \newpage
 # Table of contents graphic
 
-<<<<<<< HEAD
 ```{r, echo=FALSE}
   knitr::include_graphics("rawrr_logo.png")
 ```
-||||||| 080956f
-![For TOC only](..\rawrr_logo.png)
-=======
-![](..\rawrr_logo.png)
->>>>>>> 8d4274dd9a88480e5e2b45c4339c268f3520ecd8
+
