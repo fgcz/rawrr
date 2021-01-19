@@ -285,4 +285,4 @@ on different Orbitrap instruments.
 \newpage
 # Table of contents graphic
 
-![For TOC only](..\rawrr_logo.png)
+![](..\rawrr_logo.png)
