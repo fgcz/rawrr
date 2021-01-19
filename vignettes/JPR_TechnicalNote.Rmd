@@ -138,8 +138,7 @@ plot(S[[1]], centroid=TRUE, SN = TRUE, diagnostic = TRUE)
 # S/N threshold indicator
 abline(h = 5, lty = 2, col = "blue")
 # decorate plot with y-ion series of target peptide LGGNEQVTR++
-yIonSeries <- c(175.1190, 276.1666, 375.2350, 503.2936, 632.3362, 746.3791,
-                803.4006, 860.4221)
+yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8]
 names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
 abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))
