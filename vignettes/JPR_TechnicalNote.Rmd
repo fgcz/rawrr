@@ -138,6 +138,7 @@ plot(S[[1]], centroid=TRUE, SN = TRUE, diagnostic = TRUE)
 # S/N threshold indicator
 abline(h = 5, lty = 2, col = "blue")
 # decorate plot with y-ion series of target peptide LGGNEQVTR++
+# c(175.12, 276.17, 375.24, 503.29, 632.34, 746.38, 803.4, 860.42)
 yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8]
 names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
 abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
@@ -284,6 +285,12 @@ on different Orbitrap instruments.
 \newpage
 # Table of contents graphic
 
+<<<<<<< HEAD
 ```{r, echo=FALSE}
   knitr::include_graphics("rawrr_logo.png")
 ```
+||||||| 080956f
+![For TOC only](..\rawrr_logo.png)
+=======
+![](..\rawrr_logo.png)
+>>>>>>> 8d4274dd9a88480e5e2b45c4339c268f3520ecd8

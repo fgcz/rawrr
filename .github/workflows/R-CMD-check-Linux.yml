@@ -108,7 +108,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
             name: rawrr_vignette
-            path: check/rawrr.Rcheck/rawrr/doc/JPR_TechnicalNote.pdf
+            path: check/rawrr.Rcheck/rawrr/doc/JPR_TechnicalNote.*
             if-no-files-found: warn
 
       - uses: actions/upload-artifact@v2
