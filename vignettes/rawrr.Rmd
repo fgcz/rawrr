@@ -96,10 +96,10 @@ rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw
 ```{r tartareEH4547, warning=FALSE, message=FALSE}
 library(ExperimentHub)
 eh <- ExperimentHub::ExperimentHub()
-EH4547 <- eh[["EH4547"]]
+EH4547 <- normalizePath(eh[["EH4547"]])
 
-rawfile <- paste0(EH4547, ".raw")
-file.link(EH4547, rawfile)
+(rawfile <- paste0(EH4547, ".raw"))
+if (!file.exists(rawfile)){ file.link(EH4547, rawfile) }
 ```
 
 
@@ -122,8 +122,6 @@ Table: lists `rawrr` package functions connected to reading functionality. More 
 Individual scans or scan collections (sets) can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the raw file (scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: `mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2`) assigned to the doubly-charged iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
 
 ```{r plotrawrrspectrum, fig.cap="Plot of scan number 9594 (USI: mzspec:MSV000086542:20181113_010_autoQC01:scan:9594) showing a centroided tandem mass spectrum of the iRT peptide precursor LGGNEQVTR++ in positive mode. The scan was acquired on an Orbitrap detector including lock mass correction and using a transient of 64 ms (equal to a resolving power of 30'000 at 200 m/z) and an AGC target of 1e5 elementary charges. Peak attributes like m/z, charge (z), and resolution (R) are shown above the peaks.", error=TRUE}
-library(rawrr)
-
 i <- c(9594, 11113, 11884, 12788, 12677, 13204, 13868, 14551, 16136, 17193, 17612)
 S <- rawrr::readSpectrum(rawfile = rawfile, scan = i)
 class(S)
