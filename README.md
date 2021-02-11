@@ -19,7 +19,9 @@ Please install the latest release from https://github.com/fgcz/rawR/releases acc
 
 ## System requirements
 
-[R](https://cran.r-project.org/) (>= 4.1)
+* [R](https://cran.r-project.org/) (>= 4.1)
+
+* U.S. language setting 
  
 ### MS Windows
 
