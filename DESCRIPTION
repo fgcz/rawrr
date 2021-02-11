@@ -31,6 +31,9 @@ Description: Provides an interface for Thermo Fisher Scientifc raw files
 	(Kockmann T. et al (2020) <doi:10.1101/2020.10.30.362533>)
         The package is developed, tested, and used at the Functional
         Genomics Center Zurich, Switzerland <https://fgcz.ch>.
+	rawrr will serve as an entry point for reading Thermo Fisher
+	Scientific instrument files using the MsRawFileReaderBackend
+	for the Bioconductor Spectra package.
 License: GPL-3
 SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
         higher on Windows, 'msbuild' and 'nuget' available in the path
