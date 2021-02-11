@@ -1,6 +1,3 @@
-![rawrrRCMDcheck](https://github.com/fgcz/rawrr/workflows/R-CMD-check-rawrr/badge.svg)
-
-
 ![rawrrHexSticker](https://github.com/fgcz/rawrr/blob/master/rawrr_logo.png)
 
 # rawrr
@@ -22,7 +19,7 @@ Please install the latest release from https://github.com/fgcz/rawR/releases acc
 
 ## System requirements
 
-[R](https://cran.r-project.org/) (>= 4.0)
+[R](https://cran.r-project.org/) (>= 4.1)
  
 ### MS Windows
 
