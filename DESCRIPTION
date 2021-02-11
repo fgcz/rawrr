@@ -19,6 +19,7 @@ Suggests:
 	lattice,
 	parallel,
 	rmarkdown,
+	tartare,
 	testthat
 Description: Provides an interface for Thermo Fisher Scientifc raw files
         branched from rawDiag <doi:10.1021/acs.jproteome.8b00173>.

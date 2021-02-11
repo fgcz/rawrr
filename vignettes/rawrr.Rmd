@@ -87,9 +87,24 @@ The following sections are inspired by real-world research/infrastructure projec
 
 ## Use Case I - Analyzing Orbitrap Spectra
 
-```{r readFileHeader, echo=FALSE, message=FALSE}
-library(rawrr)
+```{r readFileHeader, echo=FALSE, message=FALSE, exec=FALSE}
+# Download via FTP
 rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
+```
+
+
+```{r tartareEH4547, warning=FALSE, message=FALSE}
+library(ExperimentHub)
+eh <- ExperimentHub::ExperimentHub()
+EH4547 <- eh[["EH4547"]]
+
+rawfile <- paste0(EH4547, ".raw")
+file.link(EH4547, rawfile)
+```
+
+
+```{r}
+library(rawrr)
 H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
 
