@@ -40,3 +40,8 @@ https://www.biorxiv.org/content/10.1101/2020.10.30.362533v1
 ## Blog posts
 
 http://proteomicsnews.blogspot.com/2020/11/raw-mass-spec-data-is-too-pretty-for.html
+
+## Slides
+
+MsRawFileReaderBackend presentaton at
+[European Biocondutor Meeting, de Duve Institute, UCLouvain, Campus de Woluw ́e Brussels, Belgium, Dez 2019](http://fgcz-ms.uzh.ch/~cpanse/talks/rawR_EuroBioc2019_Brussels_88c9.pdf)
