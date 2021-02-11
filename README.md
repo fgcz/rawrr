@@ -2,7 +2,7 @@
 
 # rawrr
 
-The package provides access to proprietary Thermo Fisher Scientific Orbitrap instrument data as a stand-alone R package or serves as [MsRawFileReaderBackend](https://github.com/cpanse/MsBackendRawFileReader) for the Bioconductor [Spectra](https://bioconductor.org/packages/Spectra/) package.
+The package provides access to proprietary Thermo Fisher Scientific Orbitrap instrument data as a stand-alone R package or serves as [MsRawFileReaderBackend](https://github.com/cpanse/MsBackendRawFileReader) for the Bioconductor `[Spectra](https://bioconductor.org/packages/Spectra/)` package.
 rawrr wraps the functionality of the [RawFileReader](https://planetorbitrap.com/rawfilereader) .NET assembly. 
 Test data are provided by the [tartare](https://bioconductor.org/packages/tartare/) `ExperimentData` package.
 ## Install
