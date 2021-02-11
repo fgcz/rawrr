@@ -23,6 +23,8 @@ Please install the latest release from https://github.com/fgcz/rawR/releases acc
 
 * [R](https://cran.r-project.org/) (>= 4.1)
 
+* [New RawFileReader .Net Assembly from Thermo Fisher Scientific](https://planetorbitrap.com/rawfilereader)
+
 * U.S. language setting 
  
 ### MS Windows
