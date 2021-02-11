@@ -8,7 +8,17 @@ R interface for Thermo Fisher Scientifc raw files branched from [rawDiag](https:
 
 ## Install
 
+### build package
 Please install the latest release from https://github.com/fgcz/rawR/releases according to the provided instructions.
+
+
+### from source
+
+* install https://planetorbitrap.com/rawfilereader DLL files, e.g., copy file to `/usr/local/lib/RawFileReader/`
+
+* set `export MONO_PATH=/usr/local/lib/RawFileReader/`
+
+
 
 ## System requirements
 
