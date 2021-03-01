@@ -1,0 +1,89 @@
+# Install system requirements
+
+## Debian 8,9,10
+
+taken from the [rawrr continuous integration workflow](https://github.com/fgcz/rawrr/blob/master/.github/workflows/R-CMD-check-Linux.yml).
+
+```
+apt-get install mono-mcs mono-xbuild
+```
+
+## Apple
+
+```
+brew install mono
+```
+
+or install from
+
+https://www.mono-project.com/
+
+## Microsoft
+
+if the native C# compiler is not available install mono:
+
+or install from
+
+https://www.mono-project.com/
+
+
+## Install the .NET assemblies
+
+the following files should be placed in the following folder:
+
+```
+inst/rawrrassembly/bin/ThermoFisher.CommonCore.BackgroundSubtraction.dll
+inst/rawrrassembly/bin/ThermoFisher.CommonCore.Data.dll
+inst/rawrrassembly/bin/ThermoFisher.CommonCore.MassPrecisionEstimator.dll
+inst/rawrrassembly/bin/ThermoFisher.CommonCore.RawFileReader.dll
+inst/rawrrassembly/bin/rawrr.exe
+```
+
+
+SOFTWARE LICENSE AGREEMENT (“License”) FOR RawFileReader
+
+can be found in 
+
+`inst/rawrrassembly/RawFileReaderLicense.doc`
+
+In general, ThermoFisher.CommonCore dlls can be obtained through:
+
+https://planetorbitrap.com/rawfilereader
+
+by contacting Jim Shofstahl using
+
+jim.Shofstahl@thermofisher.com
+
+Once the dlls have been copied to this folder, you should be able to install
+rawrr from source by using:
+
+ `R CMD build rawrr && R CMD INSTALL rawrr_*.gz`
+
+We recommend installing rawrr by using GitHub releases published at:
+
+https://github.com/fgcz/rawrr/releases
+
+These contain the dlls and the rawrr.exe already!
+
+as alternative you can set the `MONO_PATH` enviroment, e.g.,
+
+`export MONO_PATH="/path/to/ThermoFisher/CommonCore/DLL/files"`
+
+on Apple and Linux
+
+```
+RAWRR_RELEASE='http://fgcz-ms.uzh.ch/~cpanse/rawrr_0.2.2.tar.gz'
+
+MONO_PATH='/usr/local/lib/RawFileReader/'
+
+curl --silent $RAWRR_RELEASE | (cd /tmp/ && tar xfvz - --wildcards '*.dll') \
+  && sudo mkdir -p $MONO_PATH \
+  && sudo find /tmp/rawrr -type f -exec mv -v {} $MONO_PATH \;
+
+export MONO_PATH
+```
+
+on Microsoft
+
+dll files should be placed anywhere in the PATH or in `%systemroot%\system32` 
+
