@@ -11,4 +11,7 @@ citEntry(entry = "article",
   journal      = "Journal of Proteome Research",
   year         = "2021",
   doi          = "10.1021/acs.jproteome.0c00866",
+  textVersion = paste("Tobis Kockmann and Christian Panse.",
+                             "The rawrr R Package: Direct Access to Orbitrap Data and Beyond.",
+                             "Journal of Proteome Research; doi: https://doi.org/10.1021/acs.jproteome.0c00866 (2021).")
 )
