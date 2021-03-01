@@ -77,9 +77,6 @@ cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
   }
 }
 }
-\seealso{
-\link[rawDiag]{readScans}
-}
 \author{
 Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 }

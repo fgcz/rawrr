@@ -32,9 +32,6 @@ table(Idx$MSOrder)
 # given you have a raw file with depende
 
 }
-\seealso{
-\link[rawDiag]{read.raw}
-}
 \author{
 Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
 }

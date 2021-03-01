@@ -89,7 +89,6 @@ is.rawrrSpectrum <- function(x){
 #' @references Thermo Fisher Scientific's NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #'
-#' @seealso \link[rawDiag]{read.raw.info}
 #'
 #' @return a list object containing the following entries: RAW file version,
 #' Creation date, Operator, Number of instruments, Description,
@@ -181,7 +180,6 @@ readFileHeader <- function(rawfile,
 #' @export readIndex
 #' @importFrom utils read.table
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
-#' @seealso \link[rawDiag]{read.raw}
 #'
 #' @examples
 #' rawfile <- sampleFilePath()
@@ -377,8 +375,6 @@ sampleFilePath <- function(){
 #' the mZ and its corresponding intensity values or the AGC information,
 #' mass calibration, ion optics \ldots
 #'
-#' @seealso \link[rawDiag]{readScans}
-#'
 #' @examples
 #' (rawfile <- sampleFilePath())
 #'
@@ -496,8 +492,6 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' \itemize{
 #' \item{Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.}
-#' \item{\link[rawDiag]{readXICs} contains a prototype with limited
-#' functionality.}
 #' \item{\url{https://CRAN.R-project.org/package=protViz}}
 #' }
 #'

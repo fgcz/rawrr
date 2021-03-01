@@ -85,8 +85,6 @@ Thermo Scientific mass spectrometers,
 \itemize{
 \item{Thermo Fisher NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}.}
-\item{\link[rawDiag]{readXICs} contains a prototype with limited
-functionality.}
 \item{\url{https://CRAN.R-project.org/package=protViz}}
 }
 }
