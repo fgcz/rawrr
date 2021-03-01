@@ -16,3 +16,4 @@ vignettes.functional_test.Rmd
 .*JPR_supplement.Rmd
 ^doc$
 ^Meta$
+rawR.Rproj
