@@ -11,6 +11,7 @@
 .*bash$
 .*rawRcolor.*
 vignettes.MSV86542.Rmd
+vignettes.rawrr.Rmd
 vignettes.functional_test.Rmd
 .*JPR_supplement.Rmd
 ^doc$
