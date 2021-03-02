@@ -1,11 +1,18 @@
 ---
 title: "The rawrr R package - Direct Access to Orbitrap Data and Beyond"
 author:
-- Tobias Kockmann
-- Christian Panse
+- name: Tobias Kockmann
+  affiliation:
+    - &id Functional Genomics Center Zurich - Swiss Federal Institute of Technology in Zurich
+  email: Tobias.Kockmann@fgcz.ethz.ch
+- name: Christian Panse
+  affiliation:
+    - *id
+    - Swiss Institute of Bioinformatics
+  email: cp@fgcz.ethz.ch
 package: rawrr
 abstract: |
-  The Bioconductor project[@Huber2015] has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API) for the purpose of metadata analysis and visualization. Our novel package `rawrr` now provides complete, OS-independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionalities provided by the `rawrr` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403). **Availability**: <https://github.com/fgcz/rawrr> **Keywords**: computational mass spectrometry, software, R package
+  The Bioconductor project[@Huber2015] has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `r Githubpkg("fgcz/rawDiag")` [@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API) for the purpose of metadata analysis and visualization. Our novel package `rawrr` now provides complete, OS-independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionalities provided by the `rawrr` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403).
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -20,13 +27,14 @@ urlcolor: blue
 
 ```{r style, echo = FALSE, results = 'asis'}
 BiocStyle::markdown()
+knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=TRUE)
 ```
 
 # Introduction
 
 Mass spectrometry-based proteomics and metabolomics are the preferred technologies to study the protein and metabolite landscape of complex biological systems. The Orbitrap mass analyzer is one of the key innovations that propelled the field by providing high-resolution accurate mass (HRAM) data on a chromatographic time scale. Driven by the need to analyze the resulting LC-MS data, several specialized software tools have been developed in the last decade. In the academic environment, [MaxQuant](https://maxquant.org/)[@Cox2008] and [Skyline](https://skyline.ms/project/home/begin.view?)[@MacLean2010] are by far the most popular ones. These software tools usually offer GUIs that control running predefined analysis templates/workflows, including free parameters that need to be defined by the user. In parallel, projects like [OpenMS](https://www.openms.de/)[@Rst2016] or [pyteomics](https://github.com/levitsky/pyteomics)[@Goloborodko2013] chose a fundamentally different approach. They aim at providing software libraries bound to specific programming languages like `C++` or `Python`. Naturally, these offer greater analytical flexibility but require programming skills from the end-user and have therefore not reached the popularity of their GUI counterparts. Proteomics and metabolomics specific libraries have also been developed for the [`R`](https://www.r-project.org/) statistical environment, but these mainly support high-level statistical analysis once the raw measurement data has undergone extensive preprocessing and aggregation by external software tools (often the GUI-based ones listed above). A typical example is the `R` package [MSstats](http://msstats.org/)[@Choi2014] for the statistical analysis of LC-MS experiments with complex designs or [MSqRob](https://github.com/statOmics/MSqRob)[@Goeminne2015]. MSstats can process MaxQuant or Skyline outputs and creates protein/peptide level estimates for whether the biological system shows statistically significant regulation. In a nutshell, these tools provide statistical postprocessing. Libraries that support working with the spectral data in `R` also exist, for instance, the Bioconductor package [MSnbase](https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html)[@Gatto2011]. However, they require conversion of raw data to exchange formats like [mzML](http://www.psidev.info/mzML), which is primarily supported by the [ProteoWizard](http://proteowizard.sourceforge.net/)[@Chambers2012] project and its software tool `MSconvert`.
 
-We strongly believe that a library providing raw data reading would finally close the gap and facilitate modular end-to-end analysis pipeline development in `R`. This could be of special interest to research environments/projects dealing with either big data analytics or scientists interested in code prototyping without formal computer science education.  Another key aspect regarding multi-omics integration is the fact that high-throughput genomic data analysis is already done mostly in `R`. This is primarily due to the [Bioconductor project](https://www.bioconductor.org/)[@Huber2015] that currently provides >1900 open-source software packages, training and teaching, and a very active user and developer community. Having these thoughts in mind, we decided to implement our `R` package named `rawrr`. `rawrr` utilizes a vendor-provided API named `RawFileReader` to access spectral data logged in proprietary Thermo Fisher Scientific raw files. These binary files are among others written by all Orbitrap mass spectrometers, unlocking an incredible amount of the recent global LC-MS data, also stored in public repositories like [ProteomeExchange](http://www.proteomexchange.org/). This manuscript presents a first package version/release and showcases its usage for bottom-up proteomics data analysis with a focus on Orbitrap data.
+We strongly believe that a library providing raw data reading would finally close the gap and facilitate modular end-to-end analysis pipeline development in `R`. This could be of special interest to research environments/projects dealing with either big data analytics or scientists interested in code prototyping without formal computer science education.  Another key aspect regarding multi-omics integration is the fact that high-throughput genomic data analysis is already done mostly in `R`. This is primarily due to the [Bioconductor project](https://www.bioconductor.org/)[@Huber2015] that currently provides >1900 open-source software packages, training and teaching, and a very active user and developer community. Having these thoughts in mind, we decided to implement our `R` package named `rawrr`. `rawrr` utilizes a vendor-provided API named `RawFileReader` [@rawfilereader] to access spectral data logged in proprietary Thermo Fisher Scientific raw files. These binary files are among others written by all Orbitrap mass spectrometers, unlocking an incredible amount of the recent global LC-MS data, also stored in public repositories like [ProteomeExchange](http://www.proteomexchange.org/). This manuscript presents a first package version/release and showcases its usage for bottom-up proteomics data analysis with a focus on Orbitrap data.
 
 # Implementation
 
@@ -47,8 +55,25 @@ Chromatograms come in different flavors but are always signal intensity values a
 -->
 
 ### Example data
+
 The example file `20181113_010_autoQC01.raw` used throughout this manuscript contains Fourier-transformed Orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF in positive mode (+). The mass spectrometer was operated in line with a nano UPLC and a nano electrospray source (NSI). MS2 spectra were generated by HCD fragmentation at normalized collision energy (NCE) of 27. All spectra were written to file after applying centroiding (c) and lock mass correction. The analyzed sample consisted of the iRT peptide mix (Biognosys) in a tryptic BSA digest (NEB) and was separated applying a 20 min linear gradient on C18 reversed-phase material at a constant flow rate of 300 nl/min. The file is part of the MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542) [@MSV000086542] and can be obtained through the [FTP download link](ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw)
-(MD5: a1f5df9627cf9e0d51ec1906776957ab). Individual scans have been assigned a universal spectrum identifier (USI)[@Deutsch2020.12.07.415539] by [MassIVE](https://massive.ucsd.edu/ProteoSAFe/static/massive.jsp). Additional raw data for demonstration and extended testing is available through the Bioconductor data package [tartare](https://bioconductor.org/packages/tartare/) [@tartare].
+(MD5: a1f5df9627cf9e0d51ec1906776957ab). Individual scans have been assigned a universal spectrum identifier (USI)[@Deutsch2020.12.07.415539] by [MassIVE](https://massive.ucsd.edu/ProteoSAFe/static/massive.jsp).
+
+```{r FTP, echo=TRUE, message=FALSE, exec=TRUE}
+# fetch via FTP download link
+(rawfile <- file.path(Sys.getenv('HOME'),
+  "Downloads", "20181113_010_autoQC01.raw"))
+```
+Additional raw data for demonstration and extended testing is available through the Bioconductor data package `r Biocpkg("tartare")` [@tartare].
+```{r tartareEH4547, warning=FALSE, message=FALSE, eval=TRUE}
+# fetch via ExperimentHub
+library(ExperimentHub)
+eh <- ExperimentHub::ExperimentHub()
+EH4547 <- normalizePath(eh[["EH4547"]])
+
+(rawfile <- paste0(EH4547, ".raw"))
+if (!file.exists(rawfile)){ file.link(EH4547, rawfile) }
+```
 
 <!---
 TODO(cp): add to man page
@@ -59,25 +84,12 @@ The file sample.raw contains 574 Fourier-transformed Orbitrap spectra (FTMS) rec
 
 The following sections are inspired by real-world research/infrastructure projects but have been stripped down to the bare scientific essentials to put more emphasis on the software application. We display source code in grey-shaded boxes, including syntax highlights. Corresponding `R` command line output starts with `##` and is shown directly below the code fragment that triggered the output. All figures are generated using the generic plotting functions of the package. Additional graphical elements were added using base `R` plotting functions to increase the comprehensibility.
 
+
+
 ## Use Case I - Analyzing Orbitrap Spectra
 
-```{r readFileHeader, echo=FALSE, message=FALSE, exec=FALSE}
-# Download via FTP
-rawfile <- file.path(Sys.getenv('HOME'), "Downloads", "20181113_010_autoQC01.raw")
-```
 
-
-```{r tartareEH4547, warning=FALSE, message=FALSE}
-library(ExperimentHub)
-eh <- ExperimentHub::ExperimentHub()
-EH4547 <- normalizePath(eh[["EH4547"]])
-
-(rawfile <- paste0(EH4547, ".raw"))
-if (!file.exists(rawfile)){ file.link(EH4547, rawfile) }
-```
-
-
-```{r}
+```{r readFileHeader}
 library(rawrr)
 H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
@@ -91,7 +103,7 @@ The Orbitrap detector has been a tremendous success story in MS, since it offers
 |`readSpectrum()`    |Reads spectral data from a raw file                 |`rawrrSpectrum(Set)`     |
 |`readChromatogram()`|Reads chromatographic data from a raw file          |`rawrrChromatogram(Set)` |
 
-Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation (see supporting information, S-20 onwards).
+Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation (see supporting information, S-20 onwards [@Kockmann2021]).
 
 Individual scans or scan collections (sets) can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the raw file (scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: `mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2`) assigned to the doubly-charged iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
 
@@ -118,9 +130,9 @@ S[[1]]$`HCD Energy:`
 S[[1]]$`HCD Energy eV:`
 ```
 
-The plot shows typical Orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting since Orbitrap detectors follow $S/N \propto charges \cdot \sqrt R$ with $S/N$ being the signal to noise ratio, $charges$ meaning elementary charges in the Orbitrap, and $R$ being the resolving power of the scan [@Kelstrup2014]. Signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure 2 shows that all y-ion signals are several ten or even hundred folds above the noise estimate (Note: The spectrum shown in Figure 2 is decorated with y-ions calculated for LGGNEQVTR++ using the [protViz]([https://CRAN.R-project.org/package=protViz]) package.). By adding some diagnostic information related to the Orbitrap's advanced gain control (AGC) system, it becomes apparent that the C-trap managed to collect the defined 100,000 charges within 2.8 ms, corresponding to only ~`r format((2.8/55)*100, digits = 1)`% of the maximum injection time of 55 ms.
+The plot shows typical Orbitrap peak attributes like resolution (R) and charge (z) above the most intense peaks when centroided data is available and selected. Centroided data also makes it possible to graph spectra using signal-to-noise as response value. This is potentially interesting since Orbitrap detectors follow $S/N \propto charges \cdot \sqrt R$ with $S/N$ being the signal to noise ratio, $charges$ meaning elementary charges in the Orbitrap, and $R$ being the resolving power of the scan [@Kelstrup2014]. Signal-to-noise makes judging the signal quantity more intuitive than using arbitrary signal intensity units. Figure 2 shows that all y-ion signals are several ten or even hundred folds above the noise estimate (Note: The spectrum shown in Figure 2 is decorated with y-ions calculated for LGGNEQVTR++ using the `r CRANpkg("protViz")` package.). By adding some diagnostic information related to the Orbitrap's advanced gain control (AGC) system, it becomes apparent that the C-trap managed to collect the defined 100,000 charges within 2.8 ms, corresponding to only ~`r format((2.8/55)*100, digits = 1)`% of the maximum injection time of 55 ms.
 
-```{r plotSN, eval = TRUE, fig.cap = "Spectrum plot using signal-to-noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]. The horizontal blue line indicates a signal to noise ratio of 5. Diagnostic information related to AGC is shown in grey."}
+```{r plotSN,  eval = TRUE, fig.cap = "Spectrum plot using signal-to-noise option. The vertical grey lines indicate the *in-silico* computed y-ions of the peptide precusor LGGNEQVTR++ as calculated by the [protViz]( https://CRAN.R-project.org/package=protViz) package [@protViz]. The horizontal blue line indicates a signal to noise ratio of 5. Diagnostic information related to AGC is shown in grey."}
 plot(S[[1]], centroid=TRUE, SN = TRUE, diagnostic = TRUE)
 # S/N threshold indicator
 abline(h = 5, lty = 2, col = "blue")
@@ -207,7 +219,7 @@ fit <- lm(rt ~ iRTscore)
 The fitted model can then be inspected using standard procedures. Figure 6, shows a visual inspection by plotting observed RTs as a function of iRT score together with the fitted model regression line. The corresponding R-squared indicates that the RTs behave highly linear. This is expected since the iRT peptides were separated on a 20 min linear gradient from 5% buffer B to 35% buffer B using C18 reversed-phase material (the change rate is therefore constant at 1.5% per minute). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide `GAGSSEPVTGLDAK` since it was defined to have a zero score on the iRT scale.
 
 
-```{r iRTscoreFitPlot, echo=FALSE, error=TRUE, fig.cap="iRT regression. Plot shows observed peptide RTs as a function of iRT scores and fitted regression line of corresponding linear model obtained by ordinary least squares (OLS) regression."}
+```{r iRTscoreFitPlot, fig.small=TRUE, echo=FALSE, fig.cap="iRT regression. Plot shows observed peptide RTs as a function of iRT scores and fitted regression line of corresponding linear model obtained by ordinary least squares (OLS) regression."}
 # iRTscoreFitPlot
 plot(rt ~ iRTscore,
      ylab = 'Retention time [min]',
@@ -239,21 +251,22 @@ We thank Lilly van de Venn for designing the `rawrr` package logo. We are gratef
 
 
 # Abbreviations
-
-API, advanced programming interface;
-BSA, Bovine Serum Albumin;
-FTMS, Fourier-transformed mass spectrum;
-GUI, graphics user interface;
-HRAM, high-resolution accurate mass; 
-iRT, indexed retention time;
-LC-MS, liquid chromatography followed by mass spectrometry;
-OOP, object-oriented programming;
-MS, mass spectrometry;
-NSI, nanospray ionization;
-PRM, parallel reaction monitoring;
-TIC, total ion chromatogram;
-USI, Universal spectrum identifier
-XIC, extracted ion chromatogram;
+|       |                                                       |
+|:------|:------------------------------------------------------|
+|API	|advanced programming interface                           |
+|BSA	|Bovine Serum Albumin		     	  		|
+|FTMS	|Fourier-transformed mass spectrum			|
+|GUI	|graphics user interface				|
+|HRAM	|high-resolution accurate mass				|
+|iRT	|indexed retention time					|
+|LC-MS	|liquid chromatography followed by mass spectrometry	|
+|OOP	|object-oriented programming				|
+|MS	|mass spectrometry					|
+|NSI	|nanospray ionization					|
+|PRM	|parallel reaction monitoring				|
+|TIC	|total ion chromatogram					|
+|USI	|Universal spectrum identifier				|
+|XIC	|extracted ion chromatogram				|
 
 # Session information {-}
 
