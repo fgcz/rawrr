@@ -1,52 +1,26 @@
 ---
-title: "The rawrr R package – Direct Access to Orbitrap Data and Beyond"
-author: "Tobias Kockmann^1‡\\*^ & Christian Panse^1,2‡^"
-date: "`r Sys.time()`"
+title: "The rawrr R package - Direct Access to Orbitrap Data and Beyond"
+author:
+- Tobias Kockmann
+- Christian Panse
+package: rawrr
+abstract: |
+  The Bioconductor project[@Huber2015] has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API) for the purpose of metadata analysis and visualization. Our novel package `rawrr` now provides complete, OS-independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionalities provided by the `rawrr` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403). **Availability**: <https://github.com/fgcz/rawrr> **Keywords**: computational mass spectrometry, software, R package
 output:
-  pdf_document: 
-    keep_tex: yes
-    latex_engine: xelatex
-  citation_package: natbib
+  BiocStyle::html_document:
+    toc_float: true
 bibliography: rawrr.bib
-csl: american-chemical-society.csl
 vignette: >
   %\usepackage[utf8]{inputenc}
   %\VignetteIndexEntry{rawrr: primer}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 urlcolor: blue
-header-includes:
-  - \usepackage{setspace}\doublespacing
-keywords: computational mass spectrometry, software, R package
-abstract: |
-  The Bioconductor project[@Huber2015] has shown that the `R` statistical environment is a highly valuable tool for genomics data analysis, but with respect to proteomics, we are still missing low-level infrastructure to enable performant and robust analysis workflows in `R`. Fundamentally important are libraries that provide raw data access. Our `R` package `rawDiag`[@Trachsel2018] has provided the proof-of-principle how access to mass spectrometry raw files can be realized by wrapping a vendor-provided advanced programming interface (API) for the purpose of metadata analysis and visualization. Our novel package `rawrr` now provides complete, OS-independent access to all spectral data logged in Thermo Fisher Scientific raw files. In this technical note, we present implementation details and describe the main functionalities provided by the `rawrr` package. In addition, we report two use cases inspired by real-world research tasks that demonstrate the application of the package. The raw data used for demonstration purposes was deposited as MassIVE dataset [MSV000086542](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403). **Availability**: <https://github.com/fgcz/rawrr> **Keywords**: computational mass spectrometry, software, R package
 ---
 
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
 ```
-
-1 Functional Genomics Center Zurich, ETH Zurich / University of Zurich,
-Winterthurerstrasse 190, 8057 Zurich, Switzerland
-
-2 Swiss Institute of Bioinformatics, Quartier Sorge - Batiment Amphipole,
-1015 Lausanne, Switzerland
-
-\* Corresponding author
-
-‡ Equal contributing author
-
-
-
-
-<!--
-Deposition of Mass spectrometry data
-
-For papers which were initially submitted without depositing MS data into a PUBLIC repository (such as ProteomeXchange, Massive, or Chorus),  deposit the data PRIOR to submitting a revision, and include dataset identifier(s) in the Abstract of the revised paper to show compliance.  This is a critical point for publication transparency since it allows readers to reproduce results claimed in the manuscript.
-NOTE:   MS data provided on author-managed links is NOT acceptable.
--->
-
 
 # Introduction
 
@@ -259,10 +233,6 @@ The R script that renders the html page is also available as supplementary infor
 
 Our R package `rawrr` provides direct access to spectral data stored in Thermo Fisher Scientific raw-formatted binary files, thereby eliminating the need for unfavorable conversion to exchange formats. Within the `R` environment, spectral data is presented by using only two non-standard objects representing data items well known to analytical scientists (mass spectrum and mass chromatogram). This design choice makes data handling relatively easy and intuitive and requires little knowledge about internal/technical details of the implementation. By using vendor API methods whenever possible, we nevertheless made sure that ease-of-use does not impair performance. We also emphasize that our implementation aligns well with common `R` conventions and styles. In the near future, we plan to submit `rawrr` to the Bioconductor project and align further efforts with the R for Mass Spectrometry initiative. In particular, we hope to extend `rawrr` towards the concept of exchangeable backends for data access and parallel computation. These would be necessary next steps towards big computational proteomics in `R`.
 
-# Author contributions
-
-The manuscript was written through contributions of all authors. All authors have given approval to the final version of the manuscript. ‡These authors contributed equally.
-
 # Acknowledgements
 
 We thank Lilly van de Venn for designing the `rawrr` package logo. We are grateful to Jim Shofstahl (Thermo Fisher Scientific) for providing the `RawFileReader` .NET assembly, `C#` example code, and for answering questions during the development process of `rawrr`. We are grateful to Antje Dittmann for carefully reading our manuscript and suggesting corrections and improvements. TK would like to thank Hadley Wickham for his inspiring books on advanced `R` and package development, especially for keeping those freely accessible.
@@ -285,20 +255,10 @@ TIC, total ion chromatogram;
 USI, Universal spectrum identifier
 XIC, extracted ion chromatogram;
 
-# Supporting Information
+# Session information {-}
 
-* R script demonstrating package functionalities using a set of LC-MS files recorded
-on different Orbitrap instruments.
-* Code chunk for analyzing the relation of dependent scans
-* Package documentation
-
-# References
-<div id="refs"></div>
-
-\newpage
-# Table of contents graphic
-
-```{r, echo=FALSE}
-  knitr::include_graphics("rawrr_logo.png")
+```{r sessioninfo, echo=FALSE}
+sessionInfo()
 ```
 
+# References {-}
