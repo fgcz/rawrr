@@ -144,7 +144,7 @@ tabulateSpectrumSet <- function (x, accNames){
 
   stopifnot(class(x) == "rawrrSpectrumSet")
 
-  lapply(x, rawrr:::tabulateSpectrum, accNames)
+  lapply(x, tabulateSpectrum, accNames)
   #purrr::map_df(x, tabulateSpectrum, accNames)
 
 }

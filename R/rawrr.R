@@ -31,13 +31,13 @@
     function(exe = .rawrrAssembly()){
         if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
             if (Sys.which('mono') == ""){
-                warning("Can not find Mono JIT compiler. check SystemRequirements.")
-                return()
+                warning("Cannot find the Mono JIT compiler. Check system requirements.")
+                return(FALSE)
             }
         }
 
         if (!file.exists(exe)){
-            warning("rawrr.exe is not availble.")
+            warning("rawrr.exe is not available.")
             return (FALSE)
         }
 
