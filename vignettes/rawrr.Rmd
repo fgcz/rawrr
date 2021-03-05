@@ -28,6 +28,7 @@ urlcolor: blue
 ```{r style, echo = FALSE, results = 'asis'}
 BiocStyle::markdown()
 knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=TRUE)
+stopifnot(rawrr:::.isMonoAssemblyWorking())
 ```
 
 # Introduction
@@ -77,6 +78,10 @@ EH4547 <- normalizePath(eh[["EH4547"]])
 if (!file.exists(rawfile)){ file.copy(EH4547, rawfile) }
 ```
 
+```{r check, eval=TRUE, echo=FALSE}
+stopifnot(file.exists(rawfile))
+```
+
 <!---
 TODO(cp): add to man page
 The file sample.raw contains 574 Fourier-transformed Orbitrap spectra (FTMS) recorded on a Thermo Fisher Scientific Q Exactive HF-X. The mass spectrometer was operated in line with a nano electrospray source (NSI) in positive mode (+). All spectra were written to disk after applying centroiding (c) and lock mass correction. Additional raw data for demonstration and extended testing is available through the [tartare package](https://bioconductor.org/packages/tartare/) [@tartare]. Lions love raw meat!
@@ -91,7 +96,7 @@ The following sections are inspired by real-world research/infrastructure projec
 ## Use Case I - Analyzing Orbitrap Spectra
 
 
-```{r readFileHeader}
+```{r readFileHeader, eval=TRUE}
 library(rawrr)
 H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
@@ -253,22 +258,22 @@ We thank Lilly van de Venn for designing the `rawrr` package logo. We are gratef
 
 
 # Abbreviations
-|       |                                                       |
-|:------|:------------------------------------------------------|
-|API	|advanced programming interface                           |
-|BSA	|Bovine Serum Albumin		     	  		|
-|FTMS	|Fourier-transformed mass spectrum			|
-|GUI	|graphics user interface				|
-|HRAM	|high-resolution accurate mass				|
-|iRT	|indexed retention time					|
-|LC-MS	|liquid chromatography followed by mass spectrometry	|
-|OOP	|object-oriented programming				|
-|MS	|mass spectrometry					|
-|NSI	|nanospray ionization					|
-|PRM	|parallel reaction monitoring				|
-|TIC	|total ion chromatogram					|
-|USI	|Universal spectrum identifier				|
-|XIC	|extracted ion chromatogram				|
+|       |                                                    |
+|:------|:---------------------------------------------------|
+|API	|advanced programming interface                      |
+|BSA	|Bovine Serum Albumin                                |
+|FTMS	|Fourier-transformed mass spectrum		     |
+|GUI	|graphics user interface			     |
+|HRAM	|high-resolution accurate mass			     |
+|iRT	|indexed retention time				     |
+|LC-MS	|liquid chromatography followed by mass spectrometry |
+|OOP	|object-oriented programming			     |
+|MS	|mass spectrometry				     |
+|NSI	|nanospray ionization				     |
+|PRM	|parallel reaction monitoring			     |
+|TIC	|total ion chromatogram				     |
+|USI	|Universal spectrum identifier			     |
+|XIC	|extracted ion chromatogram			     |
 
 # Session information {-}
 
