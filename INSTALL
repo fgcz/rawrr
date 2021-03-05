@@ -5,6 +5,12 @@
 taken from the [rawrr continuous integration workflow](https://github.com/fgcz/rawrr/blob/master/.github/workflows/R-CMD-check-Linux.yml).
 
 ```
+sudo apt-get install mono-runtime
+```
+
+if you also want the mono compile
+
+```
 sudo apt-get install mono-mcs mono-xbuild
 ```
 
@@ -27,12 +33,11 @@ or install from
 https://www.mono-project.com/
 
 
-## Install the .NET assemblies
+# Install the .NET assemblies
 
-the following files should be placed in the following folder:
+the following files are required in the following folder:
 
 ```
-inst/rawrrassembly/bin/ThermoFisher.CommonCore.BackgroundSubtraction.dll
 inst/rawrrassembly/bin/ThermoFisher.CommonCore.Data.dll
 inst/rawrrassembly/bin/ThermoFisher.CommonCore.MassPrecisionEstimator.dll
 inst/rawrrassembly/bin/ThermoFisher.CommonCore.RawFileReader.dll
