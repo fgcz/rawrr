@@ -3,15 +3,16 @@
     system2("mono", "-V", stdout = TRUE)
 }
 
-
-.writeRData <- function(rawfile, outputfile=paste0(rawfile, ".RData"), tmpdir=tempdir()){
+.writeRData <-
+  function(rawfile, outputfile=paste0(rawfile, ".RData"), tmpdir=tempdir()){
 
     scanRange <- readFileHeader(rawfile)$`Scan range`
     scanIdx <- seq(scanRange[1], scanRange[2], by=1)
 
     res <- lapply(scanIdx, function(x){
         rv <- readSpectrum(rawfile, scan=x, tmpdir=tmpdir)[[1]]
-        list(scanType=rv$scanType, mZ=rv$mZ, intensity=rv$intensity, charge=rv$charge, rtinseconds=rv$rtinseconds)
+        list(scanType=rv$scanType, mZ=rv$mZ, intensity=rv$intensity,
+             charge=rv$charge, rtinseconds=rv$rtinseconds)
     })
     e <- new.env()
     objName <- paste("S",basename(rawfile), sep='')
@@ -23,40 +24,41 @@
 
 
 .rawrrAssembly <- function(){
-       f <- system.file('rawrrassembly/bin/rawrr.exe', package = 'rawrr')
-       return(f)
+  f <- system.file(file.path('rawrrassembly', 'bin', 'rawrr.exe'),
+                   package = 'rawrr')
+  return(f)
 }
 
 .isMonoAssemblyWorking <-
-    function(exe = .rawrrAssembly()){
-        if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
-            if (Sys.which('mono') == ""){
-                warning("Cannot find the Mono JIT compiler. Check system requirements.")
-                return(FALSE)
-            }
-        }
-
-        if (!file.exists(exe)){
-            warning("rawrr.exe is not available.")
-            return (FALSE)
-        }
-
-        # execute Assembly
-        rvs <-  "?"
-        if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
-            rvs <- system2(Sys.which('mono'), args = c(shQuote(exe)), stdout = TRUE)
-        }else{
-            rvs <- system2(exe, stdout = TRUE)
-        }
-
-        # expect that string
-        if (rvs != "No RAW file specified!"){
-            warning("Mono JIT compiler and rawrr.exe assembly are not working.")
-            return (FALSE)
-        }
-
-        TRUE
+  function(exe = .rawrrAssembly()){
+    if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
+      if (Sys.which('mono') == ""){
+        warning("Cannot find the Mono JIT compiler. Check system requirements.")
+        return(FALSE)
+      }
     }
+    
+    if (!file.exists(exe)){
+      warning("rawrr.exe is not available.")
+      return (FALSE)
+    }
+    
+    # execute Assembly
+    rvs <-  "?"
+    if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
+      rvs <- system2(Sys.which('mono'), args = c(shQuote(exe)),
+                     stdout = TRUE)
+    }else{
+      rvs <- system2(exe, stdout = TRUE)
+    }
+    
+    # expect that string
+    if (rvs != "No RAW file specified!"){
+      warning("Mono JIT compiler and rawrr.exe assembly are not working.")
+      return (FALSE)
+    }
+    TRUE
+  }
 
 #' Check if object is instance of class \code{rawrrSpectrum}
 #'
@@ -915,19 +917,19 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                cex=0.5)
 
     }
-
-    if (diagnostic) {
-        legend("left", legend = paste(c("Injection time [ms]: ",
-                                          "Max. Injection time [ms]: ",
-                                          "AGC target: ",
-                                          "Resolution: "),
-                                        c(x$`Ion Injection Time (ms)`,
-                                          x$`Max. Ion Time (ms)`,
-                                          format(x$`AGC Target`, scientific = TRUE),
-                                          format(x$`FT Resolution`, scientific = TRUE))),
-               bty = "n", cex = 0.5, text.col = "grey")
-    }
-
+  
+  if (diagnostic) {
+    legend("left", legend = paste(c("Injection time [ms]: ",
+                                    "Max. Injection time [ms]: ",
+                                    "AGC target: ",
+                                    "Resolution: "),
+                                  c(x$`Ion Injection Time (ms)`,
+                                    x$`Max. Ion Time (ms)`,
+                                    format(x$`AGC Target`, scientific = TRUE),
+                                    format(x$`FT Resolution`, scientific = TRUE))),
+           bty = "n", cex = 0.5, text.col = "grey")
+  }
+  
   invisible(x)
 
 }
@@ -1220,12 +1222,14 @@ plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
 #' @examples Idx <- readIndex(rawfile = sampleFilePath())
 #' masterScan(Idx, scanNumber = 1)
 masterScan <- function(x, scanNumber){
-    stopifnot(is.data.frame(x), "masterScan" %in% colnames(x), "dependencyType" %in% colnames(x))
-    if (is.na(x[scanNumber, "masterScan"])) {
-        warning(paste("Scan", scanNumber, "does NOT have a master scan! Returning NA.",
-                      "The corresponding dependencyType is", x[scanNumber, "dependencyType"]))
-    }
-    x[scanNumber, "masterScan"]
+  stopifnot(is.data.frame(x), "masterScan" %in% colnames(x),
+            "dependencyType" %in% colnames(x))
+  if (is.na(x[scanNumber, "masterScan"])) {
+    warning(paste("Scan", scanNumber, "does NOT have a master scan! Returning NA.",
+                  "The corresponding dependencyType is",
+                  x[scanNumber, "dependencyType"]))
+  }
+  x[scanNumber, "masterScan"]
 }
 
 
