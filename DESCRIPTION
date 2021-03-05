@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 0.99.4
+Version: 0.99.5
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -36,9 +36,10 @@ Description: Provides an interface for Thermo Fisher Scientifc raw files
 	Scientific instrument files using the MsRawFileReaderBackend
 	for the Bioconductor Spectra package.
 License: GPL-3
-SystemRequirements: mono 4.x or higher on OSX / Linux, .NET 4.x or
-        higher on Windows, 'msbuild', and New RawFileReader .Net
-	Assembly from Thermo Fisher Scientific in the path.
+SystemRequirements: mono-runtime 4.x or higher on Linux/macOS,
+        .NET 4.x or higher on Microsoft Windows,
+	and New RawFileReader .Net Assembly from Thermo Fisher Scientific
+	in the path.
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
