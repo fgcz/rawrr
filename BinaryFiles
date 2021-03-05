@@ -1,4 +1,4 @@
-rawrr/inst/rawrrassembly/bin/ThermoFisher.CommonCore.Data.dll
-rawrr/inst/rawrrassembly/bin/ThermoFisher.CommonCore.MassPrecisionEstimator.dll
-rawrr/inst/rawrrassembly/bin/ThermoFisher.CommonCore.RawFileReader.dll
-rawrr/inst/rawrrassembly/bin/rawrr.exe
+inst/rawrrassembly/bin/ThermoFisher.CommonCore.Data.dll
+inst/rawrrassembly/bin/ThermoFisher.CommonCore.MassPrecisionEstimator.dll
+inst/rawrrassembly/bin/ThermoFisher.CommonCore.RawFileReader.dll
+inst/rawrrassembly/bin/rawrr.exe
