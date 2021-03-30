@@ -35,21 +35,26 @@ https://www.mono-project.com/
 
 # Install the .NET assemblies
 
-the following files are required in the following folder:
+the following files are required in 
+`r file.path(tools::R_user_dir("rawrr", which='data'), 'rawrrassembly')`
+or in the MONO_PATH
 
 ```
-inst/rawrrassembly/bin/ThermoFisher.CommonCore.Data.dll
-inst/rawrrassembly/bin/ThermoFisher.CommonCore.MassPrecisionEstimator.dll
-inst/rawrrassembly/bin/ThermoFisher.CommonCore.RawFileReader.dll
-inst/rawrrassembly/bin/rawrr.exe
+ThermoFisher.CommonCore.Data.dll
+ThermoFisher.CommonCore.MassPrecisionEstimator.dll
+ThermoFisher.CommonCore.RawFileReader.dll
 ```
 
+The download and install can be done on all platforms using the command:
+`r rawrr::installRawfileReaderDLLs()`
 
-SOFTWARE LICENSE AGREEMENT (“License”) FOR RawFileReader
+The in the package included C# source code that can compile into a rawrr.exe file by calling
+`r rawrr:::.buildRawrrExe()`.
 
-can be found in 
+if no C# compile and build tool is available, run
 
-`inst/rawrrassembly/RawFileReaderLicense.txt`
+`r rawrr:::.buildRawrrExe()`
+
 
 In general, ThermoFisher.CommonCore dlls can be obtained through:
 
@@ -58,26 +63,3 @@ https://planetorbitrap.com/rawfilereader
 by contacting Jim Shofstahl using
 
 jim.Shofstahl@thermofisher.com
-
-as alternative you can set the `MONO_PATH` enviroment, e.g.,
-
-`export MONO_PATH="/path/to/ThermoFisher/CommonCore/DLL/files"`
-
-on macOS and Linux
-
-```
-RAWRR_RELEASE='http://fgcz-ms.uzh.ch/~cpanse/rawrr_0.2.2.tar.gz'
-
-MONO_PATH='/usr/local/lib/RawFileReader/'
-
-curl --silent $RAWRR_RELEASE | (cd /tmp/ && tar xfvz - --wildcards '*.dll') \
-  && sudo mkdir -p $MONO_PATH \
-  && sudo find /tmp/rawrr -type f -exec mv -v {} $MONO_PATH \;
-
-export MONO_PATH
-```
-
-on Microsoft Windows
-
-dll files should be placed anywhere in the PATH or in `%systemroot%\system32` 
-
