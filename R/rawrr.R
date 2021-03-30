@@ -32,15 +32,9 @@
       }
     }
 
-    if (!file.exists(exe)){
-      warning("rawrr.exe is not available.")
-      return (FALSE)
-    }
-
-
-    if (!file.exists(.rawrrAssembly())){
+    if (isFALSE(file.exists(exe))){
       warning("'rawrr.exe' not found.\n",
-       "Run 'installRawrrExecuatable()'.",
+       "Run 'rawrr::installRawrrExe()'.",
        "For more information, type '?ThermoFisher'.")
       return (FALSE)
     }

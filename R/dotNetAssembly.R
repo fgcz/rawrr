@@ -92,6 +92,12 @@ installRawrrExe <-
             ...)
   {
     rawrrAssembly <- .rawrrAssembly()
+  rawfileReaderDLLsPath <- .userRawfileReaderDLLsPath()
+
+  if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
+    dir.create(rawfileReaderDLLsPath, recursive = TRUE)
+  }
+
     rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
     message(sprintf("MD5 %s %s", tools::md5sum(rawrrAssembly), rawrrAssembly))
     rv
