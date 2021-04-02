@@ -2,7 +2,7 @@
 
 ## Linux 
 
-If you only require to run the .Net assemblies install
+If you only require to run the .Net assemblies, install
 
 ```
 sudo apt-get install mono-runtime
@@ -49,11 +49,11 @@ The download and install can be done on all platforms using the command:
 `r rawrr::installRawfileReaderDLLs()`
 
 The in the package included C# source code that can compile into a rawrr.exe file by calling
-`r rawrr:::.buildRawrrExe()`.
+`r rawrr:::.buildRawrrExe()`. (is executed when the package is loaded)
 
 if no C# compile and build tool is available, run
 
-`r rawrr:::.buildRawrrExe()`
+`r rawrr::installRawrrExe()` to download the rawrr.exe assembly.
 
 
 In general, ThermoFisher.CommonCore dlls can be obtained through:
