@@ -2,13 +2,13 @@
 
 ## Linux 
 
-taken from the [rawrr continuous integration workflow](https://github.com/fgcz/rawrr/blob/master/.github/workflows/R-CMD-check-Linux.yml).
+If you only require to run the .Net assemblies install
 
 ```
 sudo apt-get install mono-runtime
 ```
 
-if you also want the mono compile
+if you also want to compile, you have to install the following packages:
 
 ```
 sudo apt-get install mono-mcs mono-xbuild
