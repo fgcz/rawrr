@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 0.99.11
+Version: 0.99.12
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -28,7 +28,6 @@ Description: Provides an interface for Thermo Fisher Scientifc raw files
 	This package wraps the functionality
 	of the RawFileReader .NET assembly. Within the R environment
 	spectra and chromatograms are represented by S3 objects.
-	All objects are currently kept in memory.
 	(Kockmann T. et al (2020) <doi:10.1101/2020.10.30.362533>)
         The package is developed, tested, and used at the Functional
         Genomics Center Zurich, Switzerland <https://fgcz.ch>.
