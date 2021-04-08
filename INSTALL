@@ -17,7 +17,7 @@ sudo apt-get install mono-mcs mono-xbuild
 ## macOS
 
 ```
-sudo brew install mono
+brew install mono
 ```
 
 or install from
