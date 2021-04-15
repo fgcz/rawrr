@@ -23,10 +23,12 @@
 
 }
 
+
 .isMonoAssemblyWorking <-
   function(exe = .rawrrAssembly()){
     if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
       if (Sys.which('mono') == ""){
+# TODO(cp) mono runtime or dotNet runtime
         warning("Cannot find the Mono JIT compiler. Check system requirements.")
         return(FALSE)
       }
@@ -50,6 +52,7 @@
 
     # expect that string
     if (rvs != "No RAW file specified!"){
+# TODO(cp): runtime or rawrr.exe
       warning("Mono JIT compiler and rawrr.exe assembly are not working.")
       return (FALSE)
     }

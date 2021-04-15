@@ -103,6 +103,8 @@ installRawrrExe <-
     rv
   }
 
+# TODO(tk): meaningfull name for exported functions and internal ...
+# TODO(cp): export method
 .buildRawrrExe <- function(){
   packagedir <- system.file(package = 'rawrr')
 
