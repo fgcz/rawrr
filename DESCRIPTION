@@ -7,38 +7,38 @@ Authors@R: c(person("Christian", "Panse",
         role = c("aut", "cre"),
         comment = c(ORCID = "0000-0003-1975-3064")),
         person("Tobias", "Kockmann",
-	email = "tobias.kockmann@fgcz.ethz.ch",
-	role = "aut",
-	comment = c(ORCID = "0000-0002-1847-885X")))
-Depends: R (>= 4.1)
-Imports: 
+    email = "tobias.kockmann@fgcz.ethz.ch",
+    role = "aut",
+    comment = c(ORCID = "0000-0002-1847-885X")))
+Depends: R (>= 4.0)
+Imports:
         grDevices, graphics, stats, utils
 Suggests:
-	protViz (>= 0.6),
-	knitr,
-	lattice,
-	parallel,
-	rmarkdown,
-	tartare,
-	testthat,
-	BiocStyle (>= 2.5),
-	ExperimentHub (>= 1.17)
+    protViz (>= 0.6),
+    knitr,
+    lattice,
+    parallel,
+    rmarkdown,
+    tartare,
+    testthat,
+    BiocStyle (>= 2.5),
+    ExperimentHub (>= 1.17)
 Description: Provides an interface for Thermo Fisher Scientifc raw files
-        branched from rawDiag <doi:10.1021/acs.jproteome.8b00173>.
-	This package wraps the functionality
-	of the RawFileReader .NET assembly. Within the R environment
-	spectra and chromatograms are represented by S3 objects.
-	(Kockmann T. et al (2020) <doi:10.1101/2020.10.30.362533>)
-        The package is developed, tested, and used at the Functional
-        Genomics Center Zurich, Switzerland <https://fgcz.ch>.
-	rawrr will serve as an entry point for reading Thermo Fisher
-	Scientific instrument files using the MsRawFileReaderBackend
-	for the Bioconductor Spectra package.
+    branched from rawDiag <doi:10.1021/acs.jproteome.8b00173>.
+    This package wraps the functionality
+    of the RawFileReader .NET assembly. Within the R environment
+    spectra and chromatograms are represented by S3 objects.
+    (Kockmann T. et al (2020) <doi:10.1101/2020.10.30.362533>)
+    The package is developed, tested, and used at the Functional
+    Genomics Center Zurich, Switzerland <https://fgcz.ch>.
+    rawrr serves as an entry point for reading Thermo Fisher
+    Scientific instrument files using the MsRawFileReaderBackend
+    for the Bioconductor Spectra package.
 License: GPL-3
 SystemRequirements: mono-runtime 4.x or higher on Linux/macOS,
-        .NET 4.x or higher on Microsoft Windows,
-	and the New RawFileReader .Net Assembly from
-	Thermo Fisher Scientific in the path.
+    .NET 4.x or higher on Microsoft Windows,
+    and the New RawFileReader .Net Assembly from
+    Thermo Fisher Scientific in the path.
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
