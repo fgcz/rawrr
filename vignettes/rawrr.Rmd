@@ -62,20 +62,33 @@ The example file `20181113_010_autoQC01.raw` used throughout this manuscript con
 
 ```{r FTP, echo=TRUE, message=FALSE, exec=TRUE}
 # fetch via FTP download link into your Downloads folder
-(rawfile <- file.path(Sys.getenv('HOME'),
-  "Downloads", "20181113_010_autoQC01.raw"))
+f <- "ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw"
+if (getRversion() < 4.1){
+  cachedir <- tools::R_user_dir("rawrr", which = "cache")
+  rawfile <- file.path(cachedir, basename(f))
+  if (isFALSE(dir.exists(cachedir))){
+    dir.create(cachedir, recursive = TRUE)
+  }
+  if (isFALSE(file.exists(rawfile))){
+    download.file(f, rawfile)
+  }
+}
 ```
 
 Additional raw data for demonstration and extended testing is available through the Bioconductor data package `r Biocpkg("tartare")` [@tartare].
 
 ```{r tartareEH4547, warning=FALSE, message=FALSE, eval=TRUE}
-# fetch via ExperimentHub
-library(ExperimentHub)
-eh <- ExperimentHub::ExperimentHub()
-EH4547 <- normalizePath(eh[["EH4547"]])
-
-(rawfile <- paste0(EH4547, ".raw"))
-if (!file.exists(rawfile)){ file.copy(EH4547, rawfile) }
+if (getRversion() >= 4.1){
+  # fetch via ExperimentHub
+  library(ExperimentHub)
+  eh <- ExperimentHub::ExperimentHub()
+  EH4547 <- normalizePath(eh[["EH4547"]])
+  
+  (rawfile <- paste0(EH4547, ".raw"))
+  if (!file.exists(rawfile)){
+    file.copy(EH4547, rawfile)
+  }
+}
 ```
 
 ```{r check, eval=TRUE, echo=FALSE}
@@ -102,9 +115,9 @@ H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
 
 ```{r echo=FALSE}
-if (isFALSE(H)){
-  H <- list("Instrument model"=NA, "Number of scans"=NA, "RAW file"=NA, "Time range"=c(NA,NA))
-}
+
+H <- list("Instrument model"=NA, "Number of scans"=NA, "RAW file"=NA, "Time range"=c(NA,NA))
+
 ```
 
 The Orbitrap detector has been a tremendous success story in MS, since it offers HRAM data on a time scale that is compatible with chromatographic analysis (LC-MS)[@Makarov2000] and is therefore heavily used in bottom-up proteomics. However, analyzing Orbitrap data in `R` has so far only been possible after raw data conversion to exchange formats like mz(X)ML. Unfortunately, conversion is accompanied by a loss of Orbitrap-specific information. This use case shows how easy it is to work directly with raw-formated Orbitrap data after installing our `R` package `rawrr` which applies vendor APIs for data access. We use a complete LC-MS run recorded on a `r H$"Instrument model"` by parallel reaction monitoring (PRM)[@Gallien2012] for demonstration purposes (File name: `r H$"RAW file"`). The `r H$"Time range"[2]` min run resulted in `r format(H$"Number of scans")` scans that were written to the file. Already typesetting the above lines uses `rawrr` functionality, since instrument model, file name, time range of data acquisition, and number of scans is extracted from the binary file header (Note: This manuscript was written in `R markdown` and combines `R` code with narration). The respective function is called `readFileHeader()` and returns a simple `R` object of type `list` (see Table 1).

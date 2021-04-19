@@ -4,6 +4,15 @@
 }
 
 
+.checkRawFile <- function(rawfile){
+  rawfile <- normalizePath(rawfile)
+  
+  if (!file.exists(rawfile)){
+    stop(paste0('File ', rawfile, ' is not available.'))
+  }
+  
+  # TODO(cp) check if file name end with ".raw"
+}
 .writeRData <-
   function(rawfile, outputfile=paste0(rawfile, ".RData"), tmpdir=tempdir()){
 
@@ -24,40 +33,6 @@
 }
 
 
-.isMonoAssemblyWorking <-
-  function(exe = .rawrrAssembly()){
-    if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
-      if (Sys.which('mono') == ""){
-# TODO(cp) mono runtime or dotNet runtime
-        warning("Cannot find the Mono JIT compiler. Check system requirements.")
-        return(FALSE)
-      }
-    }
-
-    if (isFALSE(file.exists(exe))){
-      warning("'rawrr.exe' not found.\n",
-       "Run 'rawrr::installRawrrExe()'.",
-       "For more information, type '?ThermoFisher'.")
-      return (FALSE)
-    }
-
-    # execute Assembly
-    rvs <-  "?"
-    if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
-      rvs <- system2(Sys.which('mono'), args = c(shQuote(exe)),
-                     stdout = TRUE)
-    }else{
-      rvs <- system2(exe, stdout = TRUE)
-    }
-
-    # expect that string
-    if (rvs != "No RAW file specified!"){
-# TODO(cp): runtime or rawrr.exe
-      warning("Mono JIT compiler and rawrr.exe assembly are not working.")
-      return (FALSE)
-    }
-    TRUE
-  }
 
 #' Check if object is instance of class \code{rawrrSpectrum}
 #'
@@ -74,17 +49,11 @@ is.rawrrSpectrum <- function(x){
     class(x) == "rawrrSpectrum"
 }
 
-
+# readFileHeader ----------
 
 #' read file header Information
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file
-#' @param mono enviroment
-#' @param exe path of the executable.
-#' @param mono_path default.
-#' @param argv arguments, default.
-#' @param system2_call system2 call, default.
-#' @param method instrument vendor
 #' @description The function extracts meta information from a given rawfile.
 #' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020.
 #' @references Thermo Fisher Scientific's NewRawfileReader C# code snippets
@@ -101,30 +70,23 @@ is.rawrrSpectrum <- function(x){
 #' Sample volume, Sample injection volume, Sample row number,
 #' Sample dilution factor, or Sample barcode.
 #'
-#' @export
+#' @export readFileHeader
 #'
 #' @examples
 #' (rawfile <- file.path(path.package(package = 'rawrr'), 'extdata',
 #'   'sample.raw'))
 #'
 #' M <- readFileHeader(rawfile)
-readFileHeader <- function(rawfile,
-   mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-   exe = .rawrrAssembly(),
-   mono_path = "",
-   argv = "infoR",
-   system2_call = TRUE,
-                           method = "thermo"){
-    if(isFALSE(.checkRawfileReaderDLLs())){return(FALSE)}
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-    rawfile <- normalizePath(rawfile)
+readFileHeader <- function(rawfile){
+  .isMonoAssemblyWorking()
+  .checkRawFile(rawfile)
 
-    if (!file.exists(rawfile)){
-        stop(paste0('File ', rawfile, ' is not available. return.'))
-    }
-    if (!.isMonoAssemblyWorking()){
-        stop('The mono assemblies are not available.')
-    }
+    mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+    exe <- .rawrrAssembly()
+    argv <- "infoR"
+    system2_call <- TRUE
+    method <- "thermo"
+    
     if(system2_call && method == 'thermo'){
 
         tf <- tempfile(fileext = '.R')
@@ -169,6 +131,7 @@ readFileHeader <- function(rawfile,
     NULL
 }
 
+# readIndex-----
 #' Read scan index
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
@@ -194,22 +157,10 @@ readFileHeader <- function(rawfile,
 #' # given you have a raw file with depende
 #'
 readIndex <- function(rawfile, tmpdir=tempdir()){
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-
+  .isMonoAssemblyWorking()
+  .checkRawFile(rawfile)
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- .rawrrAssembly()
-    if(isFALSE(.checkRawfileReaderDLLs())){return(FALSE)}
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-
-    rawfile <- normalizePath(rawfile)
-
-    if (!file.exists(rawfile)){
-        stop(paste0('File ', rawfile, ' is not available.'))
-    }
-
-    if (!.isMonoAssemblyWorking()){
-        stop('The mono assembly are not available.')
-    }
 
     tfi <- tempfile(tmpdir=tmpdir)
     tfo <- tempfile(tmpdir=tmpdir)
@@ -310,6 +261,8 @@ validate_rawrrIndex <- function(x){
     return(x)
 }
 
+
+
 #' {\code{sample.raw}}
 #'
 #' @description
@@ -353,6 +306,7 @@ sampleFilePath <- function(){
     f
 }
 
+# readSpectrum ---------
 #' Read a Set of Spectra
 #'
 #' @param rawfile the name of the Thermo Fisher Scietific raw file.
@@ -427,55 +381,50 @@ sampleFilePath <- function(){
 #'   }
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-    mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- .rawrrAssembly()
-    if(isFALSE(.checkRawfileReaderDLLs())){return(FALSE)}
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-
-    if (!file.exists(rawfile)){
-        stop(paste0('File ', rawfile, ' is not available.'))
-    }
-    if (is.null(scan)){
-        stop('No scan vector is provided.')
-    }
-    if (!.isMonoAssemblyWorking()){
-        stop('The mono assemblies are not available.')
-    }
-
-    tfi <- tempfile(tmpdir=tmpdir)
-    tfo <- tempfile(tmpdir=tmpdir)
-    tfstdout <- tempfile(tmpdir=tmpdir)
-
-    cat(scan, file = tfi, sep="\n")
-
-    cmd <- exe
-
-    if (mono){
-        rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile),
-                                                   "scans", shQuote(tfi), shQuote(tfo)))
-    }else{
-        rvs <- system2(exe, args = c( shQuote(rawfile), "scans", shQuote(tfi),
-                                      shQuote(tfo)))
-    }
-
-    e <- new.env()
-
-    source(tfo, local=TRUE)
-    unlink(c(tfi, tfo, tfstdout))
-
-
-    rv <- lapply(e$Spectrum,
-                 function(x){class(x) <- c('rawrrSpectrum'); x})
-    if(validate){
-        rv <- lapply(rv, validate_rawrrSpectrum)
-    }
-
-    class(rv) <- 'rawrrSpectrumSet'
-    rv
+  .isMonoAssemblyWorking()
+  .checkRawFile(rawfile)
+  
+  if (is.null(scan)){
+    stop('No scan vector is provided.')
+  }
+  
+  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+  exe <- .rawrrAssembly()
+  
+  
+  tfi <- tempfile(tmpdir=tmpdir)
+  tfo <- tempfile(tmpdir=tmpdir)
+  tfstdout <- tempfile(tmpdir=tmpdir)
+  
+  cat(scan, file = tfi, sep="\n")
+  
+  cmd <- exe
+  
+  if (mono){
+    rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile),
+                                               "scans", shQuote(tfi), shQuote(tfo)))
+  }else{
+    rvs <- system2(exe, args = c( shQuote(rawfile), "scans", shQuote(tfi),
+                                  shQuote(tfo)))
+  }
+  
+  e <- new.env()
+  
+  source(tfo, local=TRUE)
+  unlink(c(tfi, tfo, tfstdout))
+  
+  
+  rv <- lapply(e$Spectrum,
+               function(x){class(x) <- c('rawrrSpectrum'); x})
+  if(validate){
+    rv <- lapply(rv, validate_rawrrSpectrum)
+  }
+  
+  class(rv) <- 'rawrrSpectrumSet'
+  rv
 }
 
-
+# readChromatogram ---------
 #' Extracts Chromatograms
 #'
 #' @param rawfile the file name.
@@ -485,9 +434,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' wrong filter is set the function will return \code{NULL} and draws a warning.
 #' @param type \code{c(xic, bpc, tic)} for extracted ion , base peak or
 #' total ion chromatogram.
-#' @param mono if the mono enviroment should be used.
-#' @param exe the exe file user by mono.
-#'
+
 #' @return chromatogram object(s) containing of a vector of \code{times} and a
 #' corresponding vector of \code{intensities}.
 
@@ -554,20 +501,16 @@ readChromatogram <- function(rawfile,
                              mass = NULL,
                              tol = 10,
                              filter = "ms",
-                             type = 'xic',
-                             mono = if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE,
-                             exe = .rawrrAssembly()){
+                             type = 'xic'){
+  
+  .isMonoAssemblyWorking()
+  .checkRawFile(rawfile)
+  
 
-    if(isFALSE(.checkRawfileReaderDLLs())){return(FALSE)}
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-
-    if (!file.exists(rawfile)){
-        stop(paste0('File ', rawfile, ' is not available.'))
-    }
-
-    if (!.isMonoAssemblyWorking()){
-        stop('The mono assemblies are not available.')
-    }
+  
+  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+  exe <- .rawrrAssembly()
+  
 
     tfstdout <- tempfile()
     tfi <- tempfile()

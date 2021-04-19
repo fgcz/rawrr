@@ -16,5 +16,5 @@ test_that("check readFileHeader", {
 
 test_that("check readFileHeader error.", {
   rawfile <- "this file does not exists"
-  expect_error(S<-readFileHeader(rawfile))
+  expect_error(S <- readFileHeader(rawfile))
 })

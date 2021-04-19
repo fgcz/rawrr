@@ -4,30 +4,10 @@
 \alias{readFileHeader}
 \title{read file header Information}
 \usage{
-readFileHeader(
-  rawfile,
-  mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
-  exe = .rawrrAssembly(),
-  mono_path = "",
-  argv = "infoR",
-  system2_call = TRUE,
-  method = "thermo"
-)
+readFileHeader(rawfile)
 }
 \arguments{
 \item{rawfile}{the name of the Thermo Fisher Scietific raw file}
-
-\item{mono}{enviroment}
-
-\item{exe}{path of the executable.}
-
-\item{mono_path}{default.}
-
-\item{argv}{arguments, default.}
-
-\item{system2_call}{system2 call, default.}
-
-\item{method}{instrument vendor}
 }
 \value{
 a list object containing the following entries: RAW file version,

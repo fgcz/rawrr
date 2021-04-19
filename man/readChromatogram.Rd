@@ -4,15 +4,7 @@
 \alias{readChromatogram}
 \title{Extracts Chromatograms}
 \usage{
-readChromatogram(
-  rawfile,
-  mass = NULL,
-  tol = 10,
-  filter = "ms",
-  type = "xic",
-  mono = if (Sys.info()["sysname"] \%in\% c("Darwin", "Linux")) TRUE else FALSE,
-  exe = .rawrrAssembly()
-)
+readChromatogram(rawfile, mass = NULL, tol = 10, filter = "ms", type = "xic")
 }
 \arguments{
 \item{rawfile}{the file name.}
@@ -26,10 +18,6 @@ wrong filter is set the function will return \code{NULL} and draws a warning.}
 
 \item{type}{\code{c(xic, bpc, tic)} for extracted ion , base peak or
 total ion chromatogram.}
-
-\item{mono}{if the mono enviroment should be used.}
-
-\item{exe}{the exe file user by mono.}
 }
 \value{
 chromatogram object(s) containing of a vector of \code{times} and a
