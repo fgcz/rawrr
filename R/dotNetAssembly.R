@@ -187,10 +187,12 @@ installRawfileReaderDLLs <-
     }
   }
 
-#' Installing \code{rawrr.exe} assembly
+#' Installing \code{rawrr.exe} console application
 #' 
-#' @description downloads and install the \code{rawrr.exe} dot Net assembly in 
+#' @description downloads and install the \code{rawrr.exe} .Net assembly in 
 #' the \code{tools::R_user_dir("rawrr", which='data')} path.
+#' 
+#' @details The console application \code{rawrr.exe} is used by the package's reader functions through a \link{system2} call.
 #' 
 #' @param sourceUrl url of \code{rawrr.exe} assembly.
 #' @param ... other parameter for \code{download.file}.
@@ -250,14 +252,21 @@ installRawrrExe <-
   buildRawrrExe()
 }
 
-#' Build \code{rawrr.exe} dot net executable
+#' Build \code{rawrr.exe} console application \code{rawrr.exe}
 #' 
 #' @description builds \code{rawrr.exe} file from C# source code requiring 
 #' xbuild or msbuild tools.
 #' 
+#' @details The console application \code{rawrr.exe} is used by the package's reader functions through a \link{system2} call.
+#' 
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2021
 #' 
 #' @seealso \link{installRawrrExe} and \link{installRawfileReaderDLLs}
+#' 
+#' @references \itemize{
+#'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
+#'   \item{\url{https://planetorbitrap.com/rawfilereader}}
+#' }
 #' 
 #' @return the return value of the system2 command.
 #' @export buildRawrrExe
