@@ -106,9 +106,23 @@
 #' @aliases Thermo
 #' @aliases ThermoFisher
 #' @aliases ThermoFisherScientific
+#' 
+#' @details 
+#' The console application assembly \code{rawrr.exe} requires three Thermo
+#' assemplies \code{ThermoFisher.CommonCore.Data.dll},
+#' \code{ThermoFisher.CommonCore.MassPrecisionEstimator.dll},
+#' and \code{ThermoFisher.CommonCore.RawFileReader.dll}.
+#' 
+#' The \code{rawrr.exe} assembly can be built from C# source code by using the \code{msbuild} tool shipped by the \url{https://www.mono-project.com} or by Microsoft's .NET SDK \url{https://dotnet.microsoft.com} on Linux, Microsoft, and macOS.
 #'
-#' @seealso  \link{buildRawrrExe} ande \link{installRawrrExe} 
-#' @references \url{https://planetorbitrap.com/rawfilereader}
+#' If no build tool and C# compiler (csc, msc) are available or the build process fails, you can download \code{rawrr.exe} assembly from the authors' site.
+#' 
+#' @seealso  \link{buildRawrrExe} ande \link{installRawrrExe}
+#' 
+#' @references \itemize{
+#'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
+#'   \item{\url{https://planetorbitrap.com/rawfilereader}}
+#' }
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2021
 #' @return An (invisible) vector of integer code, 0 for success and non-zero for
 #' failure. For the "wget" and "curl" methods this is the status code returned
@@ -125,7 +139,7 @@
 #' }
 installRawfileReaderDLLs <-
   function(sourceUrl = paste0("https://github.com/",
-    "compomics/ThermoRawFileParser/raw/master/packages/",
+    "thermofisherlsms/ThermoRawFileParser/raw/master/packages/",
     "mzLib.1.0.450/lib/netstandard2.0/"),
            ...){
 
@@ -203,12 +217,12 @@ installRawrrExe <-
 
 #' Build \code{rawrr.exe} dot net executable
 #' 
-#' @description builds \code{rawrr.exe} file from dot net source code requiring 
+#' @description builds \code{rawrr.exe} file from C# source code requiring 
 #' xbuild or msbuild tools.
 #' 
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2021
 #' 
-#' @seealso \link{installRawrrExe}
+#' @seealso \link{installRawrrExe} and \link{installRawfileReaderDLLs}
 #' 
 #' @return the return value of the system2 command.
 #' @export buildRawrrExe
