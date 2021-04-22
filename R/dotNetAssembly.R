@@ -140,34 +140,52 @@
 #' }
 installRawfileReaderDLLs <-
   function(sourceUrl = paste0("https://github.com/",
-    "thermofisherlsms/ThermoRawFileParser/raw/master/packages/",
-    "mzLib.1.0.450/lib/netstandard2.0/"),
+                              "thermofisherlsms/ThermoRawFileParser/",
+                              "raw/master/packages/",
+                              "ThermoFisher.CommonCore.RawFileReader.4.0.26/lib/"),
            ...){
-
-  if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
-  rawfileReaderDLLsPath <- .userRawfileReaderDLLsPath()
-  msg <- sprintf(c("Installiung Thermo Fisher Rawfile Reader assemblies",
-    " will be copied to '%s' ..."), rawfileReaderDLLsPath) 
-  message(msg)
-  if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
-    dir.create(rawfileReaderDLLsPath, recursive = TRUE)
+    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+    
+    rawfileReaderDLLsPath <- .userRawfileReaderDLLsPath()
+    msg <- sprintf(c("Installiung Thermo Fisher Rawfile Reader assemblies",
+                     " will be copied to '%s' ..."), rawfileReaderDLLsPath) 
+    message(msg)
+    
+    if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
+      dir.create(rawfileReaderDLLsPath, recursive = TRUE)
+    }
+    
+    vapply(.rawfileReaderDLLs(), function(dll){
+      destfile <- file.path(rawfileReaderDLLsPath, dll)
+      
+      if (file.exists(destfile)){
+        if(interactive() ){ 
+          fmt <- "Overwrite '%s' ? [Y/n]: "
+          prompt <- sprintf(fmt, destfile)
+          response <- readline(prompt = prompt)
+          if (tolower(response) != "y"){
+            message("Aborting ...")
+            return(1)
+          }
+        }else{
+          fmt <- "Overwriting '%s' ..."
+          warning(sprintf(fmt, destfile))
+        }
+      }
+      
+      rv <- download.file(file.path(sourceUrl, dll),
+                          destfile=destfile, mode='wb', ...)
+      message(sprintf("MD5 %s %s", tools::md5sum(destfile), destfile))
+      rv},
+      0)
+    
+    
+    if (isFALSE(file.exists(.rawrrAssembly())) && interactive()){
+      msg <- c("'rawrr.exe' is not available.", 
+               "\nRun 'rawrr:::buildRawrrExe()' or 'rawrr::installRawrrExe()'.")
+      warning(msg)
+    }
   }
-
-  vapply(.rawfileReaderDLLs(), function(dll){
-    destfile <- file.path(rawfileReaderDLLsPath, dll)
-    rv <- download.file(file.path(sourceUrl, dll),
-                  destfile=destfile, mode='wb', ...)
-    message(sprintf("MD5 %s %s", tools::md5sum(destfile), destfile))
-    rv},
-    0)
-  
-  
-  if (isFALSE(file.exists(.rawrrAssembly())) && interactive()){
-    msg <- c("'rawrr.exe' is not available.", 
-              "\nRun 'rawrr:::buildRawrrExe()' or 'rawrr::installRawrrExe()'.")
-    warning(msg)
-  }
-}
 
 #' Installing \code{rawrr.exe} assembly
 #' 
@@ -193,6 +211,22 @@ installRawrrExe <-
 
   if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
     dir.create(rawfileReaderDLLsPath, recursive = TRUE)
+  }
+  
+  
+  if (file.exists(rawrrAssembly)){
+    if(interactive() ){ 
+      fmt <- "Overwrite '%s' ? [Y/n]: "
+      prompt <- sprintf(fmt, rawrrAssembly)
+      response <- readline(prompt = prompt)
+      if (tolower(response) != "y"){
+        message("Aborting ...")
+        return()
+        }
+    }else{
+      fmt <- "Overwriting '%s' ..."
+      warning(sprintf(fmt, rawrrAssembly))
+    }
   }
 
     rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
