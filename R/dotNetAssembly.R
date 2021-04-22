@@ -97,7 +97,7 @@
 }
 
 
-#' Install the New RawFileReader from Thermo Fisher Scientific
+#' Download and install the New RawFileReader from Thermo Fisher Scientific assemblies
 #'
 #' @param ... other parameter for \code{download.file}
 #' @param sourceUrl url of New RawFileReader from Thermo Fisher Scientific
@@ -108,8 +108,7 @@
 #' @aliases ThermoFisherScientific
 #' 
 #' @details 
-#' The console application assembly \code{rawrr.exe} requires three Thermo
-#' assemplies \code{ThermoFisher.CommonCore.Data.dll},
+#' The console application assembly \code{rawrr.exe} requires three Thermo assemplies \code{ThermoFisher.CommonCore.Data.dll},
 #' \code{ThermoFisher.CommonCore.MassPrecisionEstimator.dll},
 #' and \code{ThermoFisher.CommonCore.RawFileReader.dll}.
 #' 
@@ -117,13 +116,15 @@
 #'
 #' If no build tool and C# compiler (csc, msc) are available or the build process fails, you can download \code{rawrr.exe} assembly from the authors' site.
 #' 
-#' @seealso  \link{buildRawrrExe} ande \link{installRawrrExe}
+#' @seealso \link{buildRawrrExe} ande \link{installRawrrExe}
 #' 
 #' @references \itemize{
 #'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
 #'   \item{\url{https://planetorbitrap.com/rawfilereader}}
 #' }
+#' 
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2021
+#' 
 #' @return An (invisible) vector of integer code, 0 for success and non-zero for
 #' failure. For the "wget" and "curl" methods this is the status code returned
 #' by the external program.

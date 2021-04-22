@@ -98,7 +98,7 @@ readFileHeader <- function(rawfile){
             rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile), shQuote(argv)),
             stdout = tf)
         }else{
-            rvs <- system2(shQuote(exe), args = c(shQuote(rawfile), shQuote(argv)),
+            rvs <- system2(exe, args = c(shQuote(rawfile), shQuote(argv)),
             stderr = tf.err,
             stdout = tf)
         }
