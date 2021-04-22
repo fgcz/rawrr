@@ -78,7 +78,7 @@ is.rawrrSpectrum <- function(x){
 #'
 #' M <- readFileHeader(rawfile)
 readFileHeader <- function(rawfile){
-  .isMonoAssemblyWorking()
+  .isAssemblyWorking()
   .checkRawFile(rawfile)
 
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
@@ -157,7 +157,7 @@ readFileHeader <- function(rawfile){
 #' # given you have a raw file with depende
 #'
 readIndex <- function(rawfile, tmpdir=tempdir()){
-  .isMonoAssemblyWorking()
+  .isAssemblyWorking()
   .checkRawFile(rawfile)
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- .rawrrAssembly()
@@ -381,7 +381,7 @@ sampleFilePath <- function(){
 #'   }
 #' }
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
-  .isMonoAssemblyWorking()
+  .isAssemblyWorking()
   .checkRawFile(rawfile)
   
   if (is.null(scan)){
@@ -503,7 +503,7 @@ readChromatogram <- function(rawfile,
                              filter = "ms",
                              type = 'xic'){
   
-  .isMonoAssemblyWorking()
+  .isAssemblyWorking()
   .checkRawFile(rawfile)
   
 

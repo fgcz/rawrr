@@ -1,6 +1,6 @@
 #R
 
-.isMonoAssemblyWorking <-
+.isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
     if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
       if (Sys.which('mono') == ""){
@@ -129,6 +129,7 @@ installRawfileReaderDLLs <-
     "mzLib.1.0.450/lib/netstandard2.0/"),
            ...){
 
+  if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
   rawfileReaderDLLsPath <- .userRawfileReaderDLLsPath()
   msg <- sprintf(c("Installiung Thermo Fisher Rawfile Reader assemblies",
     " will be copied to '%s' ..."), rawfileReaderDLLsPath) 

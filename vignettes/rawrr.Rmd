@@ -28,7 +28,7 @@ urlcolor: blue
 ```{r style, echo = FALSE, results = 'asis'}
 BiocStyle::markdown()
 knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=TRUE)
-stopifnot(rawrr:::.isMonoAssemblyWorking())
+
 ```
 
 # Introduction
