@@ -88,7 +88,7 @@
   
   if (isFALSE(all(rv)) && TRUE){
     FUN("'ThermoFisher.CommonCore.*.dll' files are not complete or missing.\n",
-         "Run 'rawrr::installRawfileReaderDLLs()' or setenv MONO_PATH to ",
+         "Run 'rawrr::installRawFileReaderDLLs()' or setenv MONO_PATH to ",
          "the location where the assemblies are located.\n",
          "For more information, type '?ThermoFisher'.")
   }
@@ -102,7 +102,7 @@
 }
 
 
-#' Download and install the New RawFileReader from Thermo Fisher Scientific assemblies
+#' Download and install the New RawFileReader from Thermo Fisher Scientific .Net assemblies
 #'
 #' @param ... other parameter for \code{download.file}
 #' @param sourceUrl url of New RawFileReader from Thermo Fisher Scientific
@@ -134,16 +134,17 @@
 #' failure. For the "wget" and "curl" methods this is the status code returned
 #' by the external program.
 #'
-#' @export installRawfileReaderDLLs
+#' @export installRawFileReaderDLLs
 #' @importFrom utils download.file
 #' 
 #' @examples 
 #' # to install all assemblies
 #' \dontrun{
-#' rawrr::installRawfileReaderDLLs() 
+#' rawrr::installRawFileReaderDLLs() 
 #' rawrr:::buildRawrrExe() || rawrr::installRawrrExe()
 #' }
-installRawfileReaderDLLs <-
+# TODO(cp): rename installThermoFisherScientificRawFileReaderAssemblyDLLs()
+installRawFileReaderDLLs <-
   function(sourceUrl = paste0("https://github.com/",
                               "thermofisherlsms/ThermoRawFileParser/",
                               "raw/master/packages/",
@@ -287,7 +288,7 @@ installRawrrExe <-
 #' 
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2021
 #' 
-#' @seealso \link{installRawrrExe} and \link{installRawfileReaderDLLs}
+#' @seealso \link{installRawrrExe} and \link{installRawFileReaderDLLs}
 #' 
 #' @references \itemize{
 #'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}

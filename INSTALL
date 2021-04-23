@@ -46,7 +46,7 @@ ThermoFisher.CommonCore.RawFileReader.dll
 ```
 
 The download and install can be done on all platforms using the command:
-`r rawrr::installRawfileReaderDLLs()`
+`r rawrr::installRawFileReaderDLLs()`
 
 The in the package included C# source code that can compile into a rawrr.exe file by calling
 `r rawrr:::buildRawrrExe()`. (is executed when the package is loaded)
