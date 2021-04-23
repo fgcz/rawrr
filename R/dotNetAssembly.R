@@ -68,13 +68,18 @@
   return(f)
 }
 
-.checkRawfileReaderDLLs <- function(FUN=stop){
+.checkDllInMonoPath <- function(dll="ThermoFisher.CommonCore.Data.dll"){
   monoPath <- Sys.getenv("MONO_PATH", names=TRUE)
-  
+  monoPath <- strsplit(monoPath, .Platform$path.sep)[[1]]
+  any(vapply(monoPath, function(d){
+    file.exists(file.path(d, dll))
+  }, FALSE))  
+}
+
+.checkRawfileReaderDLLs <- function(FUN=stop){
   rv <- vapply(.rawfileReaderDLLs(), function(dll){
     userFileDllPath <- file.path(.userRawfileReaderDLLsPath(), dll)
-    monoDllPath <- file.path(monoPath, dll)
-    dllExists <- file.exists(userFileDllPath) || file.exists(monoDllPath)
+    dllExists <- file.exists(userFileDllPath) || .checkDllInMonoPath(dll)
     if (isFALSE(dllExists)){
       message(sprintf("'%s' is missing.", dll))
     }
@@ -252,6 +257,27 @@ installRawrrExe <-
   buildRawrrExe()
 }
 
+
+.determineAdditionalLibPath <- function(){
+  monoPaths <- strsplit(Sys.getenv("MONO_PATH"), .Platform$path.sep)[[1]]
+  pgkPath <- dirname(rawrr:::.rawrrAssembly())
+  
+  dlls <- rawrr:::.rawfileReaderDLLs()
+  
+  rv <- sapply(c(pgkPath, monoPaths, '/usr'), function(dir){
+    if(all(sapply(dlls, function(x){file.exists(file.path(dir, x))}))){
+      return(dir)
+    }
+  })
+  
+  rv <- rv[!vapply(rv, is.null, TRUE)]
+  
+  if(length(rv)>0)
+    return (rv[1])
+  
+  NULL
+}
+
 #' Build \code{rawrr.exe} console application \code{rawrr.exe}
 #' 
 #' @description builds \code{rawrr.exe} file from C# source code requiring 
@@ -266,20 +292,20 @@ installRawrrExe <-
 #' @references \itemize{
 #'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
 #'   \item{\url{https://planetorbitrap.com/rawfilereader}}
+#'   \item{\url{https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/advanced}}
 #' }
 #' 
 #' @return the return value of the system2 command.
 #' @export buildRawrrExe
 buildRawrrExe <- function(){
   packagedir <- system.file(package = 'rawrr')
-  
+ 
   if (isFALSE(.checkRawfileReaderDLLs())){
     return()
   }
   
   if (Sys.which("msbuild") == "" && Sys.which("xbuild") == "")
   {
-    
     msg <- c("Could not find 'msbuild' or 'xbuild' in the path. Therefore, ",
          "it is not possible to build the 'rawrr.exe' assembly from",
          " source code.\nTry to run rawrr::installRawrrExe().")
@@ -290,20 +316,24 @@ buildRawrrExe <- function(){
   setwd(file.path(packagedir, 'rawrrassembly'))
   
   cmd <- ifelse(Sys.which("msbuild") != "", "msbuild", "xbuild")
-  cmdArgs <- sprintf("/p:OutputPath='%s/'", dirname(.rawrrAssembly()))
-  if (Sys.getenv("MONO_PATH") == ""){
-    Sys.setenv(MONO_PATH = dirname(.rawrrAssembly()))
-  }
-  
+
+  # https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/advanced#additionallibpaths
+  additionalLibPath <- .determineAdditionalLibPath()
+  cmdArgs <- sprintf("/p:OutputPath=%s/ /p:AdditionalLibPaths=%s /v:diagnostic rawrr.csproj",
+                     shQuote(dirname(.rawrrAssembly())),
+                     shQuote(additionalLibPath))
+
   message("Attempting to build 'rawrr.exe', one time setup ...")
   rv <- system2 (cmd, cmdArgs, wait=TRUE, stderr=TRUE, stdout=TRUE)
   
   if (rv <- any(grepl("Build succeeded.", rv))
       && file.exists(.rawrrAssembly())){
-    message(sprintf("rawrr.exe successfully built\n'%s'.",
+    message(sprintf("rawrr.exe successfully built in \n\t'%s'.",
                     dirname(.rawrrAssembly())))
     message(rv)
   }else{
+    message("build error report:")
+    message(cmdArgs)
     message(rv)
     msg <- c("'rawrr.exe' build failed. Try to download and install", 
       " by calling ",
