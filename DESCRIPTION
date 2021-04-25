@@ -37,7 +37,7 @@ Description: Provides an interface for Thermo Fisher Scientifc raw files
 License: GPL-3
 SystemRequirements: mono-runtime 4.x or higher on Linux/macOS,
     .NET 4.x or higher on Microsoft Windows,
-    and the New RawFileReader .Net Assembly from
+    and the New Raw File Reader .Net Assembly from
     Thermo Fisher Scientific in the path.
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
