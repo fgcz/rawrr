@@ -121,7 +121,7 @@
 #'
 #' If no build tool and C# compiler (csc, msc) are available or the build process fails, you can download \code{rawrr.exe} assembly from the authors' site.
 #' 
-#' @seealso \link{buildRawrrExe} ande \link{installRawrrExe}
+#' @seealso \link{buildRawrrExe} and \link{installRawrrExe}
 #' 
 #' @references \itemize{
 #'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
