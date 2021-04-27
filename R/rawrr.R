@@ -55,6 +55,10 @@ is.rawrrSpectrum <- function(x){
 	 is.numeric(x$intensity)))
 }
 
+is.rawrrSpectrumSet <- function(x){
+	all(vapply(x, is.rawrrSpectrum, TRUE))
+}
+
 # readFileHeader ----------
 
 #' read file header Information

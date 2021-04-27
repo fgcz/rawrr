@@ -52,7 +52,6 @@ makeAccessor <- function(key, returnType = "integer"){
 #'
 #' @examples S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
 #' scanNumber(S[[1]])
-#' class(S[[1]]$scan) != class(scanNumber(S[[1]]))
 scanNumber <- function(x) {
   stopifnot(is.rawrrSpectrum(x))
   as.integer(x$scan)
@@ -142,7 +141,7 @@ tabulateSpectrumSet <- function (x, accNames){
   #       call. = FALSE)
   #}
 
-  stopifnot(class(x) == "rawrrSpectrumSet")
+  stopifnot(all(vapply(x, is.rawrrSpectrum, TRUE)))
 
   lapply(x, tabulateSpectrum, accNames)
   #purrr::map_df(x, tabulateSpectrum, accNames)
