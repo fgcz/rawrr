@@ -145,11 +145,13 @@
 #' }
 # TODO(cp): rename installThermoFisherScientificRawFileReaderAssemblyDLLs()
 installRawFileReaderDLLs <-
-  function(sourceUrl = paste0("https://github.com/",
-                              "thermofisherlsms/ThermoRawFileParser/",
-                              "raw/master/packages/",
-                              "ThermoFisher.CommonCore.RawFileReader.4.0.26/lib/"),
-           ...){
+  function(sourceUrl = paste0("https://",
+  	"github",
+	".com/",
+        "thermofisherlsms/ThermoRawFileParser/",
+        "raw/master/packages/",
+        "ThermoFisher.CommonCore.RawFileReader.4.0.26/lib/"),
+        ...){
     if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
     
     rawfileReaderDLLsPath <- .userRawfileReaderDLLsPath()
