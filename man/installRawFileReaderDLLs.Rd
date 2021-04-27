@@ -7,11 +7,7 @@
 \alias{ThermoFisherScientific}
 \title{Download and install the New RawFileReader from Thermo Fisher Scientific .Net assemblies}
 \usage{
-installRawFileReaderDLLs(
-  sourceUrl = paste0("https://github.com/", "thermofisherlsms/ThermoRawFileParser/",
-    "raw/master/packages/", "ThermoFisher.CommonCore.RawFileReader.4.0.26/lib/"),
-  ...
-)
+installRawFileReaderDLLs(sourceUrl = "https://tinyurl.com/4d3awfyv/", ...)
 }
 \arguments{
 \item{sourceUrl}{url of New RawFileReader from Thermo Fisher Scientific
