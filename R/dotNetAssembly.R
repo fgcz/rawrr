@@ -161,9 +161,10 @@ installRawFileReaderDLLs <-
       dir.create(rawfileReaderDLLsPath, recursive = TRUE)
     }
     
-    vapply(.rawfileReaderDLLs(), function(dll){
+    rrv <- vapply(.rawfileReaderDLLs(), function(dll){
       destfile <- file.path(rawfileReaderDLLsPath, dll)
       
+      rv <- NA
       if (file.exists(destfile)){
         if(interactive() ){ 
           fmt <- "Overwrite '%s' ? [Y/n]: "
@@ -173,17 +174,21 @@ installRawFileReaderDLLs <-
             message("Aborting ...")
             return(1)
           }
+      	  rv <- download.file(file.path(sourceUrl, dll),
+                          destfile=destfile, mode='wb', ...)
         }else{
-          fmt <- "Overwriting '%s' ..."
+          fmt <- "Skipping '%s' already exists ..."
           warning(sprintf(fmt, destfile))
+	  rv <- 0
         }
+      }else{
+      	  rv <- download.file(file.path(sourceUrl, dll),
+                          destfile=destfile, mode='wb', ...)
       }
       
-      rv <- download.file(file.path(sourceUrl, dll),
-                          destfile=destfile, mode='wb', ...)
       message(sprintf("MD5 %s %s", tools::md5sum(destfile), destfile))
-      rv},
-      0)
+      rv
+     }, 0)
     
     
     if (isFALSE(file.exists(.rawrrAssembly())) && interactive()){
@@ -191,6 +196,7 @@ installRawFileReaderDLLs <-
                "\nRun 'rawrr:::buildRawrrExe()' or 'rawrr::installRawrrExe()'.")
       warning(msg)
     }
+    rrv
   }
 
 #' Installing \code{rawrr.exe} console application
@@ -231,13 +237,16 @@ installRawrrExe <-
         message("Aborting ...")
         return()
         }
+      rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
     }else{
-      fmt <- "Overwriting '%s' ..."
+      fmt <- "Skipping '%s' already exists ..."
       warning(sprintf(fmt, rawrrAssembly))
+      rv <- 0
     }
+  }else{
+      rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
   }
 
-    rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
     message(sprintf("MD5 %s %s", tools::md5sum(rawrrAssembly), rawrrAssembly))
     rv
   }
