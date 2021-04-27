@@ -10,7 +10,7 @@ readFileHeader(rawfile)
 \item{rawfile}{the name of the Thermo Fisher Scietific raw file}
 }
 \value{
-a list object containing the following entries: RAW file version,
+A list object containing the following entries: RAW file version,
 Creation date, Operator, Number of instruments, Description,
 Instrument model, Instrument name, Serial number, Software version,
 Firmware version, Units, Mass resolution, Number of scans,

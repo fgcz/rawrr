@@ -13,6 +13,9 @@
 
 \item{...}{Passes additional arguments.}
 }
+\value{
+This function creates a plot.
+}
 \description{
 Plot \code{rawrrChromatogramSet} objects
 }

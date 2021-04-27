@@ -266,9 +266,9 @@ installRawrrExe <-
 
 .determineAdditionalLibPath <- function(){
   monoPaths <- strsplit(Sys.getenv("MONO_PATH"), .Platform$path.sep)[[1]]
-  pgkPath <- dirname(rawrr:::.rawrrAssembly())
+  pgkPath <- dirname(.rawrrAssembly())
   
-  dlls <- rawrr:::.rawfileReaderDLLs()
+  dlls <- .rawfileReaderDLLs()
   
   rv <- sapply(c(pgkPath, monoPaths, '/usr'), function(dir){
     if(all(sapply(dlls, function(x){file.exists(file.path(dir, x))}))){

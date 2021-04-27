@@ -46,7 +46,13 @@
 #' S <- readSpectrum(rawfile, scan = 1:10)
 #' is.rawrrSpectrum(S[[1]])
 is.rawrrSpectrum <- function(x){
-    class(x) == "rawrrSpectrum"
+       all(c(is.numeric(x$scan),
+         is.numeric(x$massRange),
+	 is.character(x$scanType),
+         is.numeric(x$rtinseconds),
+	 is.logical(x$centroidStream),
+         is.numeric(x$mZ),
+	 is.numeric(x$intensity)))
 }
 
 # readFileHeader ----------
@@ -60,7 +66,7 @@ is.rawrrSpectrum <- function(x){
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #'
 #'
-#' @return a list object containing the following entries: RAW file version,
+#' @return A list object containing the following entries: RAW file version,
 #' Creation date, Operator, Number of instruments, Description,
 #' Instrument model, Instrument name, Serial number, Software version,
 #' Firmware version, Units, Mass resolution, Number of scans,
@@ -771,6 +777,7 @@ validate_rawrrSpectrum <- function(x){
 #' @param legend Should legend be printed?
 #' @param diagnostic Should this option be applied? The default is \code{FALSE}.
 #' @param ... function passes arbitrary additional arguments.
+#' @return This function creates a plot.
 #' @export
 #' @author Tobias Kockmann, 2020.
 #' @importFrom graphics legend
@@ -889,6 +896,7 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
 #' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param object an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
+#' @return This function creates a print message.
 #' @export
 summary.rawrrSpectrum <- function(object, ...) {
 
@@ -909,6 +917,7 @@ summary.rawrrSpectrum <- function(object, ...) {
 #' @author Christian Panse and Tobias Kockmann, 2020.
 #' @param x an \code{rawrrSpectrum} object.
 #' @param \ldots Arguments to be passed to methods.
+#' @return This function creates a print message.
 #' @export
 print.rawrrSpectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
@@ -1020,6 +1029,7 @@ is.rawrrChromatogram <- function(x){
 #' @param x A \code{rawrrChromatogram} object to be plotted.
 #' @param legend Should legend be printed?
 #' @param ... Passes additional arguments.
+#' @return This function creates a plot.
 #' @author Tobias Kockmann, 2020.
 #' @export
 #'
@@ -1111,6 +1121,7 @@ summary.rawrrChromatogram <- function(object, ...) {
 #' @param x A \code{rawrrChromatogramSet} object to be plotted.
 #' @param ... Passes additional arguments.
 #' @param diagnostic Show diagnostic legend?
+#' @return This function creates a plot.
 #' @author Tobias Kockmann, 2020.
 #' @export
 #' @importFrom grDevices hcl.colors
@@ -1208,7 +1219,7 @@ dependentScan <- function(x, scanNumber){
 #'
 #' @param x an rawrrChromatogram
 #'
-#' @return a numeric value
+#' @return A numeric value.
 #' @importFrom utils head tail
 auc.rawrrChromatogram <- function(x){
 	times <- x$times; intensities <- x$intensities

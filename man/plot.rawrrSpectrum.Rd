@@ -30,6 +30,9 @@ intensities rather than absolute.}
 
 \item{...}{function passes arbitrary additional arguments.}
 }
+\value{
+This function creates a plot.
+}
 \description{
 Plot method for objects of class \code{rawrrSpectrum}.
 }

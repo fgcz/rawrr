@@ -11,6 +11,9 @@
 
 \item{\ldots}{Arguments to be passed to methods.}
 }
+\value{
+This function creates a print message.
+}
 \description{
 Basic summary function
 }

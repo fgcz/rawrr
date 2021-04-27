@@ -11,6 +11,9 @@
 
 \item{\ldots}{Arguments to be passed to methods.}
 }
+\value{
+This function creates a print message.
+}
 \description{
 Print method imitate the look and feel of Thermo Fisher Scientific FreeStyle's output
 }
