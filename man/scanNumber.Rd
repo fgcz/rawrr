@@ -23,5 +23,4 @@ stored as \code{rawrrSpectrum} object. Scan numbers are equal to the scan index
 \examples{
 S <- readSpectrum(rawfile = sampleFilePath(), 1:10)
 scanNumber(S[[1]])
-class(S[[1]]$scan) != class(scanNumber(S[[1]]))
 }

@@ -18,13 +18,12 @@ test_that("check readChromatogram", {
 
   expect_true(is.rawrrChromatogram(x))
 
-  expect_warning(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
+  expect_error(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
                                        tol=1000, filter = "ms 3"))
-  expect_true(is.null(X))
 
-  expect_warning(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
+  expect_error(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
                                        tol=1000, filter = "ms ms"))
-  expect_true(is.null(X))
+  
 
   TIC <- readChromatogram(rawfile, type='tic')
   expect_true(is.rawrrChromatogram(TIC))

@@ -39,9 +39,11 @@ names(S[[1]])
 plot(S[[1]])
 
 
-\dontrun{
+\donttest{
 # INPUT:
 GAG <- "GAGSSEPVTGLDAK"
+# MSV000086542
+# MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 rawfile <- file.path(Sys.getenv("HOME"),
   "Downloads/20180220_14_autoQC01.raw")
 
@@ -53,7 +55,7 @@ S <- readSpectrum(rawfile,
   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001))
 
 # query spectra with precursor matches
-rv <-lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
+rv <- lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
 
 # determine spectra indices having the  max number of hits hits
 hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
@@ -76,6 +78,9 @@ cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
     \url{https://doi.org/10.1021/acs.jproteome.8b00173}.
   }
 }
+}
+\seealso{
+\url{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}
 }
 \author{
 Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020

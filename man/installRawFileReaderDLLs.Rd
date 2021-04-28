@@ -34,7 +34,7 @@ If no build tool and C# compiler (csc, msc) are available or the build process f
 }
 \examples{
 # to install all assemblies
-\dontrun{
+\donttest{
 rawrr::installRawFileReaderDLLs() 
 rawrr:::buildRawrrExe() || rawrr::installRawrrExe()
 }

@@ -53,7 +53,7 @@ if (require(protViz)){
      message("consider installing  https://CRAN.R-project.org/package=protViz")
 }
 
-\dontrun{
+\donttest{
 # MSV000086542
 # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 
@@ -74,6 +74,7 @@ Thermo Scientific mass spectrometers,
 \item{Thermo Fisher NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}.}
 \item{\url{https://CRAN.R-project.org/package=protViz}}
+\item{\url{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}}
 }
 }
 \author{

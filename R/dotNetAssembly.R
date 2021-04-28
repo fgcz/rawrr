@@ -139,7 +139,7 @@
 #' 
 #' @examples 
 #' # to install all assemblies
-#' \dontrun{
+#' \donttest{
 #' rawrr::installRawFileReaderDLLs() 
 #' rawrr:::buildRawrrExe() || rawrr::installRawrrExe()
 #' }
@@ -270,16 +270,16 @@ installRawrrExe <-
   
   dlls <- .rawfileReaderDLLs()
   
-  rv <- vapply(c(pgkPath, monoPaths, '/usr'), function(dir){
-    if(all(vapply(dlls, function(x){file.exists(file.path(dir, x))}, TRUE))){
-      return(dir)
-    }
-  }, "path/to/file")
+  rv <- lapply(c(pgkPath, monoPaths, '/usr/local/lib'), function(d){
+    if(all(vapply(dlls, function(x){file.exists(file.path(d, x))}, TRUE))){
+      return(d)
+    }else{NULL}
+  })
   
   rv <- rv[!vapply(rv, is.null, TRUE)]
   
-  if(length(rv)>0)
-    return (rv[1])
+  if(length(rv) > 0)
+    return (rv[[1]])
   
   NULL
 }

@@ -344,6 +344,7 @@ sampleFilePath <- function(){
 #' the mZ and its corresponding intensity values or the AGC information,
 #' mass calibration, ion optics \ldots
 #'
+#' @seealso \url{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}
 #' @examples
 #' (rawfile <- sampleFilePath())
 #'
@@ -356,9 +357,11 @@ sampleFilePath <- function(){
 #' plot(S[[1]])
 #'
 #'
-#' \dontrun{
+#' \donttest{
 #' # INPUT:
 #' GAG <- "GAGSSEPVTGLDAK"
+#' # MSV000086542
+#' # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 #' rawfile <- file.path(Sys.getenv("HOME"),
 #'   "Downloads/20180220_14_autoQC01.raw")
 #'
@@ -370,7 +373,7 @@ sampleFilePath <- function(){
 #'   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001))
 #'
 #' # query spectra with precursor matches
-#' rv <-lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
+#' rv <- lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
 #'
 #' # determine spectra indices having the  max number of hits hits
 #' hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
@@ -458,6 +461,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' \item{Thermo Fisher NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.}
 #' \item{\url{https://CRAN.R-project.org/package=protViz}}
+#' \item{\url{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}}
 #' }
 #'
 #' @references Automated quality control sample 1 (autoQC01) analyzed across different
@@ -498,7 +502,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #'      message("consider installing  https://CRAN.R-project.org/package=protViz")
 #' }
 #'
-#' \dontrun{
+#' \donttest{
 #' # MSV000086542
 #' # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
 #'
@@ -558,7 +562,6 @@ readChromatogram <- function(rawfile,
 
             if ('error' %in% names(e)){
                 stop(e$error)
-                return(NULL)
             }
 
             e$chromatogram
@@ -1028,7 +1031,7 @@ print.rawrrSpectrum <- function(x, ...){
 is.rawrrChromatogram <- function(x){
     "rawrrChromatogram" %in% class(x)
 
-    all(vapply(c("times", "intensities", "filter"),
+    all(vapply(c("times", "intensities"),
            function(a){a %in% names(x)},
            TRUE))
 }
@@ -1218,7 +1221,7 @@ dependentScan <- function(x, scanNumber){
     stopifnot(is.data.frame(x), "masterScan" %in% colnames(x), "scan" %in% colnames(x))
     i <- x[which(x$masterScan == scanNumber), "scan"]
     if (length(i) == 0) {
-	msg <- sprintf("NO dependent scans found for scan %d!")
+	msg <- sprintf("NO dependent scans found for scan %d!", scanNumber)
         warning(msg)
     }
     return(i)

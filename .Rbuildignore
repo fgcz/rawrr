@@ -15,3 +15,5 @@
 ^Meta$
 rawR.Rproj
 rawrr_logo.png
+.*.exe$
+.*.dll$
