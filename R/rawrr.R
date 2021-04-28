@@ -557,7 +557,7 @@ readChromatogram <- function(rawfile,
             }
 
             if ('error' %in% names(e)){
-                warning(e$error)
+                stop(e$error)
                 return(NULL)
             }
 

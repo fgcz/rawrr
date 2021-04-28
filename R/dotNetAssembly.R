@@ -338,13 +338,12 @@ buildRawrrExe <- function(){
                     dirname(.rawrrAssembly())))
     message(rv)
   }else{
-    message("build error report:")
-    message(cmdArgs)
-    message(rv)
-    msg <- c("'rawrr.exe' build failed. Try to download and install", 
-      " by calling ",
-      "the 'rawrr::installRawrrExe()' method.")
-    warning(msg)
+    msg <- sprintf("Build error report:\n\targs:%s\n%s" ,cmdArgs, rv)
+    message(msg)
+
+    wrn <- c("'rawrr.exe' build failed. Try to download and install", 
+      " by calling the 'rawrr::installRawrrExe()' method.")
+    warning(wrn)
   }
   setwd(cwd)
   rv
