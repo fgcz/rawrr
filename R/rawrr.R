@@ -263,7 +263,7 @@ validate_rawrrIndex <- function(x){
     }
 
     if (!all(1:nrow(x), x$scan)){
-        warning("Index does not corresbind to scan number. Missing scans?")
+        warning("Index does not corresbond to scan numbers. Missing scans?")
     }
 
     stopifnot(valideIndex)
@@ -1026,6 +1026,10 @@ print.rawrrSpectrum <- function(x, ...){
 #' is.rawrrChromatogram(C[[1]])
 is.rawrrChromatogram <- function(x){
     "rawrrChromatogram" %in% class(x)
+
+    all(vapply(c("times", "intensities", "filter"),
+           function(a){a %in% names(x)},
+           TRUE))
 }
 
 #' Plot \code{rawrrChromatogram} objects
