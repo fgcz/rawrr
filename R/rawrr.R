@@ -263,7 +263,7 @@ validate_rawrrIndex <- function(x){
         valideIndex <- FALSE
     }
 
-    if (!all(1:nrow(x), x$scan)){
+    if (!all(seq.int(from=1, to=nrow(x)), x$scan)){
         warning("Index does not corresbond to scan numbers. Missing scans?")
     }
 
@@ -673,7 +673,7 @@ rawrrSpectrum <- function(sim = character()) {
                               rtinseconds = 1,
                               scanType = "simulated",
                               centroidStream = FALSE,
-                              mZ = 1:15*100,
+                              mZ = seq_len(15) * 100,
                               intensity = rep(100, times = 15)
                               )
     }
@@ -820,7 +820,7 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                 # TODO(cp): label top 10 with z=, R=
                 n <- length(x$centroid.intensity)
                 if (n > 10) n <- 10
-                i  <- order(x$centroid.intensity, decreasing = TRUE)[1:n]
+                i  <- order(x$centroid.intensity, decreasing = TRUE)[seq_len(n)]
 
 
                 text(x = x$centroid.mZ[i],

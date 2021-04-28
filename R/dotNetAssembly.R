@@ -270,11 +270,11 @@ installRawrrExe <-
   
   dlls <- .rawfileReaderDLLs()
   
-  rv <- sapply(c(pgkPath, monoPaths, '/usr'), function(dir){
-    if(all(sapply(dlls, function(x){file.exists(file.path(dir, x))}))){
+  rv <- vapply(c(pgkPath, monoPaths, '/usr'), function(dir){
+    if(all(vapply(dlls, function(x){file.exists(file.path(dir, x))}, TRUE))){
       return(dir)
     }
-  })
+  }, "path/to/file")
   
   rv <- rv[!vapply(rv, is.null, TRUE)]
   
