@@ -1,7 +1,6 @@
-Package: rawrr
-Type: Package
+Package: rawrr Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 0.99.19
+Version: 0.99.20
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -16,13 +15,11 @@ Imports:
 Suggests:
     protViz (>= 0.6),
     knitr,
-    lattice,
-    parallel,
     rmarkdown,
     tartare,
     testthat,
     BiocStyle (>= 2.5),
-    ExperimentHub (>= 1.17)
+    ExperimentHub (>= 1.16)
 Description: Provides an interface for Thermo Fisher Scientifc raw files
     branched from rawDiag <doi:10.1021/acs.jproteome.8b00173>.
     This package wraps the functionality
