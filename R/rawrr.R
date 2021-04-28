@@ -8,11 +8,13 @@
   rawfile <- normalizePath(rawfile)
   
   if (!file.exists(rawfile)){
-    stop(paste0('File ', rawfile, ' is not available.'))
+    msg <- sprintf("File '%s'  is not available.", rawfile)
+    stop(msg)
   }
   
   # TODO(cp) check if file name end with ".raw"
 }
+
 .writeRData <-
   function(rawfile, outputfile=paste0(rawfile, ".RData"), tmpdir=tempdir()){
 
@@ -31,8 +33,6 @@
     save(objName, file=outputfile, envir = e)
 
 }
-
-
 
 #' Check if object is instance of class \code{rawrrSpectrum}
 #'
@@ -235,7 +235,8 @@ validate_rawrrIndex <- function(x){
 
     for (i in IndexColNames){
         if (!(i %in% colnames(x))){
-            message(paste0("Missing column ", i, "."))
+	    msg <- sprintf("Missing column %d.", i)
+            message(msg)
             valideIndex <- FALSE
         }
     }
@@ -1195,9 +1196,9 @@ masterScan <- function(x, scanNumber){
   stopifnot(is.data.frame(x), "masterScan" %in% colnames(x),
             "dependencyType" %in% colnames(x))
   if (is.na(x[scanNumber, "masterScan"])) {
-    warning(paste("Scan", scanNumber, "does NOT have a master scan! Returning NA.",
-                  "The corresponding dependencyType is",
-                  x[scanNumber, "dependencyType"]))
+    msg <- sprintf("Scan %d does NOT have a master scan! Returning NA. The corresponding dependencyType is %d.",
+      scanNumber, x[scanNumber, "dependencyType"])
+    warning(msg)
   }
   x[scanNumber, "masterScan"]
 }
@@ -1217,7 +1218,8 @@ dependentScan <- function(x, scanNumber){
     stopifnot(is.data.frame(x), "masterScan" %in% colnames(x), "scan" %in% colnames(x))
     i <- x[which(x$masterScan == scanNumber), "scan"]
     if (length(i) == 0) {
-        warning(paste("NO dependent scans found for scan", scanNumber, "!"))
+	msg <- sprintf("NO dependent scans found for scan %d!")
+        warning(msg)
     }
     return(i)
 }

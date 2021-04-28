@@ -35,7 +35,8 @@ makeAccessor <- function(key, returnType = "integer"){
 
     } else {
 
-      stop(paste0(key, " is not available!"))
+      msg <- sprintf("%s is not available!", key)
+      stop(msg)
     }
   }
 }
