@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 0.99.21
+Version: 0.99.22
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -10,7 +10,7 @@ Authors@R: c(person("Christian", "Panse",
     email = "tobias.kockmann@fgcz.ethz.ch",
     role = "aut",
     comment = c(ORCID = "0000-0002-1847-885X")))
-Depends: R (>= 4.1)
+Depends: R (>= 4.0)
 Imports:
         grDevices, graphics, stats, utils
 Suggests:
