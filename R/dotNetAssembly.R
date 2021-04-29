@@ -2,11 +2,11 @@
 
 .isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
-    if(Sys.info()['sysname'] %in% c("Darwin", "Linux")){
+    if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
       if (Sys.which('mono') == ""){
-        # TODO(cp) mono runtime or dotNet runtime
-        msg <- c("Cannot find the Mono runtime.",
-                 " Check the rawrr package system requirements.")
+        msg <- c("The cross platform, open source .NET framework (mono) is not available.\n", 
+                 "Consider to install 'apt-get install mono-runtime' on Linux\n",
+                 "or download/install from https://www.mono-project.com/.")
         FUN(msg)
       }
     }
@@ -16,18 +16,10 @@
     if (isFALSE(file.exists(exe))){
       msg <- c("'rawrr.exe' not found.\n",
                "Run 'rawrr::installRawrrExe()'.",
-               "For more information, type '?rawrr.exe'.")
+               " For more information, type '?rawrr.exe'.")
       FUN(msg)
     }
     
-    if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
-      if (Sys.which('mono') == ""){
-        msg <- c("The dot Net runtime system (mono) is not available.\n", 
-                 "Consider to install 'apt-get install mono-runtime' on Linux",
-                 " or download/install from https://www.mono-project.com/.")
-        FUN(msg)
-      }
-    }
     
     # execute rawrr.exe assembly and keep output string
     rvs <-  "?"
@@ -258,8 +250,8 @@ installRawrrExe <-
   if(isFALSE(.checkRawfileReaderDLLs(message))){
     return()
   }
-  
-  
+
+
   buildRawrrExe()
 }
 

@@ -12,7 +12,16 @@
 }
     
 .onLoad <- function(lib, pkg){
-    if(interactive()){
-        .buildOnLoad()
+  if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
+    if (Sys.which('mono') == ""){
+      msg <- c("The cross platform, open source .NET framework (mono) is not available.\n", 
+               "Consider to install 'apt-get install mono-runtime' on Linux\n",
+               "or download/install from https://www.mono-project.com/.")
+      stop(msg)
     }
+  }
+
+  if(interactive()){
+    .buildOnLoad()
+   }
 }
