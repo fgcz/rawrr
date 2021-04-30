@@ -3,7 +3,7 @@
 \name{sampleFilePath}
 \alias{sampleFilePath}
 \alias{sample.raw}
-\title{{\code{sample.raw}}}
+\title{A small file size {\code{sample.raw}} BLOB}
 \usage{
 sampleFilePath()
 }

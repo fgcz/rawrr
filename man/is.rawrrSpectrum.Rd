@@ -2,18 +2,18 @@
 % Please edit documentation in R/rawrr.R
 \name{is.rawrrSpectrum}
 \alias{is.rawrrSpectrum}
-\title{Check if object is instance of class \code{rawrrSpectrum}}
+\title{Function to check if an object is an instance of class \code{rawrrSpectrum}}
 \usage{
 is.rawrrSpectrum(x)
 }
 \arguments{
-\item{x}{object to be tested.}
+\item{x}{any R object to be tested.}
 }
 \value{
 \code{TRUE} or \code{FALSE}
 }
 \description{
-Check if object is instance of class \code{rawrrSpectrum}
+Function to check if an object is an instance of class \code{rawrrSpectrum}
 }
 \examples{
 rawfile <- sampleFilePath()

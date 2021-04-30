@@ -3,7 +3,7 @@
 \name{installRawrrExe}
 \alias{installRawrrExe}
 \alias{rawrr.exe}
-\title{Installing \code{rawrr.exe} console application}
+\title{Download and install the \code{rawrr.exe} console application}
 \usage{
 installRawrrExe(
   sourceUrl = "http://fgcz-ms.uzh.ch/~cpanse/rawrr/rawrr.exe",
@@ -25,7 +25,11 @@ downloads and install the \code{rawrr.exe} .Net assembly in
 the \code{tools::R_user_dir("rawrr", which='data')} path.
 }
 \details{
-The console application \code{rawrr.exe} is used by the package's reader functions through a \link{system2} call.
+The console application \code{rawrr.exe} is used by the package's
+reader functions through a \link{system2} call.
+}
+\references{
+\url{https://doi.org/10.1021/acs.jproteome.0c00866}
 }
 \seealso{
 \link{buildRawrrExe}

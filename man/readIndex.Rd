@@ -27,10 +27,6 @@ table(Idx$scanType)
 plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 
 table(Idx$MSOrder)
-
-
-# given you have a raw file with depende
-
 }
 \author{
 Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020

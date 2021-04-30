@@ -3,12 +3,12 @@
 \name{readSpectrum}
 \alias{readSpectrum}
 \alias{rawrr}
-\title{Read a Set of Spectra}
+\title{Reads spectral data from a raw file.}
 \usage{
 readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
 }
 \arguments{
-\item{rawfile}{the name of the Thermo Fisher Scietific raw file.}
+\item{rawfile}{the name of the Thermo Fisher Scientific raw file.}
 
 \item{scan}{a vector of requested scan numbers.}
 
@@ -24,8 +24,26 @@ the mZ and its corresponding intensity values or the AGC information,
 mass calibration, ion optics \ldots
 }
 \description{
-the function derives spectra of a given rawfile and a given
+The function derives spectra of a given raw file and a given
 vector of scan numbers.
+}
+\details{
+All mass spectra are recorded by scanning detectors (mass analyzers)
+that log signal intensities for ranges of mass to charge ratios (m/z), also
+referred to as position. These recordings can be of continuous nature,
+so-called profile data (p), or appear centroided (c) in case discrete
+information (tuples of position and intensity values) are sufficient.
+This heavily compacted data structure is often called a peak list.
+In addition to signal intensities, a peak list can also cover additional
+peak attributes like peak resolution (R), charge (z), or local noise
+estimates. In short, the additional attributes further described the nature
+of the original profile signal or help to group peak lists with respect to
+their molecular nature or processing history. A well-known example is the
+assignment of peaks to peak groups that constitute isotope patterns
+(M, M+1, M+2, ...).
+The names of objects encapsulated within \code{rawrrSpectrum} instances are
+keys returned by the Thermo Fisher Scientific New RawFileReader API and the
+corresponding values become data parts of the objects, typically vectors.
 }
 \examples{
 (rawfile <- sampleFilePath())
@@ -38,14 +56,14 @@ names(S[[1]])
 
 plot(S[[1]])
 
-
 \donttest{
 # INPUT:
 GAG <- "GAGSSEPVTGLDAK"
+
+# fetch via FTP download link into your Downloads folder
 # MSV000086542
 # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
-rawfile <- file.path(Sys.getenv("HOME"),
-  "Downloads/20180220_14_autoQC01.raw")
+rawfile <- rawrr:::.download_20181113_010_autoQC01()
 
 # list spectra metainformation
 IDX <- readIndex(rawfile)

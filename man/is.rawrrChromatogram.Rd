@@ -2,18 +2,18 @@
 % Please edit documentation in R/rawrr.R
 \name{is.rawrrChromatogram}
 \alias{is.rawrrChromatogram}
-\title{Check if object is instance of class \code{rawrrChromatogram}}
+\title{Function to check if an object is an instance of class \code{rawrrChromatogram}}
 \usage{
 is.rawrrChromatogram(x)
 }
 \arguments{
-\item{x}{The object to be tested.}
+\item{x}{x any R object to be tested.}
 }
 \value{
 \code{TRUE} or \code{FALSE}
 }
 \description{
-Check if object is instance of class \code{rawrrChromatogram}
+Function to check if an object is an instance of class \code{rawrrChromatogram}
 }
 \examples{
 rawfile <- sampleFilePath()

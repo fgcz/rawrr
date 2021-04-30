@@ -5,7 +5,8 @@
 \alias{Thermo}
 \alias{ThermoFisher}
 \alias{ThermoFisherScientific}
-\title{Download and install the New RawFileReader from Thermo Fisher Scientific .Net assemblies}
+\title{Download and install the New RawFileReader from Thermo Fisher Scientific .Net
+assemblies}
 \usage{
 installRawFileReaderDLLs(sourceUrl = "https://tinyurl.com/4d3awfyv/", ...)
 }
@@ -21,16 +22,23 @@ failure. For the "wget" and "curl" methods this is the status code returned
 by the external program.
 }
 \description{
-Download and install the New RawFileReader from Thermo Fisher Scientific .Net assemblies
+Download and install the New RawFileReader from Thermo Fisher Scientific .Net
+assemblies
 }
 \details{
-The console application assembly \code{rawrr.exe} requires three Thermo assemplies \code{ThermoFisher.CommonCore.Data.dll},
+The console application assembly \code{rawrr.exe} requires three
+assemplies \code{ThermoFisher.CommonCore.Data.dll},
 \code{ThermoFisher.CommonCore.MassPrecisionEstimator.dll},
 and \code{ThermoFisher.CommonCore.RawFileReader.dll}.
 
-The \code{rawrr.exe} assembly can be built from C# source code by using the \code{msbuild} tool shipped by the \url{https://www.mono-project.com} or by Microsoft's .NET SDK \url{https://dotnet.microsoft.com} on Linux, Microsoft, and macOS.
+The \code{rawrr.exe} assembly can be built from C# source code by using the
+\code{msbuild} tool shipped by the \url{https://www.mono-project.com} or by
+Microsoft's .NET SDK \url{https://dotnet.microsoft.com} on Linux, Microsoft,
+and macOS.
 
-If no build tool and C# compiler (csc, msc) are available or the build process fails, you can download \code{rawrr.exe} assembly from the authors' site.
+If no build tool and C# compiler (csc, msc) are available or the build
+process fails, you can download \code{rawrr.exe} assembly from the authors'
+site.
 }
 \examples{
 # to install all assemblies
@@ -43,6 +51,7 @@ rawrr:::buildRawrrExe() || rawrr::installRawrrExe()
 \itemize{
   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
   \item{\url{https://planetorbitrap.com/rawfilereader}}
+  \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
 }
 }
 \seealso{
