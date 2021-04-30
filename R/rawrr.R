@@ -46,6 +46,12 @@
 #' S <- readSpectrum(rawfile, scan = 1:10)
 #' is.rawrrSpectrum(S[[1]])
 is.rawrrSpectrum <- function(x){
+       if (isFALSE(all(c('scan', 'massRange', 'scanType',
+	       'rtinseconds', 'centroidStream', 'mZ',
+	       'intensity') %in% names(x)))){
+	       return (FALSE)
+	       }
+
        all(c(is.numeric(x$scan),
          is.numeric(x$massRange),
 	 is.character(x$scanType),

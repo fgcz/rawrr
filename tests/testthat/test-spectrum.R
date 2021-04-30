@@ -4,21 +4,17 @@ context("spectrum")
 
 library(rawrr)
 
-.is.peaklist <- function(x){
-	sum(c("scan", "scanType", "rtinseconds", "pepmass", "charge", "mZ", "intensity") %in% names(x)) > 6
-}
-
-test_that("check readSpectrum function names.", {
+test_that("check readSpectrum object names and types.", {
 
   rawfile <- sampleFilePath()
 
   S <- readSpectrum(rawfile, 1:22)
 
-  lapply(S, function(x){expect_true(.is.peaklist(x))})
+  lapply(S, function(x){expect_true(is.rawrrSpectrum(x))})
 
 })
 
-test_that("check readSpectrum 23.", {
+test_that("check readSpectrum scan 23.", {
 
   rawfile <- sampleFilePath()
   S <- readSpectrum(rawfile, 23)[[1]]
@@ -36,9 +32,9 @@ test_that("check readSpectrum 23.", {
 
 test_that("check readSpectrum error.", {
   rawfile <- "this file does not exists"
-  expect_error(S<-readSpectrum(rawfile))
+  expect_error(S <- readSpectrum(rawfile))
 
   rawfile <- sampleFilePath()
-  expect_error(S<-readSpectrum(rawfile))
-  expect_error(S<-readSpectrum(rawfile, scan = NULL))
+  expect_error(S <- readSpectrum(rawfile))
+  expect_error(S <- readSpectrum(rawfile, scan = NULL))
 })
