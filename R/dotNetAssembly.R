@@ -107,18 +107,21 @@
 #' 
 #' @details 
 #' The console application assembly \code{rawrr.exe} requires three
-#' assemplies \code{ThermoFisher.CommonCore.Data.dll},
-#' \code{ThermoFisher.CommonCore.MassPrecisionEstimator.dll},
-#' and \code{ThermoFisher.CommonCore.RawFileReader.dll}.
+#' assemplies:
+#' \itemize{
+#' \item {\code{ThermoFisher.CommonCore.Data.dll}, }
+#' \item{\code{ThermoFisher.CommonCore.MassPrecisionEstimator.dll}, and}
+#' \item{ThermoFisher.CommonCore.RawFileReader.dll}
+#' }.
 #' 
 #' The \code{rawrr.exe} assembly can be built from C# source code by using the
 #' \code{msbuild} tool shipped by the \url{https://www.mono-project.com} or by
 #' Microsoft's .NET SDK \url{https://dotnet.microsoft.com} on Linux, Microsoft,
 #' and macOS.
 #'
-#' If no build tool and C# compiler (csc, msc) are available or the build
-#' process fails, you can download \code{rawrr.exe} assembly from the authors'
-#' site.
+#' If no build tool and C# compiler (\code{csc} or \code{msc}) are available or
+#' the build process fails, you can download \code{rawrr.exe} assembly from the
+#' authors' site.
 #' 
 #' @seealso \link{buildRawrrExe} and \link{installRawrrExe}
 #' 

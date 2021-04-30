@@ -89,13 +89,10 @@ cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
 }
 \references{
 \itemize{
-  \item{Thermo Fisher NewRawfileReader C# code snippets
-    \url{https://planetorbitrap.com/rawfilereader}}.
-  \item{\url{https://doi.org/10.5281/zenodo.2640013}}
-  \item{the R function 1st appeared in
-    \url{https://doi.org/10.1021/acs.jproteome.8b00173}.
+  \item{C# code snippets of the NewRawfileReader library
+    \url{https://planetorbitrap.com/rawfilereader}.}
+    \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
   }
-}
 }
 \seealso{
 \url{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}
