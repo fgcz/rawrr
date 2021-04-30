@@ -34,9 +34,9 @@
 
 }
 
-#' Check if object is instance of class \code{rawrrSpectrum}
+#' Function to check if an object is an instance of class \code{rawrrSpectrum}
 #'
-#' @param x object to be tested.
+#' @param x any R object to be tested.
 #'
 #' @return \code{TRUE} or \code{FALSE}
 #' @export
@@ -61,6 +61,17 @@ is.rawrrSpectrum <- function(x){
 	 is.numeric(x$intensity)))
 }
 
+#' Function to check if an object is an instance of class \code{rawrrSpectrumSet}
+#'
+#' @param x any R object to be tested.
+#'
+#' @return \code{TRUE} or \code{FALSE}
+#' @export
+#'
+#' @examples
+#' rawfile <- sampleFilePath()
+#' S <- readSpectrum(rawfile, scan = 1:10)
+#' is.rawrrSpectrum(S[[1]])
 is.rawrrSpectrumSet <- function(x){
 	all(vapply(x, is.rawrrSpectrum, TRUE))
 }
@@ -168,10 +179,6 @@ readFileHeader <- function(rawfile){
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 #'
 #' table(Idx$MSOrder)
-#'
-#'
-#' # given you have a raw file with depende
-#'
 readIndex <- function(rawfile, tmpdir=tempdir()){
   .isAssemblyWorking()
   .checkRawFile(rawfile)
@@ -280,7 +287,7 @@ validate_rawrrIndex <- function(x){
 
 
 
-#' {\code{sample.raw}}
+#' A small file size {\code{sample.raw}} BLOB
 #'
 #' @description
 #' The binary example file sample.raw, shipped with the package, contains
@@ -323,18 +330,54 @@ sampleFilePath <- function(){
     f
 }
 
+.download_20181113_010_autoQC01 <- function(){
+    f <- "ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw"
+    
+    cachedir <- tools::R_user_dir("rawrr", which = "cache")
+    rawfile <- file.path(cachedir, basename(f))
+    if (isFALSE(dir.exists(cachedir))){
+        dir.create(cachedir, recursive = TRUE)
+    }
+    if (isFALSE(file.exists(rawfile))){
+        msg <- sprintf("Downloading file from '%s' ...", f)
+        message(msg)
+        download.file(f, rawfile)
+    }else{
+        msg <- sprintf("'20181113_010_autoQC01' already in '%s'.", cachedir)
+        message(msg)
+    }
+    
+    rawfile
+}
 # readSpectrum ---------
-#' Read a Set of Spectra
-#'
-#' @param rawfile the name of the Thermo Fisher Scietific raw file.
+#' Reads spectral data from a raw file.
+#' 
+#' @description The function derives spectra of a given raw file and a given
+#' vector of scan numbers.
+#' 
+#' @param rawfile the name of the Thermo Fisher Scientific raw file.
 #' @param scan a vector of requested scan numbers.
 #' @param tmpdir a non-empty character vector giving the directory name;
 #' default uses \code{tempdir()}.
 #' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
-#'
-#' @description the function derives spectra of a given rawfile and a given
-#' vector of scan numbers.
+#' 
+#' @details All mass spectra are recorded by scanning detectors (mass analyzers)
+#' that log signal intensities for ranges of mass to charge ratios (m/z), also
+#' referred to as position. These recordings can be of continuous nature,
+#' so-called profile data (p), or appear centroided (c) in case discrete
+#' information (tuples of position and intensity values) are sufficient.
+#' This heavily compacted data structure is often called a peak list.
+#' In addition to signal intensities, a peak list can also cover additional
+#' peak attributes like peak resolution (R), charge (z), or local noise
+#' estimates. In short, the additional attributes further described the nature
+#' of the original profile signal or help to group peak lists with respect to
+#' their molecular nature or processing history. A well-known example is the
+#' assignment of peaks to peak groups that constitute isotope patterns
+#' (M, M+1, M+2, ...).
+#' The names of objects encapsulated within \code{rawrrSpectrum} instances are
+#' keys returned by the Thermo Fisher Scientific New RawFileReader API and the
+#' corresponding values become data parts of the objects, typically vectors.
 #'
 #' @aliases readSpectrum rawrr
 #'
@@ -362,15 +405,15 @@ sampleFilePath <- function(){
 #'
 #' plot(S[[1]])
 #'
-#'
 #' \donttest{
 #' # INPUT:
 #' GAG <- "GAGSSEPVTGLDAK"
+#' 
+#' # fetch via FTP download link into your Downloads folder
 #' # MSV000086542
 #' # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
-#' rawfile <- file.path(Sys.getenv("HOME"),
-#'   "Downloads/20180220_14_autoQC01.raw")
-#'
+#' rawfile <- rawrr:::.download_20181113_010_autoQC01()
+#' 
 #' # list spectra metainformation
 #' IDX <- readIndex(rawfile)
 #'
@@ -445,7 +488,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 }
 
 # readChromatogram ---------
-#' Extracts Chromatograms
+#' Extracts chromatographic data from a raw file.
 #'
 #' @param rawfile the file name.
 #' @param mass a vector of mass values iff \code{type = 'xic'}.
@@ -454,17 +497,28 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' wrong filter is set the function will return \code{NULL} and draws a warning.
 #' @param type \code{c(xic, bpc, tic)} for extracted ion , base peak or
 #' total ion chromatogram.
-
+#' 
 #' @return chromatogram object(s) containing of a vector of \code{times} and a
 #' corresponding vector of \code{intensities}.
-
+#' @details 
+#' Chromatograms come in different flavors but are always signal intensity
+#' values as a function of time. Signal intensities can be point estimates from
+#' scanning detectors or plain intensities from non-scanning detectors, e.g.,
+#' UV trace. Scanning detector (mass analyzers) point estimates can be defined
+#' in different ways by, for instance, summing all signals of a given spectrum
+#' (total ion chromatogram or TIC), or by extracting signal around an expected
+#' value (extracted ion chromatogram = XIC), or by using the maximum signal
+#' contained in a spectrum (base peak chromatogram = BPC). On top, chromatograms
+#' can be computed from pre-filtered lists of scans. A total ion chromatogram
+#' (TIC), for instance, is typically generated by iterating over all MS1-level
+#' scans.
 #'
 #' @author Christian Trachsel, Tobias Kockmann and
 #' Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020.
 #'
 #' @seealso
 #' \itemize{
-#' \item{Thermo Fisher NewRawfileReader C# code snippets
+#' \item{The Thermo Fisher Scientific RawFileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.}
 #' \item{\url{https://CRAN.R-project.org/package=protViz}}
 #' \item{\url{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}}
@@ -509,13 +563,13 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' }
 #'
 #' \donttest{
+#' # fetch via FTP download link into your Downloads folder
 #' # MSV000086542
 #' # MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
-#'
-#' rawfile <- file.path(Sys.getenv('HOME'), "Downloads",
-#'   "20181113_010_autoQC01.raw")
+#' rawfile <- rawrr:::.download_20181113_010_autoQC01()
 #'
 #' X <- readChromatogram(rawfile, mZ)
+#' plot(X)
 #' }
 #'
 readChromatogram <- function(rawfile,
@@ -1021,9 +1075,9 @@ print.rawrrSpectrum <- function(x, ...){
 
 }
 
-#' Check if object is instance of class \code{rawrrChromatogram}
+#' Function to check if an object is an instance of class \code{rawrrChromatogram}
 #'
-#' @param x The object to be tested.
+#' @param x x any R object to be tested.
 #'
 #' @usage is.rawrrChromatogram(x)
 #' @author Tobias Kockmann, 2020.
