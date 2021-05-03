@@ -32,7 +32,49 @@
 
     save(objName, file=outputfile, envir = e)
 
-}
+  }
+
+# system2 wrapper for readFileHeader, readSpectrum, readChromatogam
+.rawrrSystem2Source <-
+    function(rawfile, input, rawrrArgs="scans", tmpdir=tempdir(),
+             removeTempfile=TRUE){
+        mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+        exe <- .rawrrAssembly()
+        
+        tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
+        tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
+        tfstdout <- tempfile(tmpdir=tmpdir)
+        
+        cat(input, file = tfi, sep="\n")
+        
+        if (mono){
+            rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
+                                                       shQuote(rawfile),
+                                                       rawrrArgs, shQuote(tfi),
+                                                       shQuote(tfo)))
+        }else{
+            rvs <- system2(exe, args = c( shQuote(rawfile),
+                                          rawrrArgs, shQuote(tfi),
+                                          shQuote(tfo)))
+        }
+        
+        e <- new.env()
+        
+        source(tfo, local=TRUE)
+        
+        if ('error' %in% names(e)){
+            stop(e$error)
+        }
+        
+        if(isTRUE(removeTempfile)){
+            unlink(c(tfi, tfo, tfstdout))
+        }else{
+            msg <- sprintf("input file: %s\noutput file: %s\n", tfi, tfo)
+            message(msg)
+        }
+        return(e)
+    }
+
 
 #' Function to check if an object is an instance of class \code{rawrrSpectrum}
 #'
@@ -108,54 +150,8 @@ readFileHeader <- function(rawfile){
   .isAssemblyWorking()
   .checkRawFile(rawfile)
 
-    mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-    exe <- .rawrrAssembly()
-    argv <- "infoR"
-    system2_call <- TRUE
-    method <- "thermo"
-    
-    if(system2_call && method == 'thermo'){
-
-        tf <- tempfile(fileext = '.R')
-        tf.err <- tempfile(fileext = '.err')
-
-        # message(paste("system2 is writting to tempfile ", tf, "..."))
-
-        if (mono){
-            rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile), shQuote(argv)),
-            stdout = tf)
-        }else{
-            rvs <- system2(exe, args = c(shQuote(rawfile), shQuote(argv)),
-            stderr = tf.err,
-            stdout = tf)
-        }
-
-        if (rvs == 0){
-
-            ## Replace backslashes in Instrument method file path to ensure
-            ## the R file can be parsed
-            r_file <- readLines(tf)
-            r_file[12] <- gsub('\\\\','/',r_file[12])
-            writeLines(r_file, tf)
-
-            rv <- try({
-                e <- new.env();
-                e$info <- list()
-                source(tf, local=TRUE)
-
-                ## Keep only the file name for the Instrument method
-                e$info$`Instrument method` <- basename(e$info$`Instrument method`)
-
-                #message(paste("unlinking", tf, "..."))
-                unlink(tf)
-                return(e$info)
-            }, NULL)
-
-            # unlink(tfstdout)
-            return(rv)
-        }
-    }
-    NULL
+  e <- .rawrrSystem2Source(rawfile, input = NULL, rawrrArgs="headerR")
+  e$info
 }
 
 # readIndex-----
@@ -349,6 +345,8 @@ sampleFilePath <- function(){
     
     rawfile
 }
+
+
 # readSpectrum ---------
 #' Reads spectral data from a raw file.
 #' 
@@ -440,6 +438,8 @@ sampleFilePath <- function(){
 #'     \url{https://planetorbitrap.com/rawfilereader}.}
 #'     \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
 #'   }
+#'   
+#'   
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
   .isAssemblyWorking()
   .checkRawFile(rawfile)
@@ -448,31 +448,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
     stop('No scan vector is provided.')
   }
   
-  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-  exe <- .rawrrAssembly()
-  
-  
-  tfi <- tempfile(tmpdir=tmpdir)
-  tfo <- tempfile(tmpdir=tmpdir)
-  tfstdout <- tempfile(tmpdir=tmpdir)
-  
-  cat(scan, file = tfi, sep="\n")
-  
-  cmd <- exe
-  
-  if (mono){
-    rvs <- system2(Sys.which("mono"), args = c(shQuote(exe), shQuote(rawfile),
-                                               "scans", shQuote(tfi), shQuote(tfo)))
-  }else{
-    rvs <- system2(exe, args = c( shQuote(rawfile), "scans", shQuote(tfi),
-                                  shQuote(tfo)))
-  }
-  
-  e <- new.env()
-  
-  source(tfo, local=TRUE)
-  unlink(c(tfi, tfo, tfstdout))
-  
+  e <- .rawrrSystem2Source(rawfile, input = scan, rawrrArgs="scans", tmpdir)
   
   rv <- lapply(e$Spectrum,
                function(x){class(x) <- c('rawrrSpectrum'); x})
@@ -574,75 +550,37 @@ readChromatogram <- function(rawfile,
                              tol = 10,
                              filter = "ms",
                              type = 'xic'){
-  
-  .isAssemblyWorking()
-  .checkRawFile(rawfile)
-  
+    
+    .isAssemblyWorking()
+    .checkRawFile(rawfile)
 
-  
-  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-  exe <- .rawrrAssembly()
-  
-
-    tfstdout <- tempfile()
-    tfi <- tempfile()
-    tfo <- tempfile()
     if(type == 'xic'){
         if (is.null(mass)){
             stop('No mass vector is provided.')
         }
-        cat(mass, file=tfi, sep="\n")
-
-        cmd <- exe
-
-        if (mono){
-            rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "xic",
-                                            shQuote(tfi), tol, shQuote(tfo), shQuote(filter)))
-        }else{
-            rvs <- system2(exe, args = c(shQuote(rawfile), "xic", shQuote(tfi), tol,
-                                         shQuote(tfo), shQuote(filter)))
-        }
-
-        rv <- try({
-            e <- new.env();
-            e$chromatogram <- list()
-            source(tfo, local = TRUE)
-
-
-            if ('warning' %in% names(e)){
-                warning(e$warning)
-            }
-
-            if ('message' %in% names(e)){
-                message(e$message)
-            }
-
-            if ('error' %in% names(e)){
-                stop(e$error)
-            }
-
-            e$chromatogram
-        }, NULL)
-
-
-        #message(paste(c(tfi, tfo, tfstdout), collapse = ",\n"))
-        #message(length(rv))
-        rv <- lapply(rv,
+        
+        e <- .rawrrSystem2Source(rawfile, input = mass, rawrrArgs=sprintf("xic %f %s", tol, shQuote(filter)))
+        rv <- lapply(e$chromatogram,
                      function(x){
                          attr(x , 'filename') <- rawfile
                          attr(x, 'type') <- 'xic'
                          class(x) <- 'rawrrChromatogram';
                          x})
-
     }else{
+        mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+        exe <- .rawrrAssembly()
+        
+        tfstdout <- tempfile()
+        tfi <- tempfile()
+        tfo <- tempfile()
+        
         if (mono){
             rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
         }else{
             rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)), stdout=tfstdout)
         }
         DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
-
-
+        
         if (type == 'tic'){
             rv <- list(
                 times=DF$rt,
@@ -652,12 +590,13 @@ readChromatogram <- function(rawfile,
             rv <- list(times=DF$rt,
                        intensities=DF$intensity.BasePeak)
         }
+        unlink(c(tfi, tfo, tfstdout))
     }
-    unlink(c(tfi, tfo, tfstdout))
-
+    
+    
     attr(rv, 'filter') <- filter
     attr(rv, 'filename') <- rawfile
-
+    
     if (type=='xic'){
         attr(rv, 'type') <- 'xic'
         attr(rv, 'tol') <- tol
@@ -669,7 +608,7 @@ readChromatogram <- function(rawfile,
         attr(rv, 'type') <- 'bpc'
         class(rv) <- 'rawrrChromatogram'
     }
-
+    
     rv
 }
 

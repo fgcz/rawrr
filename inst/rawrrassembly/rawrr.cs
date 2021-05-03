@@ -12,9 +12,10 @@
       2018-11-23 added scanFilter option
       2019-01-28 extract monoisotopicmZ attribute; include segments in MGF iff no centroid data are availbale
       2019-05-28 save info as Yaml
-      2020-08-12 added infoR option
-      2020-08-26 readSpectrum backend
       2020-11-27 fix basePeak issue #21
+      2020-08-12 added headerR option
+      2020-08-26 readSpectrum backend
+      2021-05-03 reorder xic arguments
     */
 
     using System;
@@ -105,57 +106,62 @@
             /// <summary>
             /// write file header (metainfo) into R code
             /// </summary>
-            public static void PrintInfoAsRcode(this IRawDataPlus rawFile)
+            public static void PrintHeaderAsRcode(this IRawDataPlus rawFile, string filename)
 	    {
-                    Console.WriteLine("#R\n\n");
-                    Console.WriteLine("e$info$`RAW file` <- '" + Path.GetFileName(rawFile.FileName) + "'");
-                    Console.WriteLine("e$info$`RAW file version` <- '" + rawFile.FileHeader.Revision + "'");
-                    Console.WriteLine("e$info$`Creation date` <- '" + rawFile.FileHeader.CreationDate + "'");
-                    Console.WriteLine("e$info$Operator <- '" + rawFile.FileHeader.WhoCreatedId + "'");
-                    Console.WriteLine("e$info$`Number of instruments` <- {0}", rawFile.InstrumentCount);
-                    Console.WriteLine("e$info$Description <- '" + rawFile.FileHeader.FileDescription + "'");
-                    Console.WriteLine("e$info$`Instrument model` <- '{0}'", rawFile.GetInstrumentData().Model);
-                    Console.WriteLine("e$info$`Instrument name` <- '{0}'", rawFile.GetInstrumentData().Name);
-                    Console.WriteLine("e$info$`Instrument method` <- '" + rawFile.SampleInformation.InstrumentMethodFile + "'");
-                    //Console.WriteLine("e$info$`Instrument method` <- '{0}'", rawFile.GetAllInstrumentFriendlyNamesFromInstrumentMethod().Length);
-                    Console.WriteLine("e$info$`Serial number` <- '{0}'", rawFile.GetInstrumentData().SerialNumber);
-                    Console.WriteLine("e$info$`Software version` <- '{0}'", rawFile.GetInstrumentData().SoftwareVersion);
-                    Console.WriteLine("e$info$`Firmware version` <- '{0}'", rawFile.GetInstrumentData().HardwareVersion);
-                    Console.WriteLine("e$info$Units <- '{0}'", rawFile.GetInstrumentData().Units);
-                    Console.WriteLine("e$info$`Mass resolution` <- '{0:F3}'", rawFile.RunHeaderEx.MassResolution);
-                    Console.WriteLine("e$info$`Number of scans` <- {0}", rawFile.RunHeaderEx.SpectraCount);
+		     using (System.IO.StreamWriter file =
+		                         new System.IO.StreamWriter(filename))
+		                     {
+                    file.WriteLine("#R\n\n");
+                    file.WriteLine("e$info <- list()\n");
+                    file.WriteLine("e$info$`RAW file` <- '" + Path.GetFileName(rawFile.FileName) + "'");
+                    file.WriteLine("e$info$`RAW file version` <- '" + rawFile.FileHeader.Revision + "'");
+                    file.WriteLine("e$info$`Creation date` <- '" + rawFile.FileHeader.CreationDate + "'");
+                    file.WriteLine("e$info$Operator <- '" + rawFile.FileHeader.WhoCreatedId + "'");
+                    file.WriteLine("e$info$`Number of instruments` <- {0}", rawFile.InstrumentCount);
+                    file.WriteLine("e$info$Description <- '" + rawFile.FileHeader.FileDescription + "'");
+                    file.WriteLine("e$info$`Instrument model` <- '{0}'", rawFile.GetInstrumentData().Model);
+                    file.WriteLine("e$info$`Instrument name` <- '{0}'", rawFile.GetInstrumentData().Name);
+                    file.WriteLine("e$info$`Instrument method` <- '" + rawFile.SampleInformation.InstrumentMethodFile.Replace("\\", "/") + "'");
+                    //file.WriteLine("e$info$`Instrument method` <- '{0}'", rawFile.GetAllInstrumentFriendlyNamesFromInstrumentMethod().Length);
+                    file.WriteLine("e$info$`Serial number` <- '{0}'", rawFile.GetInstrumentData().SerialNumber);
+                    file.WriteLine("e$info$`Software version` <- '{0}'", rawFile.GetInstrumentData().SoftwareVersion);
+                    file.WriteLine("e$info$`Firmware version` <- '{0}'", rawFile.GetInstrumentData().HardwareVersion);
+                    file.WriteLine("e$info$Units <- '{0}'", rawFile.GetInstrumentData().Units);
+                    file.WriteLine("e$info$`Mass resolution` <- '{0:F3}'", rawFile.RunHeaderEx.MassResolution);
+                    file.WriteLine("e$info$`Number of scans` <- {0}", rawFile.RunHeaderEx.SpectraCount);
              	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             	    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
-                    Console.WriteLine("e$info$`Number of ms2 scans` <- {0}", Enumerable.Range(1, lastScanNumber - firstScanNumber).Count(x => rawFile.GetFilterForScanNumber(x).ToString().Contains("Full ms2")));
-                    Console.WriteLine("e$info$`Scan range` <- c({0}, {1})", firstScanNumber, lastScanNumber);
+                    file.WriteLine("e$info$`Number of ms2 scans` <- {0}", Enumerable.Range(1, lastScanNumber - firstScanNumber).Count(x => rawFile.GetFilterForScanNumber(x).ToString().Contains("Full ms2")));
+                    file.WriteLine("e$info$`Scan range` <- c({0}, {1})", firstScanNumber, lastScanNumber);
                     double startTime = rawFile.RunHeaderEx.StartTime;
                     double endTime = rawFile.RunHeaderEx.EndTime;
-                    Console.WriteLine("e$info$`Time range` <- c({0:F2}, {1:F2})", startTime, endTime);
-                    Console.WriteLine("e$info$`Mass range` <- c({0:F4}, {1:F4})", rawFile.RunHeaderEx.LowMass, rawFile.RunHeaderEx.HighMass);
+                    file.WriteLine("e$info$`Time range` <- c({0:F2}, {1:F2})", startTime, endTime);
+                    file.WriteLine("e$info$`Mass range` <- c({0:F4}, {1:F4})", rawFile.RunHeaderEx.LowMass, rawFile.RunHeaderEx.HighMass);
 
                     var firstFilter = rawFile.GetFilterForScanNumber(firstScanNumber);
                     var lastFilter = rawFile.GetFilterForScanNumber(lastScanNumber);
                     int numberFilters = rawFile.GetFilters().Count;
-                    Console.WriteLine("e$info$`Scan filter (first scan)` <- '{0}'", firstFilter.ToString());
-                    Console.WriteLine("e$info$`Scan filter (last scan)` <- '{0}'", lastFilter.ToString());
-                    Console.WriteLine("e$info$`Total number of filters` <- '{0}'", numberFilters);
+                    file.WriteLine("e$info$`Scan filter (first scan)` <- '{0}'", firstFilter.ToString());
+                    file.WriteLine("e$info$`Scan filter (last scan)` <- '{0}'", lastFilter.ToString());
+                    file.WriteLine("e$info$`Total number of filters` <- '{0}'", numberFilters);
 
-                    Console.WriteLine("e$info$`Sample name` <- '{0}' ", rawFile.SampleInformation.SampleName);
-                    Console.WriteLine("e$info$`Sample id` <- '{0}' ", rawFile.SampleInformation.SampleId);
-                    Console.WriteLine("e$info$`Sample type` <- '{0}' ", rawFile.SampleInformation.SampleType);
-                    Console.WriteLine("e$info$`Sample comment` <- '{0}' ", rawFile.SampleInformation.Comment);
-                    Console.WriteLine("e$info$`Sample vial` <- '{0}' ", rawFile.SampleInformation.Vial);
-                    Console.WriteLine("e$info$`Sample volume` <- '{0}' ", rawFile.SampleInformation.SampleVolume);
-                    Console.WriteLine("e$info$`Sample injection volume` <- '{0}' ", rawFile.SampleInformation.InjectionVolume);
-                    Console.WriteLine("e$info$`Sample row number` <- '{0}' ", rawFile.SampleInformation.RowNumber);
-                    Console.WriteLine("e$info$`Sample dilution factor` <- '{0}' ", rawFile.SampleInformation.DilutionFactor);
-                    Console.WriteLine("e$info$`Sample barcode` <- '{0}' ", rawFile.SampleInformation.Barcode);
+                    file.WriteLine("e$info$`Sample name` <- '{0}' ", rawFile.SampleInformation.SampleName);
+                    file.WriteLine("e$info$`Sample id` <- '{0}' ", rawFile.SampleInformation.SampleId);
+                    file.WriteLine("e$info$`Sample type` <- '{0}' ", rawFile.SampleInformation.SampleType);
+                    file.WriteLine("e$info$`Sample comment` <- '{0}' ", rawFile.SampleInformation.Comment);
+                    file.WriteLine("e$info$`Sample vial` <- '{0}' ", rawFile.SampleInformation.Vial);
+                    file.WriteLine("e$info$`Sample volume` <- '{0}' ", rawFile.SampleInformation.SampleVolume);
+                    file.WriteLine("e$info$`Sample injection volume` <- '{0}' ", rawFile.SampleInformation.InjectionVolume);
+                    file.WriteLine("e$info$`Sample row number` <- '{0}' ", rawFile.SampleInformation.RowNumber);
+                    file.WriteLine("e$info$`Sample dilution factor` <- '{0}' ", rawFile.SampleInformation.DilutionFactor);
+                    file.WriteLine("e$info$`Sample barcode` <- '{0}' ", rawFile.SampleInformation.Barcode);
 
-                    Console.WriteLine("e$info$`User text 0` <- '{0}' ", rawFile.SampleInformation.UserText[0]);
-                    Console.WriteLine("e$info$`User text 1` <- '{0}' ", rawFile.SampleInformation.UserText[1]);
-                    Console.WriteLine("e$info$`User text 2` <- '{0}' ", rawFile.SampleInformation.UserText[2]);
-                    Console.WriteLine("e$info$`User text 3` <- '{0}' ", rawFile.SampleInformation.UserText[3]);
-                    Console.WriteLine("e$info$`User text 4` <- '{0}' ", rawFile.SampleInformation.UserText[4]);
+                    file.WriteLine("e$info$`User text 0` <- '{0}' ", rawFile.SampleInformation.UserText[0]);
+                    file.WriteLine("e$info$`User text 1` <- '{0}' ", rawFile.SampleInformation.UserText[1]);
+                    file.WriteLine("e$info$`User text 2` <- '{0}' ", rawFile.SampleInformation.UserText[2]);
+                    file.WriteLine("e$info$`User text 3` <- '{0}' ", rawFile.SampleInformation.UserText[3]);
+                    file.WriteLine("e$info$`User text 4` <- '{0}' ", rawFile.SampleInformation.UserText[4]);
+	    }
 	    }
 
             public static void GetIndex(this IRawDataPlus rawFile){
@@ -428,6 +434,7 @@
 
                                 file.WriteLine("\tmZ = c(" + string.Join(",", scan.SegmentedScan.Positions) + "),");
                                 file.WriteLine("\tintensity = c(" + string.Join(",", scan.SegmentedScan.Intensities) + "),");
+                               // file.WriteLine("\tnoises = c(" + string.Join(",", scan.SegmentedScan.Noises) + "),");
                             }
 			    // ============= Instrument Data =============
                             // write scan Trailer
@@ -473,10 +480,10 @@
                     {
                         {"version", "print version information."},
                         {"scanFilter", "print scan filters."},
-                        {"infoR", "print the raw file's meta data as R code."},
+                        {"headerR", "print the raw file's meta data as R code."},
                         {"chromatogram", "base peak chromatogram."},
-                        {"xic", "prints xic unfiltered."},
-                        {"tic", "prints xic unfiltered."},
+                        {"xic", "prints xic unfiltered as R code."},
+                        {"tic", "prints tic/bpc unfiltered."},
                         {"scans", "print spectrum of scanid as Rcode."},
                         {"index", "print index as csv of all scans."}
                     };
@@ -580,8 +587,9 @@
                         Console.WriteLine("    Date: " + DateTime.Now);
                     }
 
-                    if (mode == "infoR"){
-		     rawFile.PrintInfoAsRcode();
+                    if (mode == "headerR"){
+                     var outputFilename = args[3];
+		     rawFile.PrintHeaderAsRcode(outputFilename);
 		     return;
 		    }
                     // Display all of the trailer extra data fields present in the RAW file
@@ -656,22 +664,27 @@
 
                     if (mode == "xic")
                     {
+                            Console.WriteLine("xic");
                         try
                         {
-                            var inputFilename = args[2];
-                            double ppmError = Convert.ToDouble(args[3]);
-                            var outputFilename = args[4];
+                            double ppmError = Convert.ToDouble(args[2]);
+                            Console.WriteLine(ppmError);
 			    string filter = "ms";
 			    try {
-				    filter = args[5];
+				    filter = args[3];
 			    }
 			    catch{
 			    }
+                            Console.WriteLine(filter);
+                            var inputFilename = args[4];
+                            var outputFilename = args[5];
+
                             List<double> massList = new List<double>();
-                            if (File.Exists(args[2]))
+                            if (File.Exists(inputFilename))
                             {
                                 foreach (var line in File.ReadAllLines(inputFilename))
                                 {
+                               	    Console.WriteLine(Convert.ToDouble(line));
                                     massList.Add(Convert.ToDouble(line));
                                 }
 
