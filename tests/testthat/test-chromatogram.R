@@ -8,8 +8,14 @@ library(rawrr)
 test_that("check readChromatogram", {
 
   rawfile <- sampleFilePath()
+  
+  expect_error(X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357),
+                                     filter="mXs"))
+  
   X <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
 
+  expect_s3_class(X, "rawrrChromatogramSet")
+  
   expect_equal(length(X), 2)
 
   x <- X[[1]]
