@@ -6,7 +6,7 @@
 \title{Download and install the \code{rawrr.exe} console application}
 \usage{
 installRawrrExe(
-  sourceUrl = "http://fgcz-ms.uzh.ch/~cpanse/rawrr/rawrr.exe",
+  sourceUrl = "http://fgcz-ms.uzh.ch/~cpanse/rawrr/rawrr.0.99.26.exe",
   ...
 )
 }
@@ -21,8 +21,8 @@ failure. For the "wget" and "curl" methods this is the status code returned
 by the external program.
 }
 \description{
-downloads and install the \code{rawrr.exe} .Net assembly in 
-the \code{tools::R_user_dir("rawrr", which='data')} path.
+downloads and installs the \code{rawrr.exe} .Net assembly in 
+the directory provided by \code{rawrrAssemblyPath()}.
 }
 \details{
 The console application \code{rawrr.exe} is used by the package's

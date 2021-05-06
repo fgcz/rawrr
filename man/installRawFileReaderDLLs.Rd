@@ -6,9 +6,9 @@
 \alias{ThermoFisher}
 \alias{ThermoFisherScientific}
 \title{Download and install the New RawFileReader from Thermo Fisher Scientific .Net
-assemblies}
+assemblies in}
 \usage{
-installRawFileReaderDLLs(sourceUrl = "https://tinyurl.com/4d3awfyv/", ...)
+installRawFileReaderDLLs(sourceUrl = .thermofisherlsmsUrl(), ...)
 }
 \arguments{
 \item{sourceUrl}{url of New RawFileReader from Thermo Fisher Scientific
@@ -23,7 +23,8 @@ by the external program.
 }
 \description{
 Download and install the New RawFileReader from Thermo Fisher Scientific .Net
-assemblies
+assemblies in 
+the directory provided by \code{rawrrAssemblyPath()}.
 }
 \details{
 The console application assembly \code{rawrr.exe} requires three
@@ -47,7 +48,7 @@ authors' site.
 # to install all assemblies
 \donttest{
 rawrr::installRawFileReaderDLLs() 
-rawrr:::buildRawrrExe() || rawrr::installRawrrExe()
+rawrr::buildRawrrExe() || rawrr::installRawrrExe()
 }
 }
 \references{

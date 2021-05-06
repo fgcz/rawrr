@@ -11,7 +11,7 @@
       }
     }
     
-    .checkRawfileReaderDLLs(FUN)
+    .checkRawFileReaderDLLs(FUN)
     
     if (isFALSE(file.exists(exe))){
       msg <- c("'rawrr.exe' not found.\n",
@@ -32,7 +32,6 @@
       if (file.exists(exe)){
         rvs <- system2(exe, stdout = TRUE)
       }
-      
     }
     
     # expect that output string
@@ -41,7 +40,7 @@
       FUN(msg)
     }
     
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+    if(interactive() && isFALSE(.checkDllInMonoPath())){ stopifnot(.isRawFileReaderLicenseAccepted()) }
     TRUE
   }
 
@@ -54,10 +53,25 @@
     'ThermoFisher.CommonCore.RawFileReader.dll')
 }
 
-.userRawfileReaderDLLsPath <- function(){
-  libdir <- tools::R_user_dir("rawrr", which='data')
-  f <- file.path(libdir, 'rawrrassembly')
-  return(f)
+#' Derives the path where all .NET assemblies are stored.
+#'
+#' @return path
+#' @export rawrrAssemblyPath
+#' @seealso \code{installRawFileReaderDLLs} and \code{installRawrrExe}
+#'
+#' @examples
+#' rawrrAssemblyPath()
+rawrrAssemblyPath <- function(){
+  libdir <- tools::R_user_dir("rawrr", which='cache')
+  d <- file.path(libdir, 'rawrrassembly')
+  
+  if (interactive()){
+    if (isFALSE(dir.exists(d))){
+      msg <- sprintf("rawrr .NET assemply path '%s' is not existing!", d)
+      warning(msg)
+    }
+  }
+  return(d)
 }
 
 .checkDllInMonoPath <- function(dll="ThermoFisher.CommonCore.Data.dll"){
@@ -68,9 +82,9 @@
   }, FALSE))  
 }
 
-.checkRawfileReaderDLLs <- function(FUN=stop){
+.checkRawFileReaderDLLs <- function(FUN=stop){
   rv <- vapply(.rawfileReaderDLLs(), function(dll){
-    userFileDllPath <- file.path(.userRawfileReaderDLLsPath(), dll)
+    userFileDllPath <- file.path(rawrrAssemblyPath(), dll)
     dllExists <- file.exists(userFileDllPath) || .checkDllInMonoPath(dll)
     if (isFALSE(dllExists)){
       message(sprintf("'%s' is missing.", dll))
@@ -79,7 +93,7 @@
   }, FALSE)
   
   if (isFALSE(all(rv)) && TRUE){
-    FUN("'ThermoFisher.CommonCore.*.dll' files are not complete or missing.\n",
+    FUN("'ThermoFisher.CommonCore.*.dll' files are not available on the system.\n",
          "Run 'rawrr::installRawFileReaderDLLs()' or setenv MONO_PATH to ",
          "the location where the assemblies are located.\n",
          "For more information, type '?ThermoFisher'.")
@@ -89,13 +103,24 @@
 
 
 .rawrrAssembly <- function(){
-  f <- file.path(.userRawfileReaderDLLsPath(), 'rawrr.exe')
+  f <- file.path(rawrrAssemblyPath(), 'rawrr.exe')
   return(f)
 }
 
 
+.thermofisherlsmsUrl <- function(){
+  "https://github.com/thermofisherlsms/ThermoRawFileParser/raw/master/packages/ThermoFisher.CommonCore.RawFileReader.4.0.26/lib/"
+}
+
+
 #' Download and install the New RawFileReader from Thermo Fisher Scientific .Net
-#' assemblies
+#' assemblies i
+#' 
+#' @description 
+#' Download and install the New RawFileReader from Thermo Fisher Scientific .Net
+#' assemblies in 
+#' the directory provided by \code{rawrrAssemblyPath()}.
+#' 
 #'
 #' @param ... other parameter for \code{download.file}
 #' @param sourceUrl url of New RawFileReader from Thermo Fisher Scientific
@@ -148,60 +173,38 @@
 #' }
 # TODO(cp): rename installThermoFisherScientificRawFileReaderAssemblyDLLs()
 installRawFileReaderDLLs <-
-  function(sourceUrl = "https://tinyurl.com/4d3awfyv/", ...){
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+  function(sourceUrl = .thermofisherlsmsUrl(), ...){
     
-    rawfileReaderDLLsPath <- .userRawfileReaderDLLsPath()
-    msg <- sprintf(c("Installiung Thermo Fisher Rawfile Reader assemblies",
-                     " will be copied to '%s' ..."), rawfileReaderDLLsPath) 
-    message(msg)
+    rawfileReaderDLLsPath <- rawrrAssemblyPath()
+    
+    if (isTRUE(dir.exists(rawfileReaderDLLsPath))){
+      msg <- sprintf("removing files in directory '%s'", rawfileReaderDLLsPath)
+      message(msg)
+      
+      file.remove(file.path(rawrrAssemblyPath(),
+                            list.files(rawrrAssemblyPath())))
+    }
     
     if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
       dir.create(rawfileReaderDLLsPath, recursive = TRUE)
     }
     
-    rrv <- vapply(.rawfileReaderDLLs(), function(dll){
+    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+    
+    rv <- vapply(.rawfileReaderDLLs(), function(dll){
       destfile <- file.path(rawfileReaderDLLsPath, dll)
-      
-      rv <- NA
-      if (file.exists(destfile)){
-        if(interactive() ){ 
-          fmt <- "Overwrite '%s' ? [Y/n]: "
-          prompt <- sprintf(fmt, destfile)
-          response <- readline(prompt = prompt)
-          if (tolower(response) != "y"){
-            message("Aborting ...")
-            return(1)
-          }
-      	  rv <- download.file(file.path(sourceUrl, dll),
-                          destfile=destfile, mode='wb', ...)
-        }else{
-          fmt <- "Skipping '%s' already exists ..."
-          warning(sprintf(fmt, destfile))
-	  rv <- 0
-        }
-      }else{
-      	  rv <- download.file(file.path(sourceUrl, dll),
-                          destfile=destfile, mode='wb', ...)
-      }
-      
-      message(sprintf("MD5 %s %s", tools::md5sum(destfile), destfile))
-      rv
-     }, 0)
-    
-    
-    if (isFALSE(file.exists(.rawrrAssembly())) && interactive()){
-      msg <- c("'rawrr.exe' is not available.", 
-               "\nRun 'rawrr::buildRawrrExe()' or 'rawrr::installRawrrExe()'.")
-      warning(msg)
-    }
-    rrv
+      download.file(file.path(sourceUrl, dll),
+                    destfile=destfile, mode='wb', ...)
+    }, 0) 
+    rv
   }
+
+
 
 #' Download and install the \code{rawrr.exe} console application
 #' 
-#' @description downloads and install the \code{rawrr.exe} .Net assembly in 
-#' the \code{tools::R_user_dir("rawrr", which='data')} path.
+#' @description downloads and installs the \code{rawrr.exe} .Net assembly in 
+#' the directory provided by \code{rawrrAssemblyPath()}.
 #' 
 #' @details The console application \code{rawrr.exe} is used by the package's
 #' reader functions through a \link{system2} call.
@@ -221,32 +224,13 @@ installRawrrExe <-
             ...)
   {
     rawrrAssembly <- .rawrrAssembly()
-  rawfileReaderDLLsPath <- .userRawfileReaderDLLsPath()
-
-  if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
-    dir.create(rawfileReaderDLLsPath, recursive = TRUE)
-  }
-  
-  
-  if (file.exists(rawrrAssembly)){
-    if(interactive() ){ 
-      fmt <- "Overwrite '%s' ? [Y/n]: "
-      prompt <- sprintf(fmt, rawrrAssembly)
-      response <- readline(prompt = prompt)
-      if (tolower(response) != "y"){
-        message("Aborting ...")
-        return()
-        }
-      rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
-    }else{
-      fmt <- "Skipping '%s' already exists ..."
-      warning(sprintf(fmt, rawrrAssembly))
-      rv <- 0
+    
+    if (isFALSE(dir.exists(rawrrAssemblyPath()))){
+      dir.create(rawrrAssemblyPath(), recursive = TRUE)
     }
-  }else{
-      rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
-  }
-
+    
+    rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
+    
     message(sprintf("MD5 %s %s", tools::md5sum(rawrrAssembly), rawrrAssembly))
     rv
   }
@@ -259,7 +243,7 @@ installRawrrExe <-
   }
   
   # check Thermo DLLs
-  if(isFALSE(.checkRawfileReaderDLLs(message))){
+  if(isFALSE(.checkRawFileReaderDLLs(message))){
     return()
   }
 
@@ -270,7 +254,7 @@ installRawrrExe <-
 
 .determineAdditionalLibPath <- function(){
   monoPaths <- strsplit(Sys.getenv("MONO_PATH"), .Platform$path.sep)[[1]]
-  pgkPath <- dirname(.rawrrAssembly())
+  pgkPath <- rawrrAssemblyPath()
   
   dlls <- .rawfileReaderDLLs()
   
@@ -327,7 +311,7 @@ installRawrrExe <-
 buildRawrrExe <- function(){
   packagedir <- system.file(package = 'rawrr')
  
-  if (isFALSE(.checkRawfileReaderDLLs())){
+  if (isFALSE(.checkRawFileReaderDLLs())){
     return()
   }
   
@@ -348,10 +332,10 @@ buildRawrrExe <- function(){
   additionalLibPath <- .determineAdditionalLibPath()
   
   buildLog <- tempfile("rawrr_build.log.",
-                       tmpdir = dirname(.rawrrAssembly()))
+                       tmpdir = rawrrAssemblyPath())
   
   cmdArgs <- sprintf("/p:OutputPath=%s/ /p:AdditionalLibPaths=%s /v:diagnostic -flp:logfile=%s rawrr.csproj",
-                     shQuote(dirname(.rawrrAssembly())),
+                     shQuote(rawrrAssemblyPath()),
                      shQuote(additionalLibPath),
                      shQuote(buildLog))
 
@@ -376,15 +360,19 @@ from a remote location. Note this requires internet connection.",
   rv
 }
 
+.eulaPath <- function(){
+  file.path(rawrrAssemblyPath(), "eula.txt")
+}
+
 .isRawFileReaderLicenseAccepted <- function(){
   licenseFile <- file.path(system.file(package = 'rawrr'), 'rawrrassembly',
                            'RawFileReaderLicense.txt')
   stopifnot(file.exists(licenseFile))
   
-  eulaFile <- file.path(cachedir <- tools::R_user_dir("rawrr", which='cache'),
-                        "eula.txt")
+  eulaFile <- .eulaPath()
+  
   msg <- c("# By changing the setting below to TRUE you are accepting ",
-    "the Thermo License agreement.")
+           "the Thermo License agreement.")
   
   if (!file.exists(eulaFile)){
     file.show(licenseFile)
@@ -392,7 +380,9 @@ from a remote location. Note this requires internet connection.",
     prompt <- sprintf(fmt, licenseFile)
     response <- readline(prompt = prompt)
     if (tolower(response) == "y"){
-      if (!dir.exists(cachedir)) { dir.create(cachedir, recursive = TRUE) }
+      if (isFALSE(dir.exists(dirname(eulaFile)))) {
+        dir.create(dirname(eulaFile), recursive = TRUE)
+      }
       fileConn <- file(eulaFile)
       writeLines(paste(msg, paste0("# ", date()), "eula=true", sep="\n"),
                  fileConn)
