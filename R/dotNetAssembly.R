@@ -67,8 +67,8 @@ rawrrAssemblyPath <- function(){
   
   if (interactive()){
     if (isFALSE(dir.exists(d))){
-      msg <- sprintf("rawrr .NET assemply path '%s' is not existing!", d)
-      warning(msg)
+      #msg <- sprintf("rawrr .NET assemply path '%s' is not existing!", d)
+      #warning(msg)
     }
   }
   return(d)
@@ -223,11 +223,13 @@ installRawrrExe <-
   function (sourceUrl = "http://fgcz-ms.uzh.ch/~cpanse/rawrr/rawrr.0.99.26.exe",
             ...)
   {
-    rawrrAssembly <- .rawrrAssembly()
+   
     
     if (isFALSE(dir.exists(rawrrAssemblyPath()))){
       dir.create(rawrrAssemblyPath(), recursive = TRUE)
     }
+    
+    rawrrAssembly <- .rawrrAssembly()
     
     rv = download.file(sourceUrl, destfile = rawrrAssembly, mode='wb', ...)
     
@@ -311,9 +313,15 @@ installRawrrExe <-
 buildRawrrExe <- function(){
   packagedir <- system.file(package = 'rawrr')
  
+  if (isFALSE(dir.exists(rawrrAssemblyPath()))){
+    dir.create(rawrrAssemblyPath(), recursive = TRUE)
+  }
+  
   if (isFALSE(.checkRawFileReaderDLLs())){
     return()
   }
+  
+
   
   if (Sys.which("msbuild") == "" && Sys.which("xbuild") == "")
   {
@@ -334,7 +342,7 @@ buildRawrrExe <- function(){
   buildLog <- tempfile("rawrr_build.log.",
                        tmpdir = rawrrAssemblyPath())
   
-  cmdArgs <- sprintf("/p:OutputPath=%s/ /p:AdditionalLibPaths=%s /v:diagnostic -flp:logfile=%s rawrr.csproj",
+  cmdArgs <- sprintf("/p:OutputPath=%s/ /p:AdditionalLibPaths=%s /v:diagnostic /flp:LogFile=%s rawrr.csproj",
                      shQuote(rawrrAssemblyPath()),
                      shQuote(additionalLibPath),
                      shQuote(buildLog))
@@ -345,10 +353,10 @@ buildRawrrExe <- function(){
   if (rv <- any(grepl("Build succeeded.", rv))
       && file.exists(.rawrrAssembly())){
     msg <- sprintf("'rawrr.exe' successfully built in \n'%s'.
-The build report is saved in\n'%s'.", .rawrrAssembly(), buildLog)
+The build report is supposed to be saved in\n'%s'.", .rawrrAssembly(), buildLog)
     message(msg)
   }else{
-    err <- sprintf("Building 'rawrr.exe' failed. For details see build report:
+    err <- sprintf("Building 'rawrr.exe' failed. For details see the build report, supposed to be saved in:
 '%s'
 Call 'rawrr::installRawrrExe()' to download and install a precompiled version
 from a remote location. Note this requires internet connection.",
