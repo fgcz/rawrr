@@ -436,7 +436,7 @@ sampleFilePath <- function(){
 #' @references \itemize{
 #'   \item{C# code snippets of the NewRawfileReader library
 #'     \url{https://planetorbitrap.com/rawfilereader}.}
-#'     \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
+#'     \item{\doi{10.1021/acs.jproteome.0c00866}}
 #'   }
 #'   
 #'   

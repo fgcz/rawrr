@@ -153,7 +153,7 @@ rawrrAssemblyPath <- function(){
 #' @references \itemize{
 #'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
 #'   \item{\url{https://planetorbitrap.com/rawfilereader}}
-#'   \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
+#'   \item{\doi{10.1021/acs.jproteome.0c00866}}
 #' }
 #' 
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2021
@@ -216,7 +216,7 @@ installRawFileReaderDLLs <-
 #' failure. For the "wget" and "curl" methods this is the status code returned
 #' by the external program.
 #' @seealso \link{buildRawrrExe}
-#' @references \url{https://doi.org/10.1021/acs.jproteome.0c00866}
+#' @references \doi{10.1021/acs.jproteome.0c00866}
 #' @aliases rawrr.exe
 #' @export installRawrrExe
 installRawrrExe <-
@@ -305,7 +305,7 @@ installRawrrExe <-
 #'   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
 #'   \item{\url{https://planetorbitrap.com/rawfilereader}}
 #'   \item{\url{https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/advanced}}
-#'   \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
+#'   \item{\doi{10.1021/acs.jproteome.0c00866}}
 #' }
 #' 
 #' @return the return value of the system2 command.

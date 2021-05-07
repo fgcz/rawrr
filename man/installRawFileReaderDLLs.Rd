@@ -6,7 +6,7 @@
 \alias{ThermoFisher}
 \alias{ThermoFisherScientific}
 \title{Download and install the New RawFileReader from Thermo Fisher Scientific .Net
-assemblies in}
+assemblies i}
 \usage{
 installRawFileReaderDLLs(sourceUrl = .thermofisherlsmsUrl(), ...)
 }
@@ -55,7 +55,7 @@ rawrr::buildRawrrExe() || rawrr::installRawrrExe()
 \itemize{
   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
   \item{\url{https://planetorbitrap.com/rawfilereader}}
-  \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
+  \item{\doi{10.1021/acs.jproteome.0c00866}}
 }
 }
 \seealso{

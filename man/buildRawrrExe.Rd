@@ -37,7 +37,7 @@ location on the harddrive, read back into memory and parsed into R  objects.
   \item{\url{https://www.mono-project.com/docs/advanced/assemblies-and-the-gac/}}
   \item{\url{https://planetorbitrap.com/rawfilereader}}
   \item{\url{https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-options/advanced}}
-  \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
+  \item{\doi{10.1021/acs.jproteome.0c00866}}
 }
 }
 \seealso{

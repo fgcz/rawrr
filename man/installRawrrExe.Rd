@@ -29,7 +29,7 @@ The console application \code{rawrr.exe} is used by the package's
 reader functions through a \link{system2} call.
 }
 \references{
-\url{https://doi.org/10.1021/acs.jproteome.0c00866}
+\doi{10.1021/acs.jproteome.0c00866}
 }
 \seealso{
 \link{buildRawrrExe}

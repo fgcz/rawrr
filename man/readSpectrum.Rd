@@ -91,7 +91,7 @@ cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
 \itemize{
   \item{C# code snippets of the NewRawfileReader library
     \url{https://planetorbitrap.com/rawfilereader}.}
-    \item{\url{https://doi.org/10.1021/acs.jproteome.0c00866}}
+    \item{\doi{10.1021/acs.jproteome.0c00866}}
   }
 }
 \seealso{
