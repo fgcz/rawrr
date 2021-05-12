@@ -38,3 +38,12 @@ test_that("check readSpectrum error.", {
   expect_error(S <- readSpectrum(rawfile))
   expect_error(S <- readSpectrum(rawfile, scan = NULL))
 })
+
+
+test_that("check rawrrSpectrum constructor", {
+  expect_error(rawrrSpectrum(100))
+  expect_error(rawrrSpectrum(""))
+  expect_s3_class(rawrrSpectrum(), class = "rawrrSpectrum")
+  expect_s3_class(rawrrSpectrum("TESTPEPTIDE"), class = "rawrrSpectrum")
+  expect_s3_class(rawrrSpectrum("example_1"), class = "rawrrSpectrum")
+})
