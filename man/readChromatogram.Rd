@@ -41,7 +41,7 @@ scans.
 }
 \examples{
 
-# Example 1: not meaning full but proof-of-concept
+# Example 1: not meaningful but proof-of-concept
 (rawfile <- sampleFilePath())
 
 XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
@@ -60,11 +60,7 @@ iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
   "LFLQFGAQGSPFLK")
 
 # [2H+]
-if (require(protViz)){
-     (mZ <- (parentIonMass(iRTpeptide) + 1.008) / 2)
-  }else{
-     message("consider installing  https://CRAN.R-project.org/package=protViz")
-}
+(mZ <- (protViz::parentIonMass(iRTpeptide) + 1.008) / 2)
 
 \donttest{
 # fetch via FTP download link into your Downloads folder

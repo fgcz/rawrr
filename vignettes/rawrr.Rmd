@@ -51,41 +51,24 @@ If \code{MONO_PATH} is not set Thermo Fisher Scientific .NET assemblies are
 installed in `r rawrr::rawrrAssemblyPath()`.
 
 ```{r installAssemblies, echo=TRUE}
-if (isFALSE(rawrr:::.checkDllInMonoPath())){
+if (isFALSE(rawrr::isAssemblyWorking)){
   rawrr::installRawFileReaderDLLs()
+  rawrr::installRawrrExe()
 }
-rawrr::installRawrrExe()
-```
 
-
-```{r FTP, echo=TRUE, message=FALSE, exec=TRUE}
-# fetch via FTP download link into your Downloads folder
-f <- "ftp://massive.ucsd.edu/MSV000086542/raw/20181113_010_autoQC01.raw"
-if (getRversion() < 4.1){
-  cachedir <- tools::R_user_dir("rawrr", which = "cache")
-  rawfile <- file.path(cachedir, basename(f))
-  if (isFALSE(dir.exists(cachedir))){
-    dir.create(cachedir, recursive = TRUE)
-  }
-  if (isFALSE(file.exists(rawfile))){
-    download.file(f, rawfile)
-  }
-}
 ```
 
 Additional raw data for demonstration and extended testing is available through the Bioconductor data package `r Biocpkg("tartare")` [@tartare].
 
 ```{r tartareEH4547, warning=FALSE, message=FALSE, eval=TRUE}
-if (getRversion() >= 4.1){
-  # fetch via ExperimentHub
-  library(ExperimentHub)
-  eh <- ExperimentHub::ExperimentHub()
-  EH4547 <- normalizePath(eh[["EH4547"]])
-  
-  (rawfile <- paste0(EH4547, ".raw"))
-  if (!file.exists(rawfile)){
-    file.copy(EH4547, rawfile)
-  }
+# fetch via ExperimentHub
+library(ExperimentHub)
+eh <- ExperimentHub::ExperimentHub()
+EH4547 <- normalizePath(eh[["EH4547"]])
+
+(rawfile <- paste0(EH4547, ".raw"))
+if (!file.exists(rawfile)){
+  file.copy(EH4547, rawfile)
 }
 ```
 
