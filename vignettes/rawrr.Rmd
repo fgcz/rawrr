@@ -253,22 +253,22 @@ We thank Lilly van de Venn for designing the `rawrr` package logo. We are gratef
 
 
 # Abbreviations
-|       |                                                    |
-|:------|:---------------------------------------------------|
-|API	|advanced programming interface                      |
-|BSA	|Bovine Serum Albumin                                |
-|FTMS	|Fourier-transformed mass spectrum		     |
-|GUI	|graphics user interface			     |
-|HRAM	|high-resolution accurate mass			     |
-|iRT	|indexed retention time				     |
-|LC-MS	|liquid chromatography followed by mass spectrometry |
-|OOP	|object-oriented programming			     |
-|MS	|mass spectrometry				     |
-|NSI	|nanospray ionization				     |
-|PRM	|parallel reaction monitoring			     |
-|TIC	|total ion chromatogram				     |
-|USI	|Universal spectrum identifier			     |
-|XIC	|extracted ion chromatogram			     |
+|       |                                                   |
+|:------|:--------------------------------------------------|
+|API    |application programming interface                  |
+|BSA    |Bovine Serum Albumin                               |
+|FTMS   |Fourier-transformed mass spectrum                  |
+|GUI    |graphics user interface                            |
+|HRAM   |high-resolution accurate mass                      |
+|iRT    |indexed retention time                             |
+|LC-MS  |liquid chromatography followed by mass spectrometry|
+|OOP    |object-oriented programming                        |
+|MS     |mass spectrometry                                  |
+|NSI    |nanospray ionization                               |
+|PRM    |parallel reaction monitoring                       |
+|TIC    |total ion chromatogram                             |
+|USI    |Universal spectrum identifier                      |
+|XIC    |extracted ion chromatogram                         |
 
 # Session information {-}
 
