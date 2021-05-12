@@ -361,7 +361,7 @@ buildRawrrExe <- function(){
   if (rv <- any(grepl("Build succeeded.", rv))
       && file.exists(.rawrrAssembly())){
     msg <- sprintf("'rawrr.exe' successfully built in \n'%s'.
-The build report is supposed to be saved in\n'%s'.", .rawrrAssembly(), buildLog)
+The build report should have been saved in\n'%s'.", .rawrrAssembly(), buildLog)
     message(msg)
   }else{
     err <- sprintf("Building 'rawrr.exe' failed. For details see the build report, supposed to be saved in:
