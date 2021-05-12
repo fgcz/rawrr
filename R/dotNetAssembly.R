@@ -116,6 +116,10 @@ rawrrAssemblyPath <- function(){
 }
 
 
+#' URL for Thermo Fisher .NET assemblies
+#'
+#' @return an URL
+#' @export
 .thermofisherlsmsUrl <- function(){
   "https://github.com/thermofisherlsms/ThermoRawFileParser/raw/master/packages/ThermoFisher.CommonCore.RawFileReader.4.0.26/lib/"
 }
