@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 0.99.25
+Version: 0.99.26
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -12,15 +12,13 @@ Authors@R: c(person("Christian", "Panse",
     comment = c(ORCID = "0000-0002-1847-885X")))
 Depends: R (>= 4.1)
 Imports:
-        grDevices, graphics, stats, utils
+        grDevices, graphics, stats, utils, protViz (>= 0.6), ExperimentHub (>= 1.16)
 Suggests:
-    protViz (>= 0.6),
     knitr,
     rmarkdown,
     tartare,
     testthat,
-    BiocStyle (>= 2.5),
-    ExperimentHub (>= 1.16)
+    BiocStyle (>= 2.5)
 Description: Provides an interface for Thermo Fisher Scientifc raw files
     branched from rawDiag <doi:10.1021/acs.jproteome.8b00173>.
     This package wraps the functionality
@@ -42,7 +40,6 @@ SystemRequirements: mono-runtime 4.x or higher on Linux/macOS,
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
-LazyData: true
 NeedsCompilation: no
 RoxygenNote: 7.1.1
 biocViews: MassSpectrometry, Proteomics, Metabolomics
