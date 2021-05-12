@@ -60,7 +60,7 @@ containing the RawFileReader .NET assemblies are
 installed in a directory derived by the `rawrr::rawrrAssemblyPath()` function.
 
 ```{r installAssemblies, echo=TRUE}
-if (isFALSE(.checkDllInMonoPath())){
+if (isFALSE(rawrr::.checkDllInMonoPath())){
   rawrr::installRawFileReaderDLLs()
 }
 rawrr::installRawrrExe()
