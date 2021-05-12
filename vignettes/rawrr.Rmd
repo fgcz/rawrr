@@ -60,11 +60,10 @@ containing the RawFileReader .NET assemblies are
 installed in a directory derived by the `rawrr::rawrrAssemblyPath()` function.
 
 ```{r installAssemblies, echo=TRUE}
-if (isFALSE(rawrr::isAssemblyWorking)){
+if (isFALSE(.checkDllInMonoPath())){
   rawrr::installRawFileReaderDLLs()
-  rawrr::installRawrrExe()
 }
-
+rawrr::installRawrrExe()
 ```
 
 Additional raw data for demonstration and extended testing is available through the Bioconductor data package `r Biocpkg("tartare")` [@tartare].

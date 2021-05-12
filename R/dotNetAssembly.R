@@ -82,6 +82,12 @@ rawrrAssemblyPath <- function(){
   return(d)
 }
 
+#' Check if a file is contained in the environment variable \code{MONO_PATH}.
+#'
+#' @param dll a file name.
+#'
+#' @return a boolean
+#' @export
 .checkDllInMonoPath <- function(dll="ThermoFisher.CommonCore.Data.dll"){
   monoPath <- Sys.getenv("MONO_PATH", names=TRUE)
   monoPath <- strsplit(monoPath, .Platform$path.sep)[[1]]
@@ -89,6 +95,7 @@ rawrrAssemblyPath <- function(){
     file.exists(file.path(d, dll))
   }, FALSE))  
 }
+
 
 .checkRawFileReaderDLLs <- function(FUN=stop){
   rv <- vapply(.rawfileReaderDLLs(), function(dll){

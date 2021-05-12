@@ -62,15 +62,18 @@ iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 # [2H+]
 (mZ <- (protViz::parentIonMass(iRTpeptide) + 1.008) / 2)
 
-\donttest{
-# fetch via FTP download link into your Downloads folder
-# MSV000086542
-# MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
-rawfile <- rawrr:::.download_20181113_010_autoQC01()
+# fetch via ExperimentHub
+library(ExperimentHub)
+eh <- ExperimentHub::ExperimentHub()
+EH4547 <- normalizePath(eh[["EH4547"]])
+
+(rawfile <- paste0(EH4547, ".raw"))
+if (!file.exists(rawfile)){
+    file.link(EH4547, rawfile)
+}
 
 X <- readChromatogram(rawfile, mZ)
 plot(X)
-}
 
 }
 \references{

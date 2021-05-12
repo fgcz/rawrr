@@ -46,6 +46,8 @@ keys returned by the Thermo Fisher Scientific New RawFileReader API and the
 corresponding values become data parts of the objects, typically vectors.
 }
 \examples{
+
+# Example 1
 (rawfile <- sampleFilePath())
 
 S <- readSpectrum(rawfile, scan = 1:9)
@@ -56,19 +58,21 @@ names(S[[1]])
 
 plot(S[[1]])
 
-\donttest{
-# INPUT:
-GAG <- "GAGSSEPVTGLDAK"
+# Example 2
+# fetch via ExperimentHub
+library(ExperimentHub)
+eh <- ExperimentHub::ExperimentHub()
+EH4547 <- normalizePath(eh[["EH4547"]])
 
-# fetch via FTP download link into your Downloads folder
-# MSV000086542
-# MD5 (20181113_010_autoQC01.raw) = a1f5df9627cf9e0d51ec1906776957ab
-rawfile <- rawrr:::.download_20181113_010_autoQC01()
-
+(rawfile <- paste0(EH4547, ".raw"))
+if (!file.exists(rawfile)){
+    file.link(EH4547, rawfile)
+}
 # list spectra metainformation
 IDX <- readIndex(rawfile)
 
 # determine precursor matches
+GAG <- "GAGSSEPVTGLDAK" 
 S <- readSpectrum(rawfile,
   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001))
 
@@ -76,7 +80,8 @@ S <- readSpectrum(rawfile,
 rv <- lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
 
 # determine spectra indices having the  max number of hits hits
-hit.max <- max(hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)}))
+hits <- sapply(rv, function(x){sum(abs(x$mZ.Da.error) < 0.01)})
+hit.max <- max(hits)
 
 # take the 1st one
 idx <- which(hits == hit.max)[1]
@@ -85,7 +90,7 @@ idx <- which(hits == hit.max)[1]
 rv <- protViz::peakplot(GAG,  (S[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
 # https://www.proteomicsdb.org/use/
 cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
-}
+
 }
 \references{
 \itemize{

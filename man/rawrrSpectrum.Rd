@@ -4,7 +4,7 @@
 \alias{rawrrSpectrum}
 \title{Create \code{rawrrSpectrum} objects}
 \usage{
-rawrrSpectrum(sim = character())
+rawrrSpectrum(sim = "TESTPEPTIDE")
 }
 \arguments{
 \item{sim}{Either \code{example_1} or \code{TESTPEPTIDE}}
