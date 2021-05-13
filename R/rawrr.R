@@ -447,9 +447,6 @@ sampleFilePath <- function(){
 #' # OUTPUT
 #' rv <- protViz::peakplot(GAG,  (S[[bestmatchidx]]),
 #'    FUN=function(b,y){cbind(b=b, y=y)})
-#' 
-#' # for https://www.proteomicsdb.org/use/
-#' cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
 #'
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
   .isAssemblyWorking()
