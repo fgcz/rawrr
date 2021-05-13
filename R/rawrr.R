@@ -429,10 +429,12 @@ sampleFilePath <- function(){
 #'
 #' # determine precursor matches
 #' GAG <- "GAGSSEPVTGLDAK" 
-#' S <- readSpectrum(rawfile,
-#'   which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001))
+#' scans <- which(abs((1.008 + (protViz::parentIonMass(GAG) - 1.008) / 2) - IDX$precursorMass) < 0.001)
+#' 
+#' # read peptide spectrum match candidates
+#' S <- readSpectrum(rawfile, scans)
 #'
-#' # query spectra with precursor matches
+#' # compute peptide spectrum match
 #' rv <- lapply(S, function(x){protViz::psm(GAG, x, plot=FALSE)})
 #'
 #' # determine spectra indices having the  max number of hits hits
@@ -440,11 +442,13 @@ sampleFilePath <- function(){
 #' hit.max <- max(hits)
 #'
 #' # take the 1st one
-#' idx <- which(hits == hit.max)[1]
+#' bestmatchidx <- which(hits == hit.max)[1]
 #'
 #' # OUTPUT
-#' rv <- protViz::peakplot(GAG,  (S[[idx]]), FUN=function(b,y){cbind(b=b, y=y)})
-#' # https://www.proteomicsdb.org/use/
+#' rv <- protViz::peakplot(GAG,  (S[[bestmatchidx]]),
+#'    FUN=function(b,y){cbind(b=b, y=y)})
+#' 
+#' # for https://www.proteomicsdb.org/use/
 #' cat(paste(S[[idx]]$mZ[rv$idx], "\t", S[[idx]]$intensity[rv$idx]), sep = "\n")
 #'
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
