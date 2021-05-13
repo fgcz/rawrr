@@ -91,6 +91,8 @@ bestmatchidx <- which(hits == hit.max)[1]
 # OUTPUT
 rv <- protViz::peakplot(GAG,  (S[[bestmatchidx]]),
    FUN=function(b,y){cbind(b=b, y=y)})
+   
+# TODO(cp): make an example for using proteomicsdb \doi{10.1101/2020.09.08.287557}
 
 }
 \references{

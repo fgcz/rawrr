@@ -1,5 +1,6 @@
 #R
 
+# Test if \code{rawrr.exe} .NET assembly is working
 .isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
     if (Sys.info()['sysname'] %in% c("Darwin", "Linux")){
@@ -44,14 +45,6 @@
     TRUE
   }
 
-
-#' Test if \code{rawrr.exe} .NET assembly is working
-#'
-#' @return a boolean.
-#' @export
-isAssemblyWorking <- function(){
-  .isAssemblyWorking()
-}
 
 .rawfileReaderDLLs <- function(){
   # 'ThermoFisher.CommonCore.BackgroundSubtraction.dll',
