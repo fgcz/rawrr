@@ -362,6 +362,7 @@ sampleFilePath <- function(){
 #' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
 #' @import ExperimentHub 
+#' @import tartare
 #' @importFrom protViz peakplot
 #' @details All mass spectra are recorded by scanning detectors (mass analyzers)
 #' that log signal intensities for ranges of mass to charge ratios (m/z), also
