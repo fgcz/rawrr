@@ -59,8 +59,6 @@ iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
   "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
   "LFLQFGAQGSPFLK")
 
-# [2H+]
-(mZ <- (protViz::parentIonMass(iRTpeptide) + 1.008) / 2)
 
 # fetch via ExperimentHub
 library(ExperimentHub)
@@ -72,8 +70,10 @@ if (!file.exists(rawfile)){
     file.link(EH4547, rawfile)
 }
 
-X <- readChromatogram(rawfile, mZ)
-plot(X)
+# derive [2H+] ions
+((protViz::parentIonMass(iRTpeptide) + 1.008) / 2) |>
+   readChromatogram(rawfile=rawfile) |>
+   plot()
 
 }
 \references{
