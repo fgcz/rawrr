@@ -19,7 +19,7 @@ Suggests:
     testthat,
     BiocStyle (>= 2.5)
 Description: Provides an interface for Thermo Fisher Scientific raw files
-    branched from rawDiag <doi:10.1021/acs.jproteome.8b00173>.
+    branched from rawDiag (Trachsel C. et al. (2018) <doi:10.1021/acs.jproteome.8b00173>).
     This package wraps the functionality
     of the RawFileReader .NET assembly. Within the R environment,
     spectra and chromatograms are represented by S3 objects
