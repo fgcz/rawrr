@@ -16,4 +16,3 @@
 rawR.Rproj
 .*.exe$
 .*.dll$
-^.*vignettes/rawrr.Rmd

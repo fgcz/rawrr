@@ -31,7 +31,7 @@ urlcolor: blue
 
 ```{r style, echo = FALSE, results = 'asis'}
 BiocStyle::markdown()
-knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3)
+knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=TRUE)
 ```
 
 ```{r HexSticker, echo=FALSE, out.width="50%", eval=TRUE}
@@ -177,7 +177,9 @@ More sophisticated analysis workflows applying `rawrr` functionalities have also
 By applying linear regression, one can convert observed peptide retention times (RTs) into dimensionless scores termed iRT values and *vice versa* [@Escher2012]. This can be used for retention time calibration/prediction. In addition, fitted iRT regression models provide highly valuable information about LC-MS run performance. This example shows how easy it is to perform iRT regression in `R` by just using the raw measurement data, our package `rawrr`, and well known `base R` functions supporting linear modeling. To get a first impression of the data we calculate a total ion chromatogram (TIC) using the `readChromatogram()` function. Plotting the TIC shows chromatographic peaks between 15 and 28 min that could be of peptidic origin (see Figure 3). Of note, there is also a `type = "bpc"` option if you prefer a base peak chromatogram (BPC):
 
 ```{r TIC, fig.cap="Total ion chromatogram (TIC) calculated from all MS1-level scans contained in 20181113_010_autoQC01.raw."}
-plot(rawrr::readChromatogram(rawfile = rawfile, type = "tic"))
+message(rawfile)
+rawrr::readChromatogram(rawfile = rawfile, type = "tic") |>
+  plot()
 ```
 
 ```{r BPC, fig.cap="BPC", eval=FALSE, include=FALSE}
