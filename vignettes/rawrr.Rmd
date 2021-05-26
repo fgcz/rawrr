@@ -76,7 +76,7 @@ EH4547 <- normalizePath(eh[["EH4547"]])
 
 (rawfile <- paste0(EH4547, ".raw"))
 if (!file.exists(rawfile)){
-  file.link(EH4547, rawfile)
+  file.copy(EH4547, rawfile)
 }
 ```
 
@@ -182,8 +182,9 @@ rawrr::readChromatogram(rawfile = rawfile, type = "tic") |>
   plot()
 ```
 
-```{r BPC, fig.cap="BPC", eval=FALSE, include=FALSE}
-plot(rawrr::readChromatogram(rawfile = rawfile, type = "bpc"))
+```{r BPC, fig.cap="Base peak chromatogram (BPC) calculated from all MS1-level scans contained in 20181113_010_autoQC01.raw."}
+rawrr::readChromatogram(rawfile = rawfile, type = "bpc") |>
+  plot()
 ```
 
 The initial step of iRT regression is to estimate the empirical RTs of a peptide set with known iRT scores. In the simplest case, this is achieved by computing an extracted ion chromatogram (XIC) for iRT peptide precursors, provided they were spiked into the sample matrix prior to data acquisition. The code chunk below demonstrates how the function `readChromatogram()` is called on the `R` command line to return a `rawrrChromatogramSet` object of the type `xic`. This object is plotted for visual inspection (see Figure 4 for resulting plot).
@@ -205,19 +206,20 @@ plot(C, diagnostic = TRUE)
 Be reminded that the intensity traces are not computed within `R`, for instance, by reading all scans of a raw file and subsequently iterating over a scan subset. Instead, traces are retrieved by a `C#` method that calls the vendor API. The API takes care of the scan filtering process (checks filter validity and applies the filter). On the `R` code level there is no need to know *a priori* which scans match the filter rule or implement vectorized operations (we generate multiple XICs simultaneously here). Only the API-returned output needs to be parsed into `rawrrChromatogram` objects. By changing the scan filter, one can easily switch between generating precursor traces and fragment ion traces. The following code chunk shows how to create fragment ion chromatograms (y6 to y8) generated from scans that target LGGNEQVTR++ (see Figure 5 for plot output):
 
 ```{r fragmentIonTraces, fig.cap="Extracted ion chromatograms (XICs) for LGGNEQVTR++ fragment ions y6, y7, and y8. Each target ion (see legend) was extracted with a tolerance of 10 ppm from all scans matching the provided filter.", fig.retina=1}
-fC <- rawrr::readChromatogram(rawfile = rawfile,
+rawrr::readChromatogram(rawfile = rawfile,
       mass = yIonSeries[c("y6", "y7", "y8")],
-      type = 'xic', tol = 10,
-      filter = "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]")
-plot(fC, diagnostic = TRUE)
+      type = 'xic',
+      tol = 10,
+      filter = "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
+  plot(diagnostic = TRUE)
 ```
 
 By using the `readIndex()` function a `data.frame` that indexes all scans found in a raw file is returned. When subsetting it for our scan type of interest it becomes clear that the example data was recorded using parallel reaction monitoring (PRM) since the parent ion 487.2567 was isolated in regularly-spaced intervals for fragment ion recording:
 
 ```{r readIndex}
-Idx <- rawrr::readIndex(rawfile = rawfile)
-head(subset(Idx,
-  scanType == "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]"))
+rawrr::readIndex(rawfile = rawfile) |>
+  subset(scanType == "FTMS + c NSI Full ms2 487.2567@hcd27.00 [100.0000-1015.0000]") |>
+  head()
 ```
 
 The delta between consecutive scans is always 22 scans (one PRM cycle) and the `depedencyType` of the MS2 scans is `NA` (since it was triggered by an inclusion list). For regression, we now extract the RTs at the maximum of the intensity traces stored in the `rawrrChromatogram` object and fit a linear model of the form $rt = a + b \cdot score$. In theory, we could do this at the precursor or fragment ion level. For simplicity, we show only the first option.  
