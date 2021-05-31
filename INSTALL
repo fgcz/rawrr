@@ -1,21 +1,22 @@
-# Install system requirements
+# System requirements
 
-## Linux (tested on debian:10/ubuntu:20.04)
+## Linux (debian:10/ubuntu:20.04)
 
-If you only require to execute the `rawrr.exe` .Net assemblies, install
+In case you prefer to compile `rawrr.exe` from C# source code, please install
+the mono compiler and xbuild by installing the following Linux packages:
 
-```
-sudo apt-get install mono-runtime libmono-system-data4.0-cil -y
-```
-
-If you want to compile `rawrr.exe` from source, please install the following
-packages:
-
-```
+```{sh}
 sudo apt-get install mono-mcs mono-xbuild
 ```
 
-## macOS (tested on Catalina/BigSur)
+Otherwise, to execute the precompiled code, the following Linux packages are
+sufficient:
+
+```{sh}
+sudo apt-get install mono-runtime libmono-system-data4.0-cil -y
+```
+
+## macOS (Catalina/BigSur)
 
 ```
 brew install mono
@@ -34,7 +35,9 @@ If the native C# compiler is not available install mono from:
 https://www.mono-project.com/
 
 
-# Install the .NET assemblies
+# Install the .NET assemblies 
+
+assemblies aka Common Intermediate Language bytecode
 
 the following files are required in 
 `r tools::R_user_dir("rawrr", which='cache')`
@@ -49,8 +52,9 @@ ThermoFisher.CommonCore.RawFileReader.dll
 The download and install can be done on all platforms using the command:
 `r rawrr::installRawFileReaderDLLs()`
 
-The in the package included C# source code that can compile into a rawrr.exe file by calling
-`r rawrr:::buildRawrrExe()`. (is executed when the package is loaded)
+The in the package included C# source code that can compile into a rawrr.exe
+file by calling `r rawrr:::buildRawrrExe()`. (is executed when the package
+is loaded)
 
 if no C# compile and build tool is available, run
 
