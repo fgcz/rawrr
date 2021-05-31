@@ -1,20 +1,21 @@
 # Install system requirements
 
-## Linux 
+## Linux (tested on debian:10/ubuntu:20.04)
 
-If you only require to run the .Net assemblies, install
+If you only require to execute the `rawrr.exe` .Net assemblies, install
 
 ```
-sudo apt-get install mono-runtime
+sudo apt-get install mono-runtime libmono-system-data4.0-cil -y
 ```
 
-if you also want to compile, you have to install the following packages:
+If you want to compile `rawrr.exe` from source, please install the following
+packages:
 
 ```
 sudo apt-get install mono-mcs mono-xbuild
 ```
 
-## macOS
+## macOS (tested on Catalina/BigSur)
 
 ```
 brew install mono
@@ -26,9 +27,9 @@ https://www.mono-project.com/
 
 ## Microsoft Windows
 
-if the native C# compiler is not available install mono:
+Running the `rawrr.exe` will run out of the box.
 
-or install from
+If the native C# compiler is not available install mono from:
 
 https://www.mono-project.com/
 
@@ -36,8 +37,8 @@ https://www.mono-project.com/
 # Install the .NET assemblies
 
 the following files are required in 
-`r file.path(tools::R_user_dir("rawrr", which='data'), 'rawrrassembly')`
-or in the MONO_PATH
+`r tools::R_user_dir("rawrr", which='cache')`
+or in the `MONO_PATH`
 
 ```
 ThermoFisher.CommonCore.Data.dll
@@ -54,7 +55,6 @@ The in the package included C# source code that can compile into a rawrr.exe fil
 if no C# compile and build tool is available, run
 
 `r rawrr::installRawrrExe()` to download the rawrr.exe assembly.
-
 
 In general, ThermoFisher.CommonCore dlls can be obtained through:
 

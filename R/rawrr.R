@@ -3,6 +3,54 @@
     system2("mono", "-V", stdout = TRUE)
 }
 
+  .checkReaderFunctions <- function(rawfile = sampleFilePath()){
+  
+  message("checkings rawrr::readFileHeader ...")
+  start_time <- Sys.time()
+  header <- rawrr::readFileHeader(rawfile)
+  end_time <- Sys.time()
+  msg <- sprintf("read %d header information in %s seconds", length(header), round(end_time - start_time, 3))
+  message(msg)
+  
+  message("checking rawrr::readIndex ...")
+  start_time <- Sys.time()
+  idx <- rawrr::readIndex(rawfile)
+  end_time <- Sys.time()
+  msg <- sprintf("read %d rows of index in %s seconds", nrow(idx), round(end_time - start_time, 3))
+  message(msg)
+
+  
+  message("checking  rawrr::readChromatogram(type='tic') ...")
+  start_time <- Sys.time()
+  ctic <- rawrr::readChromatogram(rawfile=rawfile, type="tic")
+  end_time <- Sys.time()
+  msg <- sprintf("read %d chromatographic (tic) items in %s seconds", length(ctic$times), round(end_time - start_time, 3))
+  message(msg)
+  
+  message("checking rawrr::readChromatogram(type='xic') ...")
+  start_time <- Sys.time()
+  cxic <- rawrr::readChromatogram(rawfile=rawfile, type="xic", mass = 500)
+  end_time <- Sys.time()
+  msg <- sprintf("read %d chromatographic (xic) items in %s seconds", length(ctic$times), round(end_time - start_time, 3))
+  message(msg)
+  
+  message("checking rawrr::readSpectrum ...")
+  start_time <- Sys.time()
+  spectra <- rawrr::readSpectrum(rawfile, 1:9)
+  end_time <- Sys.time()
+  msg <- sprintf("read %d spectra with %d peaks in %s seconds", length(spectra),
+                 sum(vapply(spectra, function(x) length(x$mZ),0)),
+                 round(end_time - start_time, 3))
+  message(msg)
+  
+  stopifnot(
+    length(header) >= 37,
+    nrow(idx) > 0,
+    length(ctic$times) > 0,
+    length(cxic[[1]]$times) > 0,
+    length(spectra[[1]]$mZ) > 0
+  )
+}
 
 .checkRawFile <- function(rawfile){
   rawfile <- normalizePath(rawfile)
@@ -1255,3 +1303,4 @@ auc.rawrrChromatogram <- function(x){
 	times <- x$times; intensities <- x$intensities
 	sum(diff(times) * (head(intensities, -1) + tail(intensities, -1))) / 2
 }
+
