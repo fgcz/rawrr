@@ -91,22 +91,33 @@
         
         tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
         tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
-        tfstdout <- tempfile(tmpdir=tmpdir)
+        tfstdout <- tempfile(tmpdir=tmpdir, fileext = ".stdout")
+        tfsterr <- tempfile(tmpdir=tmpdir, fileext = ".stderr" )
         
         cat(input, file = tfi, sep="\n")
         
         if (mono){
-            rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
-                                                       shQuote(rawfile),
-                                                       rawrrArgs, shQuote(tfi),
-                                                       shQuote(tfo)))
+          rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
+                                                     shQuote(rawfile),
+                                                     rawrrArgs, shQuote(tfi),
+                                                     shQuote(tfo)),
+                         stdout = tfstdout,
+                         stderr = tfsterr)
         }else{
             rvs <- system2(exe, args = c( shQuote(rawfile),
                                           rawrrArgs, shQuote(tfi),
-                                          shQuote(tfo)))
+                                          shQuote(tfo)), stdout = tfstdout, stderr = tfsterr)
         }
         
         e <- new.env()
+        
+        if (isFALSE(file.exists(tfo))){
+          errmsg <- sprintf("'%s' failed for an unknown reason.
+Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
+                            rawrr:::.rawrrAssembly(),
+                            tfsterr, tfstdout)
+          stop(errmsg)
+        }
         
         source(tfo, local=TRUE)
         
@@ -629,13 +640,20 @@ readChromatogram <- function(rawfile,
             stop('No mass vector is provided.')
         }
         
-        e <- .rawrrSystem2Source(rawfile, input = mass, rawrrArgs=sprintf("xic %f %s", tol, shQuote(filter)))
+        e <- .rawrrSystem2Source(rawfile, input = mass,
+                                 rawrrArgs=sprintf("xic %f %s", tol, shQuote(filter)))
         rv <- lapply(e$chromatogram,
                      function(x){
                          attr(x , 'filename') <- rawfile
                          attr(x, 'type') <- 'xic'
                          class(x) <- 'rawrrChromatogram';
                          x})
+        
+        if(is.null(rv[[1]]$times)){
+          errmsg <- c("The extraction of xic(s) failed for an unknown reason.",
+                "\nPlease check the System Requirements.")
+          stop(errmsg)
+        }
     }else{
         mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
         exe <- .rawrrAssembly()
@@ -661,8 +679,13 @@ readChromatogram <- function(rawfile,
                        intensities=DF$intensity.BasePeak)
         }
         unlink(c(tfi, tfo, tfstdout))
+        
+        if(is.null(rv$times)){
+          errmsg <- sprintf("The extraction of %s failed for an unknown reason.
+Please check the System Requirements.", type)
+          stop(errmsg)
+        }
     }
-    
     
     attr(rv, 'filter') <- filter
     attr(rv, 'filename') <- rawfile
@@ -681,7 +704,6 @@ readChromatogram <- function(rawfile,
     
     rv
 }
-
 
 #' Create instances of class \code{rawrrSpectrum}
 #'
