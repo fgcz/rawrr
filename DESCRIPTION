@@ -28,7 +28,7 @@ Description: This package wraps the functionality
     Genomics Center Zurich, Switzerland <https://fgcz.ch>.
 License: GPL-3
 SystemRequirements: mono-runtime 4.x or higher (including System.Data library)
-    on Linux/macOS, .NET 4.x or higher on Microsoft Windows.
+    on Linux/macOS, .Net Framework (>= 4.5.1) on Microsoft Windows.
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
