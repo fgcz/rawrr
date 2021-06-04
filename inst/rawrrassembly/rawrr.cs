@@ -664,18 +664,18 @@
 
                     if (mode == "xic")
                     {
-                            Console.WriteLine("xic");
+                          //  Console.WriteLine("xic");
                         try
                         {
                             double ppmError = Convert.ToDouble(args[2]);
-                            Console.WriteLine(ppmError);
+                            // Console.WriteLine(ppmError);
 			    string filter = "ms";
 			    try {
 				    filter = args[3];
 			    }
 			    catch{
 			    }
-                            Console.WriteLine(filter);
+                            //Console.WriteLine(filter);
                             var inputFilename = args[4];
                             var outputFilename = args[5];
 
@@ -684,7 +684,7 @@
                             {
                                 foreach (var line in File.ReadAllLines(inputFilename))
                                 {
-                               	    Console.WriteLine(Convert.ToDouble(line));
+                               	    //Console.WriteLine(Convert.ToDouble(line));
                                     massList.Add(Convert.ToDouble(line));
                                 }
 
