@@ -41,9 +41,9 @@ test_that("check readChromatogram", {
 
 test_that("check readChromatogram error.", {
   rawfile <- "this file does not exists"
-  expect_error(S<-readChromatogram(rawfile))
+  expect_error(S <- readChromatogram(rawfile))
 
   rawfile <- sampleFilePath()
-  expect_error(S<-readChromatogram(rawfile))
-  expect_error(S<-readChromatogram(rawfile, mass = NULL))
+  expect_error(S <- readChromatogram(rawfile))
+  expect_error(S <- readChromatogram(rawfile, mass = NULL))
 })
