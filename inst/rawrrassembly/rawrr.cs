@@ -620,12 +620,18 @@
                     {
                         // Get the BasePeak chromatogram for the MS data
 			string filter = "ms";
+			string outputcsv = "chromatogram.csv";
 			try {
 			    filter = args[2];
 			}
 			catch{
 			}
-                        GetChromatogram(rawFile, firstScanNumber, lastScanNumber, true, filter);
+			try {
+			    outputcsv = args[3];
+			}
+			catch{
+			}
+                        GetChromatogram(rawFile, firstScanNumber, lastScanNumber, outputcsv, filter);
                         Environment.Exit(0);
                     }
 
@@ -736,13 +742,16 @@
             /// <param name="filter">
             /// The chromatic filter flag.
             /// </param>
-            private static void GetChromatogram(IRawDataPlus rawFile, int startScan, int endScan, bool outputData, string filter = "ms")
+            private static void GetChromatogram(IRawDataPlus rawFile, int startScan, int endScan,  string filename, string filter = "ms")
             {
-	        if (IsValidFilter(rawFile, filter) == false){
+	            if (IsValidFilter(rawFile, filter) == false){
                     Console.WriteLine("# '{0}' is not a valid filter string.", filter);
-		    return;
-	        }
+		          return;
+	            }
 
+using (System.IO.StreamWriter file =
+		                         new System.IO.StreamWriter(filename))
+		                     {
 		// TODO(tk@fgcz.ethz.ch): check mass interval for chromatograms and its dep for diff MS detector types
 		// TODO(cp@fgcz.ethz.ch): return mass intervals to the R enviroment
                 // Define the settings for getting the Base Peak chromatogram
@@ -766,23 +775,26 @@
                 var traceMassRange = ChromatogramSignal.FromChromatogramData(dataMassRange);
                 var traceBasePeak = ChromatogramSignal.FromChromatogramData(dataBasePeak);
 
+                
                 if (traceBasePeak[0].Length > 0)
                 {
+                   
                     // Print the chromatogram data (time, intensity values)
-                    Console.WriteLine("# TIC chromatogram ({0} points)", traceTIC[0].Length);
-                    Console.WriteLine("# Base Peak chromatogram ({0} points)", traceBasePeak[0].Length);
-                    Console.WriteLine("# MassRange chromatogram ({0} points)", traceMassRange[0].Length);
+                    file.WriteLine("# TIC chromatogram ({0} points)", traceTIC[0].Length);
+                    file.WriteLine("# Base Peak chromatogram ({0} points)", traceBasePeak[0].Length);
+                    file.WriteLine("# MassRange chromatogram ({0} points)", traceMassRange[0].Length);
 
-                    Console.WriteLine("rt;intensity.BasePeak;intensity.TIC;intensity.MassRange");
-                    if (outputData)
-                    {
+                    file.WriteLine("rt;intensity.BasePeak;intensity.TIC;intensity.MassRange");
+                   
                         for (int i = 0; i < traceBasePeak[0].Length; i++)
                         {
-                            Console.WriteLine("{1:F3};{2:F0};{3:F0};{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
+                            file.WriteLine("{1:F3};{2:F0};{3:F0};{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
                         }
-                    }
+                    
                 }
-                Console.WriteLine();
+                file.WriteLine();
+            }
+              
             }
 
 	    private static bool IsValidFilter(IRawDataPlus rawFile, string filter)

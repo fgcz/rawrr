@@ -44,14 +44,9 @@ scans.
 # Example 1: not meaningful but proof-of-concept
 (rawfile <- sampleFilePath())
 
-XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
-plot(XIC)
-
-BPC <- readChromatogram(rawfile, type='bpc')
-plot(BPC)
-
-TIC <- readChromatogram(rawfile, type='tic')
-plot(TIC)
+readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000) |> plot()
+readChromatogram(rawfile, type='bpc') |> plot()
+readChromatogram(rawfile, type='tic') |> plot()
 
 # Example 2: extract iRT peptides
 iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
@@ -69,6 +64,10 @@ EH4547 <- normalizePath(eh[["EH4547"]])
 if (!file.exists(rawfile)){
     file.link(EH4547, rawfile)
 }
+op <- par(mfrow=c(2,1))
+readChromatogram(rawfile, type='bpc') |> plot()
+readChromatogram(rawfile, type='tic') |> plot()
+par(op)
 
 # derive [2H+] ions
 ((protViz::parentIonMass(iRTpeptide) + 1.008) / 2) |>

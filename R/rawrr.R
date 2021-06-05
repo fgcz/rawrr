@@ -84,55 +84,64 @@
 
 # system2 wrapper for readFileHeader, readSpectrum, readChromatogam
 .rawrrSystem2Source <-
-    function(rawfile, input, rawrrArgs="scans", tmpdir=tempdir(),
-             removeTempfile=TRUE){
-        mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-        exe <- .rawrrAssembly()
-        
-        tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
-        tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
-        tfstdout <- tempfile(tmpdir=tmpdir, fileext = ".stdout")
-        tfsterr <- tempfile(tmpdir=tmpdir, fileext = ".stderr" )
-        
-        cat(input, file = tfi, sep="\n")
-        
-        if (mono){
-          rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
-                                                     shQuote(rawfile),
-                                                     rawrrArgs, shQuote(tfi),
-                                                     shQuote(tfo)),
-                         stdout = tfstdout,
-                         stderr = tfsterr)
-        }else{
-            rvs <- system2(exe, args = c( shQuote(rawfile),
-                                          rawrrArgs, shQuote(tfi),
-                                          shQuote(tfo)), stdout = tfstdout, stderr = tfsterr)
-        }
-        
-        e <- new.env()
-        
-        if (isFALSE(file.exists(tfo))){
-          errmsg <- sprintf("'%s' failed for an unknown reason.
-Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
-                            rawrr:::.rawrrAssembly(),
-                            tfsterr, tfstdout)
-          stop(errmsg)
-        }
-        
-        source(tfo, local=TRUE)
-        
-        if ('error' %in% names(e)){
-            stop(e$error)
-        }
-        
-        if(isTRUE(removeTempfile)){
-            unlink(c(tfi, tfo, tfstdout))
-        }else{
-            msg <- sprintf("input file: %s\noutput file: %s\n", tfi, tfo)
-            message(msg)
-        }
-        return(e)
+  function(rawfile, input, rawrrArgs="scans", tmpdir=tempdir(),
+           removeTempfile=TRUE){
+    
+    mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+    exe <- .rawrrAssembly()
+    
+    tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
+    tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
+    tfstdout <- tempfile(tmpdir=tmpdir, fileext = ".stdout")
+    tfsterr <- tempfile(tmpdir=tmpdir, fileext = ".stderr" )
+    
+    cat(input, file = tfi, sep="\n")
+    
+    if (mono){
+      rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
+                                                 shQuote(rawfile),
+                                                 rawrrArgs, shQuote(tfi),
+                                                 shQuote(tfo)),
+                     stdout = tfstdout,
+                     stderr = tfsterr)
+    }else{
+      rvs <- system2(exe, args = c( shQuote(rawfile),
+                                    rawrrArgs, shQuote(tfi),
+                                    shQuote(tfo)), )
     }
+    
+    if (isFALSE(file.exists(tfo))){
+      errmsg <- sprintf("Rcode file to parse does not exist. '%s' failed for an unknown reason.
+Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
+                        rawrr:::.rawrrAssembly(),
+                        tfsterr, tfstdout)
+      stop(errmsg)
+    }
+    
+    
+    e <- new.env()
+    try(source(tfo, local=TRUE), silent = TRUE)
+    
+    if (length(names(e)) == 0){
+      errmsg <- sprintf("Parsing the output of '%s' failed for an unknown reason.
+Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
+                        rawrr:::.rawrrAssembly(),
+                        tfsterr, tfstdout)
+      stop(errmsg)
+    }
+    
+    if ('error' %in% names(e)){
+      stop(e$error)
+    }
+    
+    if(isTRUE(removeTempfile)){
+      unlink(c(tfi, tfo, tfstdout))
+    }else{
+      msg <- sprintf("input file: %s\noutput file: %s\n", tfi, tfo)
+      message(msg)
+    }
+    return(e)
+  }
 
 
 #' Function to check if an object is an instance of class \code{rawrrSpectrum}
@@ -541,6 +550,61 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
   rv
 }
 
+.readChromatogramTicBpc <- function(rawfile,
+                                    filter = "ms", type='tic'){
+  
+  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+  exe <- .rawrrAssembly()
+  
+  tfstdout <- tempfile(fileext = ".stdout")
+  tfstderr <- tempfile(fileext = ".stderr")
+  tfi <- tempfile()
+  tfcsv <- tempfile(fileext = ".csv")
+  
+  system2args <- c(shQuote(rawfile), "chromatogram", shQuote(filter), tfcsv)
+  
+  if (mono){
+    rvs <- system2("mono", args = c(shQuote(exe), system2args), stdout=tfstdout, stderr=tfstderr)
+  }else{
+    rvs <- system2(exe, args = system2args, stdout=tfstdout, stderr=tfstderr)
+  }
+  
+  if (isFALSE(file.exists(tfcsv)))
+  {
+    errmsg <- sprintf("csv file to read does not exist. '%s' failed for an unknown reason.
+Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
+                      rawrr:::.rawrrAssembly(),
+                      tfsterr, tfstdout)
+    stop(errmsg)
+  }
+  
+  message(tfcsv)
+  DF <- read.csv2(tfcsv, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
+  
+  if (type == 'tic'){
+    rv <- list(
+      times=DF$rt,
+      intensities=DF$intensity.TIC)
+  }else{
+    # expect bpc
+    rv <- list(times=DF$rt,
+               intensities=DF$intensity.BasePeak)
+  }
+  
+  
+  
+  if(is.null(rv$times)){
+    errmsg <- sprintf("'%s' failed for an unknown reason.
+Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
+                      rawrr:::.rawrrAssembly(),
+                      tfsterr, tfstdout)
+    stop(errmsg)
+  }
+  
+  unlink(c(tfi, tfcsv, tfstdout, tfstderr))
+  return(rv)
+}
+  
 # readChromatogram ---------
 #' Extracts chromatographic data from a raw file.
 #'
@@ -595,14 +659,9 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' # Example 1: not meaningful but proof-of-concept
 #' (rawfile <- sampleFilePath())
 #'
-#' XIC <- readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000)
-#' plot(XIC)
-#'
-#' BPC <- readChromatogram(rawfile, type='bpc')
-#' plot(BPC)
-#'
-#' TIC <- readChromatogram(rawfile, type='tic')
-#' plot(TIC)
+#' readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000) |> plot()
+#' readChromatogram(rawfile, type='bpc') |> plot()
+#' readChromatogram(rawfile, type='tic') |> plot()
 #'
 #' # Example 2: extract iRT peptides
 #' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
@@ -620,6 +679,10 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
 #' if (!file.exists(rawfile)){
 #'     file.link(EH4547, rawfile)
 #' }
+#' op <- par(mfrow=c(2,1))
+#' readChromatogram(rawfile, type='bpc') |> plot()
+#' readChromatogram(rawfile, type='tic') |> plot()
+#' par(op)
 #' 
 #' # derive [2H+] ions
 #' ((protViz::parentIonMass(iRTpeptide) + 1.008) / 2) |>
@@ -634,6 +697,8 @@ readChromatogram <- function(rawfile,
     
     .isAssemblyWorking()
     .checkRawFile(rawfile)
+    
+    stopifnot(type %in% c('xic', 'bpc', 'tic'))
 
     if(type == 'xic'){
         if (is.null(mass)){
@@ -655,36 +720,7 @@ readChromatogram <- function(rawfile,
           stop(errmsg)
         }
     }else{
-        mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
-        exe <- .rawrrAssembly()
-        
-        tfstdout <- tempfile()
-        tfi <- tempfile()
-        tfo <- tempfile()
-        
-        if (mono){
-            rvs <- system2("mono", args = c(shQuote(exe), shQuote(rawfile), "chromatogram", shQuote(filter)), stdout=tfstdout)
-        }else{
-            rvs <- system2(exe, args = c(shQuote(rawfile), "chromatogram",  shQuote(filter)), stdout=tfstdout)
-        }
-        DF <- read.csv2(tfstdout, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
-        
-        if (type == 'tic'){
-            rv <- list(
-                times=DF$rt,
-                intensities=DF$intensity.TIC)
-        }else{
-            # expect bpc
-            rv <- list(times=DF$rt,
-                       intensities=DF$intensity.BasePeak)
-        }
-        unlink(c(tfi, tfo, tfstdout))
-        
-        if(is.null(rv$times)){
-          errmsg <- sprintf("The extraction of %s failed for an unknown reason.
-Please check the System Requirements.", type)
-          stop(errmsg)
-        }
+      rv <- .readChromatogramTicBpc(rawfile, filter, type)
     }
     
     attr(rv, 'filter') <- filter
