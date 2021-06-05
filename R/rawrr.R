@@ -93,7 +93,7 @@
     tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
     tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
     tfstdout <- tempfile(tmpdir=tmpdir, fileext = ".stdout")
-    tfsterr <- tempfile(tmpdir=tmpdir, fileext = ".stderr" )
+    tfstderr <- tempfile(tmpdir=tmpdir, fileext = ".stderr" )
     
     cat(input, file = tfi, sep="\n")
     
@@ -103,7 +103,7 @@
                                                  rawrrArgs, shQuote(tfi),
                                                  shQuote(tfo)),
                      stdout = tfstdout,
-                     stderr = tfsterr)
+                     stderr = tfstderr)
     }else{
       rvs <- system2(exe, args = c( shQuote(rawfile),
                                     rawrrArgs, shQuote(tfi),
@@ -113,8 +113,8 @@
     if (isFALSE(file.exists(tfo))){
       errmsg <- sprintf("Rcode file to parse does not exist. '%s' failed for an unknown reason.
 Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
-                        rawrr:::.rawrrAssembly(),
-                        tfsterr, tfstdout)
+                        .rawrrAssembly(),
+                        tfstderr, tfstdout)
       stop(errmsg)
     }
     
@@ -125,8 +125,8 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
     if (length(names(e)) == 0){
       errmsg <- sprintf("Parsing the output of '%s' failed for an unknown reason.
 Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
-                        rawrr:::.rawrrAssembly(),
-                        tfsterr, tfstdout)
+                        .rawrrAssembly(),
+                        tfstderr, tfstdout)
       stop(errmsg)
     }
     
@@ -573,8 +573,8 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE)
   {
     errmsg <- sprintf("csv file to read does not exist. '%s' failed for an unknown reason.
 Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
-                      rawrr:::.rawrrAssembly(),
-                      tfsterr, tfstdout)
+                      .rawrrAssembly(),
+                      tfstderr , tfstdout)
     stop(errmsg)
   }
   
@@ -596,8 +596,8 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
   if(is.null(rv$times)){
     errmsg <- sprintf("'%s' failed for an unknown reason.
 Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
-                      rawrr:::.rawrrAssembly(),
-                      tfsterr, tfstdout)
+                      .rawrrAssembly(),
+                      tfstderr, tfstdout)
     stop(errmsg)
   }
   
