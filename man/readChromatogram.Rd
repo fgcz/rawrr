@@ -42,13 +42,14 @@ scans.
 \examples{
 
 # Example 1: not meaningful but proof-of-concept
-(rawfile <- sampleFilePath())
+(rawfile <- rawrr::sampleFilePath())
 
-readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000) |> plot()
-readChromatogram(rawfile, type='bpc') |> plot()
-readChromatogram(rawfile, type='tic') |> plot()
+rawrr::readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000) |> plot()
+rawrr::readChromatogram(rawfile, type='bpc') |> plot()
+rawrr::readChromatogram(rawfile, type='tic') |> plot()
 
 # Example 2: extract iRT peptides
+ if (require(ExperimentHub) & require(protViz)){
 iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
   "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
   "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
@@ -73,7 +74,7 @@ par(op)
 ((protViz::parentIonMass(iRTpeptide) + 1.008) / 2) |>
    readChromatogram(rawfile=rawfile) |>
    plot()
-
+}
 }
 \references{
 Automated quality control sample 1 (autoQC01) analyzed across different

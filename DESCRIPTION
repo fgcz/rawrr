@@ -12,12 +12,15 @@ Authors@R: c(person("Christian", "Panse",
     comment = c(ORCID = "0000-0002-1847-885X")))
 Depends: R (>= 4.1)
 Imports:
-        grDevices, graphics, stats, utils, protViz (>= 0.6), ExperimentHub, tartare (>= 1.5)
+        grDevices, graphics, stats, utils
 Suggests:
+    BiocStyle (>= 2.5),
+    ExperimentHub,
     knitr,
+    protViz (>= 0.6),
     rmarkdown,
-    testthat,
-    BiocStyle (>= 2.5)
+    tartare (>= 1.5),
+    testthat
 Description: This package wraps the functionality
     of the RawFileReader .NET assembly. Within the R environment,
     spectra and chromatograms are represented by S3 objects
