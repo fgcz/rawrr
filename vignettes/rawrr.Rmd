@@ -23,7 +23,7 @@ output:
 bibliography: rawrr.bib
 vignette: >
   %\usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{The rawrr R package - Direct Access to Orbitrap Data and Beyond}
+  %\VignetteIndexEntry{Direct Access to Orbitrap Data and Beyond}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 urlcolor: blue
@@ -94,7 +94,6 @@ The following sections are inspired by real-world research/infrastructure projec
 
 
 ```{r readFileHeader, eval=TRUE}
-library(rawrr)
 H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
 
