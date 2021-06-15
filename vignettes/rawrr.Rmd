@@ -31,7 +31,7 @@ urlcolor: blue
 
 ```{r style, echo = FALSE, results = 'asis'}
 BiocStyle::markdown()
-knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=TRUE)
+knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=FALSE)
 ```
 
 ```{r HexSticker, echo=FALSE, out.width="50%", eval=TRUE}
