@@ -48,9 +48,9 @@ corresponding values become data parts of the objects, typically vectors.
 \examples{
 
 # Example 1
-(rawfile <- sampleFilePath())
+(rawfile <- rawrr::sampleFilePath())
 
-S <- readSpectrum(rawfile, scan = 1:9)
+S <- rawrr::readSpectrum(rawfile, scan = 1:9)
 
 S[[1]]
 
@@ -58,10 +58,12 @@ names(S[[1]])
 
 plot(S[[1]])
 
+
+
 # Example 2 - find best peptide spectrum match using the |> pipe operator
 # fetch via ExperimentHub
 
-library(ExperimentHub)
+if (require(ExperimentHub) & require(protViz)){
 eh <- ExperimentHub::ExperimentHub()
 EH4547 <- normalizePath(eh[["EH4547"]])
 
@@ -104,7 +106,7 @@ end_time - start_time
 
 rawrr::readSpectrum(rawfile=rawfile, 11091) |>
    lapply(function(x).UniversalSpectrumExplorer(x, sequence = GAG))
-   
+ }  
 }
 \references{
 \itemize{

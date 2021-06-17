@@ -23,7 +23,7 @@ output:
 bibliography: rawrr.bib
 vignette: >
   %\usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{The rawrr R package - Direct Access to Orbitrap Data and Beyond}
+  %\VignetteIndexEntry{Direct Access to Orbitrap Data and Beyond}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 urlcolor: blue
@@ -31,7 +31,7 @@ urlcolor: blue
 
 ```{r style, echo = FALSE, results = 'asis'}
 BiocStyle::markdown()
-knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=TRUE)
+knitr::opts_chunk$set(fig.wide = TRUE, fig.retina = 3, error=FALSE)
 ```
 
 ```{r HexSticker, echo=FALSE, out.width="50%", eval=TRUE}
@@ -94,7 +94,6 @@ The following sections are inspired by real-world research/infrastructure projec
 
 
 ```{r readFileHeader, eval=TRUE}
-library(rawrr)
 H <- rawrr::readFileHeader(rawfile = rawfile)
 ```
 
@@ -147,8 +146,7 @@ plot(S[[1]], centroid=TRUE, SN = TRUE, diagnostic = TRUE)
 # S/N threshold indicator
 abline(h = 5, lty = 2, col = "blue")
 # decorate plot with y-ion series of target peptide LGGNEQVTR++
-# c(175.12, 276.17, 375.24, 503.29, 632.34, 746.38, 803.4, 860.42)
-yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8]
+(yIonSeries <- protViz::fragmentIon("LGGNEQVTR")[[1]]$y[1:8])
 names(yIonSeries) <- paste0("y", seq(1, length(yIonSeries)))
 abline(v = yIonSeries, col='#DDDDDD88', lwd=5)
 axis(3, yIonSeries, names(yIonSeries))

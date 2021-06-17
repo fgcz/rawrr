@@ -429,9 +429,6 @@ sampleFilePath <- function(){
 #' the .NET assembly \code{rawrr.exe}. The default uses \code{tempdir()}.
 #' @param validate boolean default is \code{FALSE}.
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
-#' @import ExperimentHub 
-#' @import tartare
-#' @importFrom protViz peakplot
 #' @details All mass spectra are recorded by scanning detectors (mass analyzers)
 #' that log signal intensities for ranges of mass to charge ratios (m/z), also
 #' referred to as position. These recordings can be of continuous nature,
@@ -473,20 +470,22 @@ sampleFilePath <- function(){
 #' @examples
 #' 
 #' # Example 1
-#' (rawfile <- sampleFilePath())
+#' (rawfile <- rawrr::sampleFilePath())
 #'
-#' S <- readSpectrum(rawfile, scan = 1:9)
+#' S <- rawrr::readSpectrum(rawfile, scan = 1:9)
 #'
 #' S[[1]]
 #'
 #' names(S[[1]])
 #'
 #' plot(S[[1]])
-#'
+#' 
+#' 
+#' 
 #' # Example 2 - find best peptide spectrum match using the |> pipe operator
 #' # fetch via ExperimentHub
 #' 
-#' library(ExperimentHub)
+#' if (require(ExperimentHub) & require(protViz)){
 #' eh <- ExperimentHub::ExperimentHub()
 #' EH4547 <- normalizePath(eh[["EH4547"]])
 #' 
@@ -529,7 +528,7 @@ sampleFilePath <- function(){
 #' 
 #' rawrr::readSpectrum(rawfile=rawfile, 11091) |>
 #'    lapply(function(x).UniversalSpectrumExplorer(x, sequence = GAG))
-#'    
+#'  }  
 readSpectrum <- function(rawfile, scan = NULL, tmpdir=tempdir(), validate=FALSE){
   .isAssemblyWorking()
   .checkRawFile(rawfile)
@@ -653,17 +652,17 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
 ## #' @exportS3Method plot rawrrChromatogram
 ## #' @exportS3Method plot rawrrChromatogramSet
 #' @importFrom utils read.csv2
-#' @importFrom protViz parentIonMass
 #' @examples
 #'
 #' # Example 1: not meaningful but proof-of-concept
-#' (rawfile <- sampleFilePath())
+#' (rawfile <- rawrr::sampleFilePath())
 #'
-#' readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000) |> plot()
-#' readChromatogram(rawfile, type='bpc') |> plot()
-#' readChromatogram(rawfile, type='tic') |> plot()
+#' rawrr::readChromatogram(rawfile, mass=c(669.8381, 726.8357), tol=1000) |> plot()
+#' rawrr::readChromatogram(rawfile, type='bpc') |> plot()
+#' rawrr::readChromatogram(rawfile, type='tic') |> plot()
 #'
 #' # Example 2: extract iRT peptides
+#'  if (require(ExperimentHub) & require(protViz)){
 #' iRTpeptide <- c("LGGNEQVTR", "YILAGVENSK", "GTFIIDPGGVIR", "GTFIIDPAAVIR",
 #'   "GAGSSEPVTGLDAK", "TPVISGGPYEYR", "VEATFGVDESNAK",
 #'   "TPVITGAPYEYR", "DGLDAASYYAPVR", "ADVTPADFSEWSK",
@@ -688,7 +687,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
 #' ((protViz::parentIonMass(iRTpeptide) + 1.008) / 2) |>
 #'    readChromatogram(rawfile=rawfile) |>
 #'    plot()
-#'
+#' }
 readChromatogram <- function(rawfile,
                              mass = NULL,
                              tol = 10,
