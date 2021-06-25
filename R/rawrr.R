@@ -496,16 +496,25 @@ sampleFilePath <- function(){
 #' 
 #' GAG <- "GAGSSEPVTGLDAK"
 #' 
-#' .bestPeptideSpectrumMatch <- function(rawfile, sequence="GAGSSEPVTGLDAK"){
+#' .bestPeptideSpectrumMatch <- function(rawfile,
+#'     sequence="GAGSSEPVTGLDAK"){
 #'     readIndex(rawfile) |>
-#'         subset(abs((1.008 + (protViz::parentIonMass(sequence) - 1.008) / 2) - precursorMass) < 0.001, select = scan) |>
+#'         subset(abs((1.008 + (protViz::parentIonMass(sequence) - 1.008) / 2) -
+#'             precursorMass) < 0.001, select = scan) |>
 #'         unlist() |>
 #'         readSpectrum(rawfile = rawfile) |>
-#'         lapply(function(x) {y <- protViz::psm(sequence = GAG, spec=x, plot=FALSE); y$scan <- x$scan; y}) |>
-#'         lapply(FUN= function(x){score <- sum(abs(x$mZ.Da.error) < 0.01); cbind(scan=x$scan, score=score)}) |>
+#'         lapply(function(x) {
+#'           y <- protViz::psm(sequence = GAG, spec=x, plot=FALSE);
+#'           y$scan <- x$scan; y
+#'         }) |>
+#'         lapply(FUN= function(x){
+#'           score <- sum(abs(x$mZ.Da.error) < 0.01);
+#'           cbind(scan=x$scan, score=score)
+#'         }) |>
 #'         (function(x) as.data.frame(Reduce(rbind, x)))() |>
 #'         subset(score > 0) |>
-#'         (function(x) x[order(x$score, decreasing = TRUE), 'scan'])() |>
+#'         (function(x) x[order(x$score, decreasing = TRUE),
+#'             'scan'])() |>
 #'         head(1)
 #' }
 #' 
