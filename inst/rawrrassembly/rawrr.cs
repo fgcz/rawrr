@@ -165,59 +165,56 @@
 	    }
 
             public static void GetIndex(this IRawDataPlus rawFile){
-             	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
-            	    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
+	            int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
+	            int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
 
-		    int idxCharge = rawFile.GetIndexOfPattern();
-		    int idxMasterScan = rawFile.GetIndexOfPattern("Master Scan Number:");
-		    int idxDependencyType = rawFile.GetIndexOfPattern("Dependency Type:");
+	            int idxCharge = rawFile.GetIndexOfPattern();
+	            int idxMasterScan = rawFile.GetIndexOfPattern("Master Scan Number:");
+	            int idxDependencyType = rawFile.GetIndexOfPattern("Dependency Type:");
 
-                    double charge, precursorMass;
-		    int masterScan, dependencyType;
+	            double charge, precursorMass;
+	            int masterScan, dependencyType;
 
-                    Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge;masterScan;dependencyType");
+	            Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge;masterScan;dependencyType");
 
-             	    for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
-                        var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
-                        var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
-                        var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
-			var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
+	            for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
+		            var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+		            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+		            var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+		            var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
 
-		        try{
-                        	var reaction0 = scanEvent.GetReaction(0);
-		        	precursorMass =  reaction0.PrecursorMass;
-		        } catch{
-			        precursorMass = -1;
-		        }
+		            try{
+			            var reaction0 = scanEvent.GetReaction(0);
+			            precursorMass =  reaction0.PrecursorMass;
+		            } catch{
+			            precursorMass = -1;
+		            }
 
-		        try{
-                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
-                        } catch {
-			        charge = -1;
-		        }
+		            try{
+			            charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
+		            } catch {
+			            charge = -1;
+		            }
 
-		        try{
-                    	    masterScan = int.Parse(scanTrailer.Values.ToArray()[idxMasterScan]);
-                        } catch {
-			        masterScan= -1;
-		        }
+		            try{
+			            masterScan = int.Parse(scanTrailer.Values.ToArray()[idxMasterScan]);
+		            } catch {
+			            masterScan= -1;
+		            }
 
-		        try{
-                    	    dependencyType = int.Parse(scanTrailer.Values.ToArray()[idxDependencyType]);
-                        } catch {
-			        dependencyType = -1;
-		        }
-
-
-
-                    Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}", scanNumber,
-		    	scanStatistics.ScanType.ToString(),
-			Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
-			precursorMass,
-			scanFilter.MSOrder.ToString(),
-			charge, masterScan, dependencyType);
-		    }
-	    }
+		            try{
+			            dependencyType = int.Parse(scanTrailer.Values.ToArray()[idxDependencyType]);
+		            } catch {
+			            dependencyType = -1;
+		            }
+		            Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}", scanNumber,
+			            scanStatistics.ScanType.ToString(),
+			            Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
+			            precursorMass,
+			            scanFilter.MSOrder.ToString(),
+			            charge, masterScan, dependencyType);
+	            }
+            }
 
 	    private static int GetIndexOfPattern(this IRawDataPlus rawFile, string pattern="Charge State"){
                     var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
@@ -465,14 +462,17 @@
 		        const string rawR_version = "1.1.9";
 		        string filename = string.Empty;
 		        string mode = string.Empty;
+		        string filterString = string.Empty;
 		        Hashtable hashtable = new Hashtable()
 		        {
-			        {"scanFilter", "List all scan filters of a given raw file."},
+			        {"filter", "List all scan ids pass the filter string (option 2)."},
+			        {"getFilters", "List all scan filters of a given raw file."},
+			        {"isValidFilter", "Checks whether the provided argument string (option 2) is a valid filter."},
 			        {"headerR", "Writes the raw file's meta data as R code to a file."},
 			        {"chromatogram", "Extracts base peak and total ion count chromatograms into a file."},
 			        {
 				        "xic",
-				        "Extracts filtered (option 2) within a given mass tolerance [in ppm] (option 3) xic of a given raw file as R code into a file."
+				        "Extracts filtered (option 2) ion chromatograms within a given mass and mass tolerance [in ppm] (option 3) xic of a given raw file as R code into a file."
 			        },
 			        {"scans", "Extracts scans (spectra) of a given ID as Rcode."},
 			        {"index", "Prints index as csv of all scans."}
@@ -496,7 +496,9 @@
 			        if (args.Length == 0)
 			        {
 						Console.WriteLine("No RAW file specified!");
-						return;
+			        return;
+				        Console.WriteLine("run 'rawrr.exe help'.");
+				        Environment.Exit(1);
 			        }
 			        else if (args[0] == "version")
 			        {
@@ -575,19 +577,34 @@
                     double endTime = rawFile.RunHeaderEx.EndTime;
 
                     if (mode == "headerR"){
-                     var outputFilename = args[3];
-		     rawFile.PrintHeaderAsRcode(outputFilename);
-		     return; }
-                    // Display all of the trailer extra data fields present in the RAW file
+	                    var outputFilename = args[3];
+	                    rawFile.PrintHeaderAsRcode(outputFilename);
+	                    return;
+                    }
 
                     // Get the number of filters present in the RAW file
                     int numberFilters = rawFile.GetFilters().Count;
 
-                    // Get the scan filter for the first and last spectrum in the RAW file
-                    //var firstFilter = rawFile.GetFilterForScanNumber(firstScanNumber);
-                    //var lastFilter = rawFile.GetFilterForScanNumber(lastScanNumber);
+                    if (mode == "filter")
+                    {
+	                    filterString = args[2].ToString();
+	                    if(!IsValidFilter(rawFile, filterString))
+							Environment.Exit(1);
 
-                    if (mode == "scanFilter")
+	                    foreach(var ss in rawFile.GetFilteredScanEnumerator(rawFile.GetFilterFromString(filterString, 10)).ToArray())
+	                    {
+							Console.WriteLine(ss);    
+	                    }
+                        Environment.Exit(0);
+                    }
+
+                    if (mode == "isValidFilter")
+                    {
+	                    Console.WriteLine(IsValidFilter(rawFile, args[2].ToString()).ToString());
+                        Environment.Exit(0);
+                    }
+
+                    if (mode == "getFilters")
                     {
                         foreach (var filter in rawFile.GetFilters())
                         {
