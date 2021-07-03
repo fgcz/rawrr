@@ -135,7 +135,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
     }
     
     if(isTRUE(removeTempfile)){
-      unlink(c(tfi, tfo, tfstdout))
+      unlink(c(tfi, tfo, tfstdout, tfstderr))
     }else{
       msg <- sprintf("input file: %s\noutput file: %s\n", tfi, tfo)
       message(msg)
