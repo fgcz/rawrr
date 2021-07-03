@@ -588,14 +588,21 @@
                     if (mode == "filter")
                     {
 	                    filterString = args[2].ToString();
+	                    var outputFilename = args[3];
 	                    if(!IsValidFilter(rawFile, filterString))
 							Environment.Exit(1);
 
-	                    foreach(var ss in rawFile.GetFilteredScanEnumerator(rawFile.GetFilterFromString(filterString, 10)).ToArray())
+	                    using (System.IO.StreamWriter file =
+		                    new System.IO.StreamWriter(outputFilename))
 	                    {
-							Console.WriteLine(ss);    
+		                    foreach (var ss in rawFile
+			                    .GetFilteredScanEnumerator(rawFile.GetFilterFromString(filterString, 10)).ToArray())
+		                    {
+			                    file.WriteLine(ss);
+		                    }
 	                    }
-                        Environment.Exit(0);
+
+	                    Environment.Exit(0);
                     }
 
                     if (mode == "isValidFilter")
