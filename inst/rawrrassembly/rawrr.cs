@@ -588,7 +588,9 @@
                     if (mode == "filter")
                     {
 	                    filterString = args[2].ToString();
-	                    var outputFilename = args[3];
+                            int precision = int.Parse(args[3]);
+	                    var outputFilename = args[4];
+
 	                    if(!IsValidFilter(rawFile, filterString))
 							Environment.Exit(1);
 
@@ -596,7 +598,7 @@
 		                    new System.IO.StreamWriter(outputFilename))
 	                    {
 		                    foreach (var ss in rawFile
-			                    .GetFilteredScanEnumerator(rawFile.GetFilterFromString(filterString, 10)).ToArray())
+			                    .GetFilteredScanEnumerator(rawFile.GetFilterFromString(filterString, precision)).ToArray())
 		                    {
 			                    file.WriteLine(ss);
 		                    }
