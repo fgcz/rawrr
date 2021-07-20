@@ -636,7 +636,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
     stop(errmsg)
   }
   
-  message(tfcsv)
+  # message(tfcsv)
   DF <- read.csv2(tfcsv, header = TRUE, comment.char = "#", sep = ';', na.string="-1")
   
   if (type == 'tic'){
