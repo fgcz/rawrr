@@ -261,6 +261,14 @@ installRawrrExe <-
     return()
   }
 
+  if (Sys.which("msbuild") == "" && Sys.which("xbuild") == "")
+  {
+    msg <- c("Could not find 'msbuild' or 'xbuild' in the path. Therefore, ",
+         "it is not possible to build the 'rawrr.exe' assembly from",
+         " source code.\nTry to run rawrr::installRawrrExe().")
+    message(msg)
+    return()
+  }
 
   buildRawrrExe()
 }
