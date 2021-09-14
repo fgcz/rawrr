@@ -60,6 +60,8 @@ if no C# compile and build tool is available, run
 
 `r rawrr::installRawrrExe()` to download the rawrr.exe assembly.
 
+On Windows, the decimal symbol has to be configured as a '.'!
+
 In general, ThermoFisher.CommonCore dlls can be obtained through:
 
 https://planetorbitrap.com/rawfilereader
