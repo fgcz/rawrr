@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 1.1.14
+Version: 1.1.15
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -17,7 +17,7 @@ Suggests:
     BiocStyle (>= 2.5),
     ExperimentHub,
     knitr,
-    protViz (>= 0.6),
+    protViz (>= 0.7),
     rmarkdown,
     tartare (>= 1.5),
     testthat
