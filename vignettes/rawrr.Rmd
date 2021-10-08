@@ -280,11 +280,35 @@ The package authors thank Hervé Pagès for very detailed and constructive feedb
 |USI    |Universal spectrum identifier                      |
 |XIC    |extracted ion chromatogram                         |
 
+
+# FAQ
+
+## How to pronounce the package name the right way?
+
+see https://youtu.be/jBc2MniDBYw
+
+## What would be the simplest way of extracting the base peak intensity and m/z value for a large batch of files at the MS1 level? 
+
+```{r faq1}
+# use sample.raw file
+f <- rawrr::sampleFilePath()
+(rawrr::readIndex(f) |>
+  subset(MSOrder == "Ms"))$scan |>
+  sapply(FUN = rawrr::readSpectrum, rawfile=f) |>
+  parallel::mclapply(FUN = function(x){
+    idx <- x$intensity == max(x$intensity);
+    data.frame(scan=x$scan,
+               rtinseconds=x$rtinseconds,
+               mZ=x$mZ[idx],
+               intensity=x$intensity[idx]
+               )}) |>
+  base::Reduce(f=rbind)
+```
+
 # Session information {-}
 
 ```{r sessioninfo, echo=FALSE}
 sessionInfo()
 ```
-
 
 # References {-}
