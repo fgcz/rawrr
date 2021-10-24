@@ -268,6 +268,7 @@ The package authors thank Hervé Pagès for very detailed and constructive feedb
 |:------|:--------------------------------------------------|
 |API    |application programming interface                  |
 |BSA    |Bovine Serum Albumin                               |
+|CIL    |C Intermediate Language                            |
 |FTMS   |Fourier-transformed mass spectrum                  |
 |GUI    |graphics user interface                            |
 |HRAM   |high-resolution accurate mass                      |
