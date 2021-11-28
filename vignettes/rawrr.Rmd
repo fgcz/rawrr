@@ -313,4 +313,14 @@ f <- rawrr::sampleFilePath()
 sessionInfo()
 ```
 
+# Mono information {-}
+
+```{bash monoinfo, echo=TRUE, error=TRUE}
+mono --version
+```
+
+```{bash pkginfo, echo=TRUE, error=TRUE}
+pkg-config --cflags --libs mono-2
+```
+
 # References {-}
