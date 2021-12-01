@@ -5,7 +5,13 @@
 \alias{rawrr}
 \title{Reads spectral data from a raw file.}
 \usage{
-readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
+readSpectrum(
+  rawfile,
+  scan = NULL,
+  tmpdir = tempdir(),
+  validate = FALSE,
+  mode = ""
+)
 }
 \arguments{
 \item{rawfile}{the name of the Thermo Fisher Scientific raw file.}
@@ -16,6 +22,9 @@ readSpectrum(rawfile, scan = NULL, tmpdir = tempdir(), validate = FALSE)
 the .NET assembly \code{rawrr.exe}. The default uses \code{tempdir()}.}
 
 \item{validate}{boolean default is \code{FALSE}.}
+
+\item{mode}{if \code{mode = "barebone"} only mZ, intensity, pepmass, rtinseconds
+and charge state is returned. As default mode is \code{""}.}
 }
 \value{
 a nested list of \code{rawrrSpectrum} objects containing more than 50
@@ -129,5 +138,5 @@ rawrr::readSpectrum(rawfile=rawfile, 11091) |>
 \url{https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?accession=MSV000086542}
 }
 \author{
-Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020
+Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020, 2021
 }

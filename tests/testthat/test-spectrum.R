@@ -12,6 +12,31 @@ test_that("check readSpectrum object names and types.", {
 
   lapply(S, function(x){expect_true(is.rawrrSpectrum(x))})
 
+  B <- readSpectrum(rawfile, 1:22, mode = 'barebone')
+  
+  expect_true(all(sapply(B, function(x){'scan' %in% names(x)})))
+  expect_true(all(sapply(B, function(x){'mZ' %in% names(x)})))
+  expect_true(all(sapply(B, function(x){'intensity' %in% names(x)})))
+  expect_true(all(sapply(B, function(x){'charge' %in% names(x)})))
+  expect_true(all(sapply(B, function(x){'rtinseconds' %in% names(x)})))
+  
+  expect_false(all(sapply(B, function(x){'TIC' %in% names(x)})))
+
+  expect_setequal(unlist(sapply(1:22, function(i){B[[i]]$mZ})),
+                  unlist(sapply(1:22, function(i){S[[i]]$mZ})))
+  
+  expect_setequal(unlist(sapply(1:22, function(i){S[[i]]$intensity})),
+                  unlist(sapply(1:22, function(i){B[[i]]$intensity})))
+  
+  expect_setequal(unlist(sapply(1:22, function(i){B[[i]]$charge})),
+                  unlist(sapply(1:22, function(i){S[[i]]$charge})))
+  
+  expect_setequal(unlist(sapply(1:22, function(i){B[[i]]$rtinseconds})),
+                  unlist(sapply(1:22, function(i){S[[i]]$rtinseconds})))
+  
+  expect_setequal(unlist(sapply(1:22, function(i){B[[i]]$scan})),
+                  unlist(sapply(1:22, function(i){S[[i]]$scan})))
+  
 })
 
 test_that("check readSpectrum scan 23.", {

@@ -168,7 +168,7 @@
 	            int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
 	            int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
 
-	            int idxCharge = rawFile.GetIndexOfPattern();
+	            int idxCharge = rawFile.GetIndexOfPattern("Charge State");
 	            int idxMasterScan = rawFile.GetIndexOfPattern("Master Scan Number:");
 	            int idxDependencyType = rawFile.GetIndexOfPattern("Dependency Type:");
 
@@ -283,6 +283,59 @@
 	        }
 	    }
 
+
+
+            /// <summary>
+	    ///    implements
+ 	    ///    https://github.com/fgcz/rawrr/issues/43
+            /// </summary>
+            /// <param name="rawFile"></param>
+            /// <param name="filename"></param>
+            /// <param name="L"></param>
+            public static void WriteCentroidSpectrumAsRcode(this IRawDataPlus rawFile, string filename, List<int> L)
+            {
+                int count = 1;
+                var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
+		            int indexCharge = rawFile.GetIndexOfPattern("Charge State");
+
+                using (System.IO.StreamWriter file =
+                    new System.IO.StreamWriter(filename))
+                {
+                    foreach (int scanNumber in L)
+                    {
+                        var scan = Scan.FromFile(rawFile, scanNumber);
+                        var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
+                        var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
+                        var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
+                        var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+
+                        file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
+                        file.WriteLine("\tscan = {0},", scanNumber);
+                        file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
+                        if (indexCharge > 0)
+                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+			    else
+                                file.WriteLine("\tcharge = NA,");
+
+			try{
+                        	var reaction0 = scanEvent.GetReaction(0);
+                        	file.WriteLine("\tpepmass = {0},", reaction0.PrecursorMass);
+			}catch{
+                        	file.WriteLine("\tpepmass = NA,");
+			}
+
+                        if (scanStatistics.IsCentroidScan && centroidStream.Length > 0)
+                        {
+                        	file.WriteLine("\tmZ = c(" + string.Join(", ", centroidStream.Masses) + "),");
+                                file.WriteLine("\tintensity = c(" + string.Join(", ", centroidStream.Intensities) + ")");
+			} else{
+				file.WriteLine("\tmZ = NULL,\n\tintensity = NULL)");
+			}
+                        file.WriteLine("\t)");
+		    }
+		}
+	    }
+
             /// <summary>
             /// </summary>
             /// <param name="rawFile"></param>
@@ -291,13 +344,16 @@
             public static void WriteSpectrumAsRcode(this IRawDataPlus rawFile, string filename, List<int> L)
             {
                 int count = 1;
+                var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
+                int indexCharge = rawFile.GetIndexOfPattern("Charge State");
+		            int indexMonoisotopicmZ = rawFile.GetIndexOfPattern("MonoisotopicmZ");
+
                 using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(filename))
                 {
+
                     foreach (int scanNumber in L)
                     {
-
-                        var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
                         var basepeakMass = -1.0;
                         var basepeakIntensity = -1.0;
 
@@ -305,45 +361,11 @@
                         var centroidStream = rawFile.GetCentroidStream(scanNumber, false);
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
-			int indexCharge = -1;
-			int indexMonoisotopicmZ = -1;
 
+                        var scan = Scan.FromFile(rawFile, scanNumber);
 
-                        try
-                        {
-                            indexMonoisotopicmZ = trailerFields
-                                .Select((item, index) => new
-                                {
-                                    name = item.Label.ToString().CleanRawfileTrailerHeader(),
-                                    Position = index
-                                })
-                                .First(x => x.name.Contains("MonoisotopicmZ")).Position;
-			}
-			catch
-			{
-                            indexMonoisotopicmZ = -1;
-			}
-
-			try
-			{
-                            indexCharge = trailerFields
-                                .Select((item, index) => new
-                                {
-                                    name = item.Label.ToString(),
-                                    Position = index
-                                })
-                                .First(x => x.name.Contains("Charge State")).Position;
-                        }
-                        catch
-			{
-			    indexCharge = -1;
-			}
-
-
-                            var scan = Scan.FromFile(rawFile, scanNumber);
-
-                                file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
-                                file.WriteLine("\tscan = {0},", scanNumber);
+                        file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
+                        file.WriteLine("\tscan = {0},", scanNumber);
 
 			try
 			{
@@ -459,7 +481,7 @@
 	        {
 		        // This local variable controls if the AnalyzeAllScans method is called
 		        // bool analyzeScans = false;
-		        const string rawR_version = "1.1.9";
+		        const string rawR_version = "1.3.1";
 		        string filename = string.Empty;
 		        string mode = string.Empty;
 		        string filterString = string.Empty;
@@ -475,6 +497,7 @@
 				        "Extracts filtered (option 2) ion chromatograms within a given mass and mass tolerance [in ppm] (option 3) xic of a given raw file as R code into a file."
 			        },
 			        {"scans", "Extracts scans (spectra) of a given ID as Rcode."},
+			        {"cscans", "Extracts 'barbone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode."},
 			        {"index", "Prints index as csv of all scans."}
 		        };
 		        var helpOptions = new List<string>() {"help", "--help", "-h", "h", "/h"};
@@ -675,6 +698,32 @@
                     	    rawFile.WriteSpectrumAsRcode0(args[3]);
 		        else
                     	    rawFile.WriteSpectrumAsRcode(args[3], scans);
+
+                        return;
+
+                    }
+                    if (mode == "cscans")
+                    {
+                        List<int> scans = new List<int>();
+
+                        var scanfile = args[2];
+                        int scanNumber;
+
+                        foreach (var line in File.ReadAllLines(scanfile))
+                        {
+
+			    try{
+                            Int32.TryParse(line, out scanNumber);
+			    if (scanNumber > 0)
+                        	    scans.Add(scanNumber);
+			    }
+			    catch{}
+                        }
+
+		        if (scans.Count == 0)
+                    	    rawFile.WriteSpectrumAsRcode0(args[3]);
+		        else
+                    	    rawFile.WriteCentroidSpectrumAsRcode(args[3], scans);
 
                         return;
 
