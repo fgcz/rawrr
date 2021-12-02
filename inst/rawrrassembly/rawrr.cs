@@ -329,7 +329,7 @@
                         	file.WriteLine("\tmZ = c(" + string.Join(", ", centroidStream.Masses) + "),");
                                 file.WriteLine("\tintensity = c(" + string.Join(", ", centroidStream.Intensities) + ")");
 			} else{
-				file.WriteLine("\tmZ = NULL,\n\tintensity = NULL)");
+				file.WriteLine("\tmZ = NULL,\n\tintensity = NULL");
 			}
                         file.WriteLine("\t)");
 		    }
