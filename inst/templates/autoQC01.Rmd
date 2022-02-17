@@ -1,0 +1,259 @@
+---
+title: "autoQC01 STATISTICS"
+author: CP/TK
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: united
+params:
+  input: "/scratch/cpanse/autoQC01.csv"
+  r.squared.cutoff.yellow: 0.98
+  r.squared.cutoff.red: 0.9
+  r.squared.cutoff.yellow.rgb: "lightgray"
+  r.squared.cutoff.red.rgb: "#D7261E"
+---
+
+<a href='https://bioconductor.org/packages/rawrr/'><img src='/home/cpanse/__checkouts/bioc/rawrr/rawrr_logo.png' width=200px></a>
+
+# Configuiration parameters
+
+| <!-- parameter -->            | <!-- values --> 			|
+|-------------------------------|---------------------------------------|
+| file report release date:	| `r date()`				|
+| autoQC01 lm cache file:	| `r params[['input']]`			|
+| nodename: 			| `r Sys.info()['nodename']` 		|
+| R version:			| `r R.version.string`			|
+| rawrr version: 		| `r packageVersion('rawrr')`		|
+| rmarkdown version:       	| `r packageVersion('rmarkdown')`	|
+| r.squared.cutoff.red:        	| `r params[['r.squared.cutoff.red']]`	|
+
+
+```{r sourceCode, message=TRUE, echo=FALSE}
+#stopifnot(file.exists(src <- file.path(Sys.getenv("HOME"), "__checkouts/F1000_rawDiag/R/autoQC.R")))
+#source(src)
+
+flm.autoQC01 <- function(filename, peptides=getIRTs(), tol=10, plotlm=FALSE, r.squared.cutoff=0.98, fileprefix='/srv/www/htdocs'){
+
+    rawfile <- file.path(fileprefix, filename)
+    if(!file.exists(rawfile)){
+		    warning(paste0("file ", rawfile, "does not exist."))
+		    return()
+	    }
+    message(paste("processing", rawfile, "..."))
+    start  <- as.numeric(Sys.time()) * 1000
+
+    result <- tryCatch({
+        XIC <- rawrr::readChromatogram(rawfile, peptides$mass2Hplus, tol = tol)
+        t <- sapply(XIC, function(x){if(length(x$times) > 0){x$times[x$intensities == max(x$intensities)][1]}else{NA}})
+        n <- length(t)
+        intensity.max <- max(sapply(XIC, function(x){max(x$intensities)}))
+        
+        xx <- data.frame(rt=t, irtscore=peptides$rt)
+        fm <- lm(rt ~ irtscore, data = xx, na.action=na.exclude)
+        
+        if(plotlm){
+            if (summary(fm)$r.squared < r.squared.cutoff.red){
+
+                op <- par(mfrow = c(1,5), mar=c(5,5,5,1),bg=r.squared.cutoff.red.rgb, col='white')
+
+            }else if (summary(fm)$r.squared < r.squared.cutoff.yellow){
+
+                op <- par(mfrow = c(1,5), mar=c(5,5,5,1), bg=r.squared.cutoff.yellow.rgb, col='black')
+
+            }else{
+
+                op <- par(mfrow = c(1,5), mar=c(5,5,5,1))
+
+            }
+
+            plot(xx$rt ~ xx$irtscore, asp = 1, main = "rt ~ irtscore", type='n')
+            legend("topleft", strsplit(as.character(filename), split = '/', perl = TRUE)[[1]][c(4,3,1)],box.col = 'transparent',cex = 0.75)
+            legend.text<- paste(c('slope','intercept','r.squared'), as.numeric(round(c(coef(fm)["irtscore"], coef(fm)[1], summary(fm)$r.squared),3)),sep=": ")
+            
+            legend("bottomright", legend.text, cex=0.75, box.col = 'transparent')
+            points(xx$irtscore, xx$rt, pch=16)
+            abline(fm)
+             
+            plot(fm)
+            par(op)
+        }
+            
+        data.frame(r.squared=summary(fm)$r.squared,
+                   slope=fm$coefficients[2],
+                   intercept=fm$coefficients[1],
+                   n=n,
+                   intensity.max=intensity.max,
+                   filename = as.character(filename),
+                   runtime = (as.numeric(Sys.time())*1000 - start) / 1000, row.names = NULL)
+    }, error = function(err) {
+       NULL
+    })
+    result
+}
+
+assignInstrument <- function(df){
+    stopifnot(is.data.frame(df))
+    
+    df$instrument <- NA
+    for (p in c("FUSION_1", "FUSION_2", "G2HD_1", "LC1100",
+                "LTQ_1", "LTQFT_1", "ORBI_1", "ORBI_2", "PROTEONXPR36",
+                "QEXACTIVE_1", "QEXACTIVE_2", "QEXACTIVE_3", "QEXACTIVEHF_1",
+                "QEXACTIVEHF_2", "QEXACTIVEHF_4", "QEXACTIVEHFX_1", "QTRAP_1", "T100_1",
+                "TOFTOF_2", "TRIPLETOF_1", "TSQ_1", "TSQ_2", "VELOS_1",
+                "VELOS_2", "LUMOS_1", "LUMOS_2", "EXPLORIS_1")){
+        df$instrument[grep(p, df$filename)] <- p
+    }
+    df
+}
+```
+
+```{r echo=FALSE, message=FALSE}
+stopifnot(
+require(knitr),
+require(kableExtra),
+require(lattice),
+require(protViz),
+require(colorspace)
+)
+cv <- 1-2:7/10
+t <- trellis.par.get("strip.background")
+t$col <- (rgb(cv,cv,cv))
+trellis.par.set("strip.background",t)
+
+
+tp <- trellis.par.get("par.sub.text")
+tp$cex <- 0.5
+trellis.par.set("par.sub.text", tp)
+```
+
+
+```{r echo=FALSE}
+autoQC01 <- read.table(params$input, header=TRUE, sep=';')
+autoQC01 <- assignInstrument(autoQC01)
+autoQC01$POSIXct <- as.POSIXct(autoQC01$time, origin="1970-01-01")
+```
+
+
+```{r zscores.slope, echo=FALSE}
+qc01.mean <- aggregate(slope ~ instrument, data=autoQC01, FUN=mean, subset=autoQC01$r.squared > params$r.squared.cutoff.red)
+qc01.sd <- aggregate(slope ~ instrument, data=autoQC01, FUN=sd, subset=autoQC01$r.squared > params$r.squared.cutoff.red)
+names(qc01.mean) <- c('instrument','instrument.slope.mean')
+names(qc01.sd) <- c('instrument','instrument.slope.sd')
+qc01.mean.sd <- merge( qc01.mean, qc01.sd)
+autoQC01 <- merge(autoQC01, qc01.mean.sd, by='instrument')
+autoQC01$slope.zscore <- (autoQC01$slope - autoQC01$instrument.slope.mean) / autoQC01$instrument.slope.sd
+```
+
+```{r zscores.intercept, echo=FALSE}
+qc01.mean <- aggregate(intercept ~ instrument, data=autoQC01, FUN=mean, subset=autoQC01$r.squared > 0.9)
+qc01.sd <- aggregate(intercept ~ instrument, data=autoQC01, FUN=sd, subset=autoQC01$r.squared > 0.9)
+names(qc01.mean) <- c('instrument','instrument.intercept.mean')
+names(qc01.sd) <- c('instrument','instrument.intercept.sd')
+qc01.mean.sd <- merge( qc01.mean, qc01.sd)
+
+autoQC01 <- merge(autoQC01, qc01.mean.sd, by='instrument')
+autoQC01$intercept.zscore <- (autoQC01$intercept - autoQC01$instrument.intercept.mean) / autoQC01$instrument.intercept.sd
+```
+
+# Last 24 hours
+
+```{r echo=FALSE, message=FALSE}
+
+autoQC01.24h <- autoQC01[rev(which(Sys.time() - autoQC01$time < 3600*24*2)),]
+
+idx <- rev(order(autoQC01.24h$time))
+
+autoQC01.24h <- autoQC01.24h[idx, c('POSIXct', 'filename', 'slope', 'slope.zscore', 'intercept', 'intercept.zscore', 'r.squared')] 
+
+QCred <- which(autoQC01.24h$r.squared < params$r.squared.cutoff.red)
+QCyellow <- which(autoQC01.24h$r.squared < params$r.squared.cutoff.yellow)
+
+kable(autoQC01.24h, row.names=FALSE) |>
+  kable_styling("striped", full_width = FALSE) |> 
+  row_spec(QCyellow, bold = TRUE, color = "black", background = params$r.squared.cutoff.yellow.rgb) |>
+  row_spec(QCred, bold = TRUE, color = "white", background = params$r.squared.cutoff.red.rgb)
+```
+
+# Fitted models
+
+
+```{r flm.autoQC01, fig.retina=3, message=FALSE, echo=FALSE, fig.width=10, fig.height=2.25}
+rv <- parallel::mclapply(autoQC01.24h$filename, FUN=function(filename, peptides=getIRTs(), tol=10, r.squared.cutoff=0.98, fileprefix='/srv/www/htdocs'){
+    rawfile <- file.path(fileprefix, filename)
+    if(!file.exists(rawfile)){
+		    warning(paste0("file ", rawfile, "does not exist."))
+		    return()
+	    }
+    message(paste("mcl processing", rawfile, "..."))
+    start  <- as.numeric(Sys.time()) * 1000
+
+    result <- tryCatch({
+	message(paste0("fetching XICs for rawfile", rawfile, " ..."))
+        XIC <- rawrr::readChromatogram(rawfile, peptides$mass2Hplus, tol = tol)
+        t <- sapply(XIC, function(x){if(length(x$times) > 0){x$times[x$intensities == max(x$intensities)][1]}else{NA}})
+        n <- length(t)
+        intensity.max <- max(sapply(XIC, function(x){max(x$intensities)}))
+        
+        xx <- data.frame(rt=t, irtscore=peptides$rt)
+        fm <- lm(rt ~ irtscore, data = xx, na.action=na.exclude)
+	list(fm=fm, xx=xx, filename=filename)
+    	}, error = function(err) { NULL })}, mc.cores=16) 
+
+rv <- lapply(rv, function(x, r.squared.cutoff=0.98){
+    message(paste("plotting", x$filename, "..."))
+
+        if (summary(x$fm)$r.squared < params$r.squared.cutoff.red){
+             op <- par(mfrow = c(1,5), mar=c(5,5,5,1),bg=params$r.squared.cutoff.red.rgb, col='white')
+        }else if (summary(x$fm)$r.squared < params$r.squared.cutoff.yellow){
+             op <- par(mfrow = c(1,5), mar=c(5,5,5,1), bg=params$r.squared.cutoff.yellow.rgb, col='black')
+        }else{
+             op <- par(mfrow = c(1,5), mar=c(5,5,5,1))
+        }
+
+        plot(x$xx$rt ~ x$xx$irtscore, asp = 1, main = "rt ~ irtscore", type='n')
+        legend("topleft", strsplit(as.character(x$filename), split = '/', perl = TRUE)[[1]][c(4,3,1)],box.col = 'transparent',cex = 0.75)
+        legend.text<- paste(c('slope','intercept','r.squared'), as.numeric(round(c(coef(x$fm)["irtscore"], coef(x$fm)[1], summary(x$fm)$r.squared),3)),sep=": ")
+            
+        legend("bottomright", legend.text, cex=0.75, box.col = 'transparent')
+        points(x$xx$irtscore, x$xx$rt, pch=16)
+        abline(x$fm)
+             
+        plot(x$fm)
+        par(op)
+	})
+```
+
+<hr>
+
+# Study slope and intercept
+
+```{r fig.retina=3, fig.height=7}
+tp <- trellis.par.get("superpose.symbol")
+tp$col <- colorspace::rainbow_hcl(8, alpha = 0.152)
+trellis.par.set("superpose.symbol", tp)
+
+xyplot(intercept ~ slope | instrument,
+  group=instrument,
+  data=autoQC01,
+  subset=r.squared > params$r.squared.cutoff.yellow, 
+  pch=16
+  #xlim=c(0.05, 0.125)
+  )
+```
+
+# iRT peptides
+
+```{r echo=FALSE}
+df <- getIRTs()
+names(df) <- c("peptide", "iRT", "ssrc", "mass", "mZ")
+df <-df[,c(1,2,5)]
+kable(df) %>% kable_styling("striped")
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
