@@ -1,7 +1,6 @@
 [![JPR](https://img.shields.io/badge/JPR-10.1021%2Facs.jproteome.0c00866-brightgreen)](http://dx.doi.org/10.1021/acs.jproteome.0c00866)
 
 
-
 ![rawrrHexSticker](https://github.com/fgcz/rawrr/blob/master/rawrr_logo.png)
 
 # rawrr
@@ -16,16 +15,14 @@ Please follow the install instructions provided through
 
 https://bioconductor.org/packages/rawrr/
 
+## Manuscript
 
-## Manuscripts
+http://dx.doi.org/10.1021/acs.jproteome.0c00866
 
-https://www.biorxiv.org/content/10.1101/2020.10.30.362533v1 (accepted at [ACS JPR](https://pubs.acs.org/journal/jprobs))
+## Talks
 
-## Blog posts
+- [rawrr - invoking managed code using ThermoFisher.CommonCore.RawFileReader;](http://fgcz-ms.uzh.ch/~cpanse/talks/20211123-rawrrRcpp_MetaRbolimics2021.html) presentaton at 
+[3rd de.NBI / ELIXIR-DE metaRbolomics Hackathon 2021](https://www.denbi.de/news/1299-3rd-de-nbi-elixir-de-metarbolomics-hackathon)
 
-http://proteomicsnews.blogspot.com/2020/11/raw-mass-spec-data-is-too-pretty-for.html
-
-## Slides
-
-MsRawFileReaderBackend presentaton at
+- [MsRawFileReaderBackend](https://bioconductor.org/packages/MsBackendRawFileReader/) presentaton at
 [European Biocondutor Meeting, de Duve Institute, UCLouvain, Campus de Woluw ́e Brussels, Belgium, Dec 2019](http://fgcz-ms.uzh.ch/~cpanse/talks/rawR_EuroBioc2019_Brussels_88c9.pdf)
