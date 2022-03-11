@@ -16,8 +16,7 @@ Validated \code{data.frame} of \code{readIndex} object
 Checks the validity of an \code{readIndex} returned object.
 }
 \examples{
-Idx <- readIndex(sampleFilePath())
-validate_rawrrIndex(Idx)
+rawrr::sampleFilePath() |> rawrr::readIndex() |> rawrr::validate_rawrrIndex() 
 }
 \author{
 Tobias Kockmann and Christian Panse, 2020-12-09.

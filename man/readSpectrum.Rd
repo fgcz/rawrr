@@ -57,9 +57,7 @@ corresponding values become data parts of the objects, typically vectors.
 \examples{
 
 # Example 1
-(rawfile <- rawrr::sampleFilePath())
-
-S <- rawrr::readSpectrum(rawfile, scan = 1:9)
+S <- rawrr::sampleFilePath() |> rawrr::readSpectrum(scan = 1:9)
 
 S[[1]]
 

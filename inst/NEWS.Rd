@@ -7,6 +7,7 @@
 \section{Changes in version 1.3 (2021-12-01)}{
   \itemize{
 	  \item Add barebone \code{mode} para in \code{readSpectrum} \ghit{43}.
+	  \item Add \code{rawrr} namespace in help pages.
   }
 }
 

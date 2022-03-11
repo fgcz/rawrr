@@ -24,10 +24,7 @@ Sample dilution factor, or Sample barcode.
 The function extracts meta information from a given rawfile.
 }
 \examples{
-(rawfile <- file.path(path.package(package = 'rawrr'), 'extdata',
-  'sample.raw'))
-
-M <- readFileHeader(rawfile)
+rawrr::sampleFilePath() |> readFileHeader()
 }
 \references{
 Thermo Fisher Scientific's NewRawfileReader C# code snippets

@@ -20,6 +20,5 @@ exists.
 Retrieve master scan of scan listed in scan index
 }
 \examples{
-Idx <- readIndex(rawfile = sampleFilePath())
-masterScan(Idx, scanNumber = 1)
+rawrr::sampleFilePath() |>  rawrr::readIndex() |> rawrr::masterScan(scanNumber = 1)
 }

@@ -152,9 +152,8 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
 #' @export
 #'
 #' @examples
-#' rawfile <- sampleFilePath()
-#' S <- readSpectrum(rawfile, scan = 1:10)
-#' is.rawrrSpectrum(S[[1]])
+#' S <- rawrr::sampleFilePath() |> rawrr::readSpectrum(scan = 1:10)
+#' rawrr::is.rawrrSpectrum(S[[1]])
 is.rawrrSpectrum <- function(x){
        if (isFALSE(all(c('scan', 'massRange', 'scanType',
 	       'rtinseconds', 'centroidStream', 'mZ',
@@ -179,9 +178,9 @@ is.rawrrSpectrum <- function(x){
 #' @export
 #'
 #' @examples
-#' rawfile <- sampleFilePath()
-#' S <- readSpectrum(rawfile, scan = 1:10)
-#' is.rawrrSpectrum(S[[1]])
+#' rawrr::sampleFilePath() |>
+#'   rawrr::readSpectrum(scan = 1:10) |>
+#'   rawrr::is.rawrrSpectrumSet()
 is.rawrrSpectrumSet <- function(x){
 	all(vapply(x, is.rawrrSpectrum, TRUE))
 }
@@ -210,10 +209,7 @@ is.rawrrSpectrumSet <- function(x){
 #' @export readFileHeader
 #'
 #' @examples
-#' (rawfile <- file.path(path.package(package = 'rawrr'), 'extdata',
-#'   'sample.raw'))
-#'
-#' M <- readFileHeader(rawfile)
+#' rawrr::sampleFilePath() |> readFileHeader()
 readFileHeader <- function(rawfile){
   .isAssemblyWorking()
   .checkRawFile(rawfile)
@@ -238,9 +234,7 @@ readFileHeader <- function(rawfile){
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
 #'
 #' @examples
-#' rawfile <- sampleFilePath()
-#'
-#' Idx <- readIndex(rawfile)
+#' Idx <- rawrr::sampleFilePath() |> readIndex()
 #' table(Idx$scanType)
 #' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 #'
@@ -343,8 +337,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
 #' @return Validated \code{data.frame} of \code{readIndex} object
 #' @export
 #' @examples
-#' Idx <- readIndex(sampleFilePath())
-#' validate_rawrrIndex(Idx)
+#' rawrr::sampleFilePath() |> rawrr::readIndex() |> rawrr::validate_rawrrIndex() 
 #' @importFrom stats na.omit
 validate_rawrrIndex <- function(x){
     valideIndex <- TRUE
@@ -524,9 +517,7 @@ sampleFilePath <- function(){
 #' @examples
 #' 
 #' # Example 1
-#' (rawfile <- rawrr::sampleFilePath())
-#'
-#' S <- rawrr::readSpectrum(rawfile, scan = 1:9)
+#' S <- rawrr::sampleFilePath() |> rawrr::readSpectrum(scan = 1:9)
 #'
 #' S[[1]]
 #'
@@ -1382,8 +1373,8 @@ plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
 #' exists.
 #' @export
 #'
-#' @examples Idx <- readIndex(rawfile = sampleFilePath())
-#' masterScan(Idx, scanNumber = 1)
+#' @examples 
+#' rawrr::sampleFilePath() |>  rawrr::readIndex() |> rawrr::masterScan(scanNumber = 1)
 masterScan <- function(x, scanNumber){
   stopifnot(is.data.frame(x), "masterScan" %in% colnames(x),
             "dependencyType" %in% colnames(x))

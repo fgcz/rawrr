@@ -16,7 +16,7 @@ is.rawrrSpectrumSet(x)
 Function to check if an object is an instance of class \code{rawrrSpectrumSet}
 }
 \examples{
-rawfile <- sampleFilePath()
-S <- readSpectrum(rawfile, scan = 1:10)
-is.rawrrSpectrum(S[[1]])
+rawrr::sampleFilePath() |>
+  rawrr::readSpectrum(scan = 1:10) |>
+  rawrr::is.rawrrSpectrumSet()
 }

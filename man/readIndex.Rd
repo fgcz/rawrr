@@ -21,9 +21,7 @@ dependencyType of all spectra.
 Read scan index
 }
 \examples{
-rawfile <- sampleFilePath()
-
-Idx <- readIndex(rawfile)
+Idx <- rawrr::sampleFilePath() |> readIndex()
 table(Idx$scanType)
 plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 
