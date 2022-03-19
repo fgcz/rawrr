@@ -7,11 +7,11 @@ library(rawrr)
 
 test_that("check readIndex.", {
   x <- readIndex(sampleFilePath())
-  expect_equivalent(dim(x) == c(573, 8),
+  expect_equivalent(dim(x) == c(573, 9),
       c(TRUE, TRUE))
   expect_true(is.data.frame(x))
   IndexColNames <- c("scan", "scanType", "rtinseconds", "precursorMass",
-                     "MSOrder", "charge", "masterScan", "dependencyType")
+                     "MSOrder", "charge", "masterScan", "dependencyType", "monoisotopicMz")
   expect_true(is.integer(x$scan))
   expect_true(all(IndexColNames %in% colnames(x)))
   expect_true(is.logical(x$dependencyType))

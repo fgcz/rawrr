@@ -231,7 +231,7 @@ readFileHeader <- function(rawfile){
 #' 
 #' @export readIndex
 #' @importFrom utils read.table
-#' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
+#' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020, 2021
 #'
 #' @examples
 #' Idx <- rawrr::sampleFilePath() |> rawrr::readIndex()
@@ -268,7 +268,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
       sep = ';',
       na.strings = "-1",
       colClasses = c('integer', 'character', 'numeric', 'numeric', 'character',
-                     'integer', 'integer', 'integer'))
+                     'integer', 'integer', 'integer', 'numeric'))
 
     DF$dependencyType <- as.logical(DF$dependencyType)
 

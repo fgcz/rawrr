@@ -4,10 +4,11 @@
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
 
-\section{Changes in version 1.3 (2021-12-01)}{
+\section{Changes in version 1.3 (2022-03-19)}{
   \itemize{
 	  \item Add barebone \code{mode} para in \code{readSpectrum} \ghit{43}.
 	  \item Add \code{rawrr} namespace in help pages.
+	  \item Add 'Monoisotopic M/Z:' from TrailerExtraHeaderInformation as column to \code{rawrr::readIndex} function.
   }
 }
 

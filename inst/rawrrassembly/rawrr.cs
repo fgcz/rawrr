@@ -171,11 +171,13 @@
 	            int idxCharge = rawFile.GetIndexOfPattern("Charge State");
 	            int idxMasterScan = rawFile.GetIndexOfPattern("Master Scan Number:");
 	            int idxDependencyType = rawFile.GetIndexOfPattern("Dependency Type:");
+		    int idxMonoisotopicmZ = rawFile.GetIndexOfPattern("Monoisotopic M/Z:");
 
 	            double charge, precursorMass;
+		    double monoIsotopicMz;
 	            int masterScan, dependencyType;
 
-	            Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge;masterScan;dependencyType");
+	            Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge;masterScan;dependencyType;monoisotopicMz");
 
 	            for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
 		            var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
@@ -207,12 +209,24 @@
 		            } catch {
 			            dependencyType = -1;
 		            }
-		            Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}", scanNumber,
+
+		            try{
+                                monoIsotopicMz = Convert.ToDouble(scanTrailer.Values.ToArray()[idxMonoisotopicmZ]);
+				//monoisotopicMz = 0.0;
+			    } catch {
+				monoIsotopicMz = -1.0;
+			        //monoisotopicMz = -1;
+			    }
+
+		            Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7};{8}", scanNumber,
 			            scanStatistics.ScanType.ToString(),
 			            Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
 			            precursorMass,
 			            scanFilter.MSOrder.ToString(),
-			            charge, masterScan, dependencyType);
+			            charge,
+				    masterScan,
+				    dependencyType,
+				    monoIsotopicMz);
 	            }
             }
 
@@ -346,7 +360,7 @@
                 int count = 1;
                 var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
                 int indexCharge = rawFile.GetIndexOfPattern("Charge State");
-		            int indexMonoisotopicmZ = rawFile.GetIndexOfPattern("MonoisotopicmZ");
+		int indexMonoisotopicmZ = rawFile.GetIndexOfPattern("MonoisotopicmZ");
 
                 using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(filename))
