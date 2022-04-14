@@ -1419,3 +1419,61 @@ auc.rawrrChromatogram <- function(x){
 	sum(diff(times) * (head(intensities, -1) + tail(intensities, -1))) / 2
 }
 
+
+# readTrailer ---------
+#' Read scan trailer
+#'
+#' @param rawfile 
+#' @param label if NULL; the function scans for all available label
+#'
+#' @return an vector.
+#' @export
+#'
+#' @examples
+#' rawrr::sampleFilePath() |> rawrr:::readTrailer()
+readTrailer <- function(rawfile, label=NULL, tmpdir=tempdir()) {
+  .isAssemblyWorking()
+  .checkRawFile(rawfile)
+  
+  mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
+  exe <- .rawrrAssembly()
+  
+  tfstderr <- tempfile(tmpdir=tmpdir)
+  tfo <- tempfile(tmpdir=tmpdir)
+  tfstdout <- tempfile(tmpdir=tmpdir)
+  
+  cmd <- exe
+  
+  if (is.null(label)){
+    # should return all available trailer label
+    if (mono){
+      rvs <- system2(Sys.which("mono"),
+                     args = c(shQuote(exe), shQuote(rawfile),
+                              "trailer"),
+                     stdout=tfstdout, stderr = tfstderr)
+    }else{
+      rvs <- system2(exe,
+                     args = c( shQuote(rawfile), "trailer"),
+                     stdout=tfstdout, stderr = tfstderr)
+    }
+  }else{
+    # use case for providing a trailer label
+    if (mono){
+      rvs <- system2(Sys.which("mono"),
+                     args = c(shQuote(exe), shQuote(rawfile),
+                              "trailer",  shQuote(label)),
+                     stdout = tfstdout, stderr = tfstderr)
+    }else{
+      rvs <- system2(exe,
+                     args = c( shQuote(rawfile), "trailer", shQuote(label)),
+                     stdout = tfstdout, stderr = tfstderr)
+    }
+  }
+  #unlink(c(tfi, tfo, tfstdout))
+  message(paste0("stdout: ", tfstdout))
+  message(paste0("stderr: ", tfstderr))
+  S <- NULL
+ # try(S <- scan(tfstdout, what=character(), sep = "\n"), silent = TRUE)
+  S <- scan(tfstdout, what=character(), sep = "\n")
+  S
+}

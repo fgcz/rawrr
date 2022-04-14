@@ -350,6 +350,37 @@
 		}
 	    }
 
+
+            public static void WriteTrailerLabel(this IRawDataPlus rawFile)
+	    {
+		    for  (int scanNumber = rawFile.RunHeaderEx.FirstSpectrum; scanNumber < rawFile.RunHeaderEx.LastSpectrum; scanNumber++)
+                    {
+                        var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+                    	Console.WriteLine(string.Join("\n", scanTrailer.Labels.ToArray()));
+			return;
+		    }
+	    }
+
+            public static void WriteTrailerValues(this IRawDataPlus rawFile, string label)
+	    {
+                    Console.WriteLine("BEGIN DEBUG ");
+		    int idx = -1;
+		    try{
+		    	idx = rawFile.GetIndexOfPattern(label);
+                    	//Console.WriteLine("idx = {}.", idx.ToString());
+		    }catch (Exception ex){
+                    	//Console.WriteLine("GetIndexOfPattern {} caused an exception {}.", label, ex.Message);
+                    	Console.WriteLine("GetIndexOfPattern  caused an exception .");
+                        return;
+		    }
+
+		    for  (int scanNumber = rawFile.RunHeaderEx.FirstSpectrum; scanNumber < rawFile.RunHeaderEx.LastSpectrum; scanNumber++)
+                    {
+                        var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
+                    	Console.WriteLine(scanTrailer.Values.ToArray()[idx]);
+		    }
+	    }
+
             /// <summary>
             /// </summary>
             /// <param name="rawFile"></param>
@@ -512,7 +543,8 @@
 			        },
 			        {"scans", "Extracts scans (spectra) of a given ID as Rcode."},
 			        {"cscans", "Extracts 'barbone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode."},
-			        {"index", "Prints index as csv of all scans."}
+			        {"index", "Prints index as csv of all scans."},
+			        {"trailer", "Prints all trailer labels."}
 		        };
 		        var helpOptions = new List<string>() {"help", "--help", "-h", "h", "/h"};
 
@@ -621,6 +653,15 @@
 
                     // Get the number of filters present in the RAW file
                     int numberFilters = rawFile.GetFilters().Count;
+
+		    if (mode == "trailer" && args.Length == 2){
+		    	rawFile.WriteTrailerLabel();
+			return;
+		    } else if (mode == "trailer" && args.Length == 3) {
+			//Console.WriteLine(args[2]);
+		    	rawFile.WriteTrailerValues(args[2]);
+			return;
+		    }
 
                     if (mode == "filter")
                     {
