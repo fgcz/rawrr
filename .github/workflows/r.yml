@@ -1,0 +1,46 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# See https://github.com/r-lib/actions/tree/master/examples#readme for
+# additional example workflows available for the R community.
+
+name: R-CMD-check-rawrr
+env:
+    ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        r-version: [4.2]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up R ${{ matrix.r-version }}
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.r-version }}
+      - name: Install Linux packages
+        run: sudo apt-get install -y mono-mcs mono-xbuild libcurl4-openssl-dev libicu-dev pandoc pandoc-citeproc texlive texlive-latex-extra texlive-fonts-extra
+        shell: bash {0}
+      - name: Install dependencies
+        run: |
+          install.packages(c("remotes", "rcmdcheck", "rmarkdown", "protViz", "testthat", "knitr", "BiocManager"))
+          BiocManager::install(c("BiocStyle","ExperimentHub","tartar"))
+          remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
+      - name: Check
+        run: rcmdcheck::rcmdcheck(build_args = "", args = "", error_on = "error", check_dir = "/tmp/rawrr.Rcheck")
+        shell: Rscript {0}
+      - uses: actions/upload-artifact@v2
+        with:
+            name: rawrr.Rcheck
+            path: /tmp/rawrr.Rcheck
+            if-no-files-found: warn
