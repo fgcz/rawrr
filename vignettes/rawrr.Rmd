@@ -3,12 +3,12 @@ title: "The rawrr R package - Direct Access to Orbitrap Data and Beyond"
 author:
 - name: Tobias Kockmann
   affiliation:
-    - &id Functional Genomics Center Zurich - Functional Genomics Center Zurich (FGCZ) - University of Zurich | ETH Zurich, Winterthurerstrasse 190, CH-8057 Zurich
+    - &id Functional Genomics Center Zurich - Functional Genomics Center Zurich (FGCZ) - University of Zurich | ETH Zurich, Winterthurerstrasse 190, CH-8057 Zurich, Switzerland
   email: Tobias.Kockmann@fgcz.ethz.ch
 - name: Christian Panse
   affiliation:
     - *id
-    - Swiss Institute of Bioinformatics (SIB), Quartier Sorge - Batiment Amphipole, CH-1015 Lausanne
+    - Swiss Institute of Bioinformatics (SIB), Quartier Sorge - Batiment Amphipole, CH-1015 Lausanne, Switzerland
   email: cp@fgcz.ethz.ch
 package: rawrr
 abstract: |
@@ -114,7 +114,7 @@ The Orbitrap detector has been a tremendous success story in MS, since it offers
 
 Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation (see supporting information, S-20 onwards [@Kockmann2021]).
 
-Individual scans or scan collections (sets) can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the raw file (scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: `mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2`) assigned to the doubly-charged iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
+Individual scans or scan collections (sets) can be read by the function `readSpectrum()` which returns a `rawrrSpectrum` object or `rawrrSpectrumSet`. Our package also provides generics for printing and plotting these objects. The following code chunk depicts how a set of scans is read from the raw file (scan numbers were selected based on a database search). The corresponding Figure 1 shows the resulting plot for scan `9594` (USI: [mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2](http://massive.ucsd.edu/ProteoSAFe/usi.jsp#{%22usi%22:%22mzspec:MSV000086542:20181113_010_autoQC01:scan:9594:LGGNEQVTR/2%22})) assigned to the doubly-charged iRT peptide LGGNEQVTR by MS-GF+ (Score: 144, SpecProb: 1.9e-12, DB E-Value: 4.4e-4, see [MassIVE RMSV000000336.1](https://massive.ucsd.edu/ProteoSAFe/dataset.jsp?task=575538e190e84cbfbf6c17aa1219e403#reanalyses_header) for details of the search):
 
 ```{r}
 #| label: plotrawrrspectrum
