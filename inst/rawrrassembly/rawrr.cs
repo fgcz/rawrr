@@ -67,7 +67,40 @@
                     .Replace("-", "")
                     .Replace("=", ""));
             }
+            public static string SafeParse(this string v1, string v2, string name = null)
+            {
+                if (int.TryParse(v1, out int result))
+                    return result.ToString();
+                else
+                {
+                    FGCZ_Raw.Logger.WriteError($"Cannot parse{(string.IsNullOrEmpty(name) ? string.Empty : " " + name) } as {v2.GetType()} from {v1}");
+                    return v2;
+                }
+            }
+
+            public static int SafeParse(this string v1, int v2, string name = null)
+            {
+                if (int.TryParse(v1, out int result))
+                    return result;
+                else
+                {
+                    FGCZ_Raw.Logger.WriteError($"Cannot parse{(string.IsNullOrEmpty(name) ? string.Empty : " " + name) } as {v2.GetType()} from {v1}");
+                    return v2;
+                }
+            }
+
+            public static double SafeParse(this string v1, double v2, string name = null)
+            {
+                if (double.TryParse(v1, out double result))
+                    return result;
+                else
+                {
+                    FGCZ_Raw.Logger.WriteError($"Cannot parse {name} as {v2.GetType()} from {v1}");
+                    return v2;
+                }
+            }
         }
+
 
         /// <summary>
         /// utilize the new ThermoFisher RawFileReader
@@ -191,32 +224,10 @@
 		            } catch{
 			            precursorMass = -1;
 		            }
-
-		            try{
-			            charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
-		            } catch {
-			            charge = -1;
-		            }
-
-		            try{
-			            masterScan = int.Parse(scanTrailer.Values.ToArray()[idxMasterScan]);
-		            } catch {
-			            masterScan= -1;
-		            }
-
-		            try{
-			            dependencyType = int.Parse(scanTrailer.Values.ToArray()[idxDependencyType]);
-		            } catch {
-			            dependencyType = -1;
-		            }
-
-		            try{
-                                monoIsotopicMz = Convert.ToDouble(scanTrailer.Values.ToArray()[idxMonoisotopicmZ]);
-				//monoisotopicMz = 0.0;
-			    } catch {
-				monoIsotopicMz = -1.0;
-			        //monoisotopicMz = -1;
-			    }
+                    charge = scanTrailer.Values.ToArray()[idxCharge].SafeParse(-1D, nameof(charge));
+			        masterScan = scanTrailer.Values.ToArray()[idxMasterScan].SafeParse(-1, nameof(masterScan));
+			        dependencyType = scanTrailer.Values.ToArray()[idxDependencyType].SafeParse(-1, nameof(dependencyType));
+                    monoIsotopicMz = scanTrailer.Values.ToArray()[idxMonoisotopicmZ].SafeParse(-1D, nameof(monoIsotopicMz));
 
 		            Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7};{8}", scanNumber,
 			            scanStatistics.ScanType.ToString(),
@@ -246,8 +257,12 @@
                         }
                         catch
                         {
-		        }
-			return (idx);
+		                }
+            if (idx == -1)
+            {
+                FGCZ_Raw.Logger.WriteError($"Cannot find index for trainer {pattern}. Existing fields are {string.Join(",", trailerFields.ToList())}");
+            }
+            return (idx);
 	    }
 
             public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
@@ -278,12 +293,7 @@
 			        pc = -1;
 		        }
 
-		        try{
-                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
-                        }
-		        catch {
-			        charge=-1;
-		        }
+        	    charge = scanTrailer.Values.ToArray()[idxCharge].SafeParse(-1, nameof(charge));
 
                         file.WriteLine("e$Spectrum[[{0}]] <- list(", scanNumber);
                         file.WriteLine("\tscan = {0};", scanNumber);
@@ -327,7 +337,7 @@
                         file.WriteLine("\tscan = {0},", scanNumber);
                         file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
                         if (indexCharge > 0)
-                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+                                file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge"));
 			    else
                                 file.WriteLine("\tcharge = NA,");
 
@@ -459,7 +469,7 @@
 
 
 			    if (indexCharge > 0)
-                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+                                file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge"));
 			    else
                                 file.WriteLine("\tcharge = NA,");
 
@@ -487,12 +497,12 @@
                                     scanNumber);
 
 			    if (indexCharge > 0)
-                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+                                file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge"));
 			    else
                                 file.WriteLine("\tcharge = NA,");
 
 			    if (indexMonoisotopicmZ > 0)
-                                file.WriteLine("\tmonoisotopicMz = {0},", Convert.ToDouble(scanTrailer.Values.ToArray()[indexMonoisotopicmZ]));
+                                file.WriteLine("\tmonoisotopicMz = {0},", scanTrailer.Values.ToArray()[indexMonoisotopicmZ].SafeParse("NA", "tmonoisotopicMz"));
 			    else
                                 file.WriteLine("\tmonoisotopicMz = NA,");
 
@@ -891,26 +901,26 @@ using (System.IO.StreamWriter file =
                 var traceMassRange = ChromatogramSignal.FromChromatogramData(dataMassRange);
                 var traceBasePeak = ChromatogramSignal.FromChromatogramData(dataBasePeak);
 
-                
+
                 if (traceBasePeak[0].Length > 0)
                 {
-                   
+
                     // Print the chromatogram data (time, intensity values)
                     file.WriteLine("# TIC chromatogram ({0} points)", traceTIC[0].Length);
                     file.WriteLine("# Base Peak chromatogram ({0} points)", traceBasePeak[0].Length);
                     file.WriteLine("# MassRange chromatogram ({0} points)", traceMassRange[0].Length);
 
                     file.WriteLine("rt;intensity.BasePeak;intensity.TIC;intensity.MassRange");
-                   
+
                         for (int i = 0; i < traceBasePeak[0].Length; i++)
                         {
                             file.WriteLine("{1:F3};{2:F0};{3:F0};{4:F0}", i, traceBasePeak[0].Times[i], traceBasePeak[0].Intensities[i], traceTIC[0].Intensities[i], traceMassRange[0].Intensities[i]);
                         }
-                    
+
                 }
                 file.WriteLine();
             }
-              
+
             }
 
 	    private static bool IsValidFilter(IRawDataPlus rawFile, string filter)
@@ -986,4 +996,15 @@ using (System.IO.StreamWriter file =
                 }
             }
         }
+        
+    internal static class Logger
+    {
+        public static void WriteError(string m)
+        {
+            using (TextWriter errorWriter = Console.Error)
+            {
+                errorWriter.WriteLine(m);
+            }
+        }
     }
+}
