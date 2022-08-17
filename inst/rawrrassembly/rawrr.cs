@@ -67,35 +67,37 @@ namespace FGCZExtensions
                 .Replace("-", "")
                 .Replace("=", ""));
         }
-        public static string SafeParse(this string v1, string v2, string name = null)
+        public static string SafeParse(this string v1, string v2, string name = null, int? scanNumber = null)
         {
             if (int.TryParse(v1, out int result))
                 return result.ToString();
+            if (double.TryParse(v1, out double resultd))
+                return resultd.ToString();
             else
             {
-                FGCZ_Raw.Logger.WriteError($"Cannot parse{(string.IsNullOrEmpty(name) ? string.Empty : " " + name) } as {v2.GetType()} from {v1}");
+                FGCZ_Raw.Logger.WriteError($"Cannot parse{(string.IsNullOrEmpty(name) ? string.Empty : " " + name) } as {v2.GetType()} from {v1}",scanNumber);
                 return v2;
             }
         }
 
-        public static int SafeParse(this string v1, int v2, string name = null)
+        public static int SafeParse(this string v1, int v2, string name = null, int? scanNumber = null)
         {
             if (int.TryParse(v1, out int result))
                 return result;
             else
             {
-                FGCZ_Raw.Logger.WriteError($"Cannot parse{(string.IsNullOrEmpty(name) ? string.Empty : " " + name) } as {v2.GetType()} from {v1}");
+                FGCZ_Raw.Logger.WriteError($"Cannot parse{(string.IsNullOrEmpty(name) ? string.Empty : " " + name) } as {v2.GetType()} from {v1}",scanNumber);
                 return v2;
             }
         }
 
-        public static double SafeParse(this string v1, double v2, string name = null)
+        public static double SafeParse(this string v1, double v2, string name = null, int? scanNumber = null)
         {
             if (double.TryParse(v1, out double result))
                 return result;
             else
             {
-                FGCZ_Raw.Logger.WriteError($"Cannot parse {name} as {v2.GetType()} from {v1}");
+                FGCZ_Raw.Logger.WriteError($"Cannot parse {name} as {v2.GetType()} from {v1}",scanNumber);
                 return v2;
             }
         }
@@ -214,10 +216,10 @@ namespace FGCZExtensions
 
             for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
                 var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
-                idxCharge = rawFile.GetIndexOfPattern(scanTrailer,"Charge State");
-                idxMasterScan = rawFile.GetIndexOfPattern(scanTrailer,"Master Scan Number:");
-                idxDependencyType = rawFile.GetIndexOfPattern(scanTrailer,"Dependency Type:");
-                idxMonoisotopicmZ = rawFile.GetIndexOfPattern(scanTrailer,"Monoisotopic M/Z:");
+                idxCharge = rawFile.GetIndexOfPattern(scanTrailer,"Charge State", scanNumber);
+                idxMasterScan = rawFile.GetIndexOfPattern(scanTrailer,"Master Scan Number:", scanNumber);
+                idxDependencyType = rawFile.GetIndexOfPattern(scanTrailer,"Dependency Type:", scanNumber);
+                idxMonoisotopicmZ = rawFile.GetIndexOfPattern(scanTrailer,"Monoisotopic M/Z:", scanNumber);
                 var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
                 var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
                 var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
@@ -229,13 +231,13 @@ namespace FGCZExtensions
                     precursorMass = -1;
                 }
                 if (idxCharge >=0)
-                    charge = scanTrailer.Values.ToArray()[idxCharge].SafeParse(-1D, nameof(charge));
+                    charge = scanTrailer.Values.ToArray()[idxCharge].SafeParse(-1D, nameof(charge), scanNumber);
                 if (idxMasterScan >= 0)
-                    masterScan = scanTrailer.Values.ToArray()[idxMasterScan].SafeParse(-1, nameof(masterScan));
+                    masterScan = scanTrailer.Values.ToArray()[idxMasterScan].SafeParse(-1, nameof(masterScan), scanNumber);
                 if (idxDependencyType >= 0)
-                    dependencyType = scanTrailer.Values.ToArray()[idxDependencyType].SafeParse(-1, nameof(dependencyType));
+                    dependencyType = scanTrailer.Values.ToArray()[idxDependencyType].SafeParse(-1, nameof(dependencyType), scanNumber);
                 if (idxMonoisotopicmZ >= 0)
-                    monoIsotopicMz = scanTrailer.Values.ToArray()[idxMonoisotopicmZ].SafeParse(-1D, nameof(monoIsotopicMz));
+                    monoIsotopicMz = scanTrailer.Values.ToArray()[idxMonoisotopicmZ].SafeParse(-1D, nameof(monoIsotopicMz), scanNumber);
 
                 Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7};{8}", scanNumber,
                     scanStatistics.ScanType.ToString(),
@@ -249,7 +251,7 @@ namespace FGCZExtensions
             }
         }
 
-        private static int GetIndexOfPattern(this IRawDataPlus rawFile, LogEntry trailerFields, string pattern = "Charge State"){
+        private static int GetIndexOfPattern(this IRawDataPlus rawFile, LogEntry trailerFields, string pattern = "Charge State", int? scanNumber = null){
 
             int idx = -1;
             try
@@ -265,14 +267,14 @@ namespace FGCZExtensions
             catch
             {
             }
-            if (idx == -1)
+            if (idx == -1 && scanNumber >=0)
             {
-                FGCZ_Raw.Logger.WriteError($"Cannot find index for trailer {pattern}. Existing fields are {string.Join(",", trailerFields.Labels.ToList())}");
+                FGCZ_Raw.Logger.WriteError($"Cannot find index for trailer {pattern}. Existing fields are {string.Join(",", trailerFields.Labels.ToList())}", scanNumber);
             }
             return (idx);
         }
 
-        private static int GetIndexOfPattern(this IRawDataPlus rawFile, HeaderItem[] trailerFields, string pattern = "Charge State"){
+        private static int GetIndexOfPattern(this IRawDataPlus rawFile, HeaderItem[] trailerFields, string pattern = "Charge State", int? scanNumber = null){
             int idx = -1;
             try
             {
@@ -289,7 +291,7 @@ namespace FGCZExtensions
             }
             if (idx == -1)
             {
-                FGCZ_Raw.Logger.WriteError($"Cannot find index for trailer {pattern}. Existing fields are {string.Join(",", trailerFields.ToList())}");
+                FGCZ_Raw.Logger.WriteError($"Cannot find index for trailer {pattern}. Existing fields are {string.Join(",", trailerFields.ToList())}", scanNumber);
             }
             return (idx);
         }
@@ -323,7 +325,7 @@ namespace FGCZExtensions
                         pc = -1;
                     }
 
-                    charge = scanTrailer.Values.ToArray()[idxCharge].SafeParse(-1, nameof(charge));
+                    charge = scanTrailer.Values.ToArray()[idxCharge].SafeParse(-1, nameof(charge), scanNumber);
 
                     file.WriteLine("e$Spectrum[[{0}]] <- list(", scanNumber);
                     file.WriteLine("\tscan = {0};", scanNumber);
@@ -368,7 +370,7 @@ namespace FGCZExtensions
                     file.WriteLine("\tscan = {0},", scanNumber);
                     file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
                     if (indexCharge > 0)
-                        file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge"));
+                        file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge"), scanNumber);
                     else
                         file.WriteLine("\tcharge = NA,");
 
@@ -433,7 +435,7 @@ namespace FGCZExtensions
             int count = 1;
             var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
             int indexCharge = rawFile.GetIndexOfPattern(trailerFields,"Charge State");
-            int indexMonoisotopicmZ = rawFile.GetIndexOfPattern(trailerFields,"MonoisotopicmZ");
+            int indexMonoisotopicmZ = rawFile.GetIndexOfPattern(trailerFields, "Monoisotopic M/Z:");
 
             using (System.IO.StreamWriter file =
                 new System.IO.StreamWriter(filename))
@@ -449,7 +451,7 @@ namespace FGCZExtensions
                     var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                     var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
                     indexCharge = rawFile.GetIndexOfPattern(scanTrailer, "Charge State");
-                    indexMonoisotopicmZ = rawFile.GetIndexOfPattern(scanTrailer, "MonoisotopicmZ");
+                    indexMonoisotopicmZ = rawFile.GetIndexOfPattern(scanTrailer, "Monoisotopic M/Z:");
 
                     var scan = Scan.FromFile(rawFile, scanNumber);
 
@@ -503,7 +505,7 @@ namespace FGCZExtensions
 
 
                         if (indexCharge > 0)
-                            file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge"));
+                            file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge", scanNumber));
                         else
                             file.WriteLine("\tcharge = NA,");
 
@@ -531,12 +533,12 @@ namespace FGCZExtensions
                             scanNumber);
 
                         if (indexCharge > 0)
-                            file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge"));
+                            file.WriteLine("\tcharge = {0},", scanTrailer.Values.ToArray()[indexCharge].SafeParse("NA", "charge", scanNumber));
                         else
                             file.WriteLine("\tcharge = NA,");
 
                         if (indexMonoisotopicmZ > 0)
-                            file.WriteLine("\tmonoisotopicMz = {0},", scanTrailer.Values.ToArray()[indexMonoisotopicmZ].SafeParse("NA", "tmonoisotopicMz"));
+                            file.WriteLine("\tmonoisotopicMz = {0},", scanTrailer.Values.ToArray()[indexMonoisotopicmZ].SafeParse("NA", "tmonoisotopicMz", scanNumber));
                         else
                             file.WriteLine("\tmonoisotopicMz = NA,");
 
@@ -1032,11 +1034,11 @@ namespace FGCZ_Raw
     }
     internal static class Logger
     {
-        public static void WriteError(string m)
+        public static void WriteError(string m, int? scanNumber )
         {
             using (TextWriter errorWriter = Console.Error)
             {
-                errorWriter.WriteLine(m);
+                errorWriter.WriteLine((scanNumber != null ? $"Scan Number: {scanNumber} ": "") + m);
             }
         }
     }
