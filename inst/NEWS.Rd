@@ -3,6 +3,11 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.5 (2022-08-22)}{
+  \itemize{
+	  \item Add \code{centroid.PreferredNoises}.
+  }
+}
 
 \section{Changes in version 1.3 (2022-03-19)}{
   \itemize{

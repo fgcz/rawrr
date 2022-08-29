@@ -525,6 +525,10 @@ namespace FGCZExtensions
                         if(scan.HasCentroidStream){
                             file.WriteLine("\tcentroid.mZ = c(" + string.Join(",", scan.CentroidScan.Masses.ToArray()) + "),");
                             file.WriteLine("\tcentroid.intensity = c(" + string.Join(",", scan.CentroidScan.Intensities.ToArray()) + "),");
+                            // https://github.com/compomics/ThermoRawFileParser/blob/c293d4aa1b04bfd62124ff42c512572427a4316a/Writer/MzMlSpectrumWriter.cs#L1664
+				            file.WriteLine("\tcentroid.PreferredNoises = c({0}),", string.Join(", ", scan.PreferredNoises.ToArray()));
+				            file.WriteLine("\tcentroid.PreferredMasses = c({0}),", string.Join(", ", scan.PreferredMasses.ToArray()));
+				            //Console.WriteLine("\tcentroid.PreferredBaselines = c({0}),", string.Join(", ", scan.PreferredBaselines.ToArray()));
                         }
 
                         file.WriteLine("\ttitle = \"File: {0}; SpectrumID: {1}; scans: {2}\",",
