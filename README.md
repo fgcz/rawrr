@@ -1,5 +1,6 @@
 [![JPR](https://img.shields.io/badge/JPR-10.1021%2Facs.jproteome.0c00866-brightgreen)](http://dx.doi.org/10.1021/acs.jproteome.0c00866)
 [![codecov](https://codecov.io/gh/fgcz/rawrr/branch/master/graph/badge.svg?token=OO4Y7G4UUX)](https://codecov.io/gh/fgcz/rawrr)
+[![R-CMD-check-rawrr](https://github.com/fgcz/rawrr/actions/workflows/r.yaml/badge.svg)](https://github.com/fgcz/rawrr/actions/workflows/r.yaml)
 
 ![rawrrHexSticker](https://github.com/fgcz/rawrr/blob/master/rawrr_logo.png)
 
