@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 1.7.0
+Version: 1.7.1
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -12,7 +12,7 @@ Authors@R: c(person("Christian", "Panse",
     comment = c(ORCID = "0000-0002-1847-885X")))
 Depends: R (>= 4.1)
 Imports:
-        grDevices, graphics, stats, utils
+        Rcpp, grDevices, graphics, stats, utils
 Suggests:
     BiocStyle (>= 2.5),
     ExperimentHub,
@@ -30,12 +30,14 @@ Description: This package wraps the functionality
     The package is developed, tested, and used at the Functional
     Genomics Center Zurich, Switzerland <https://fgcz.ch>.
 License: GPL-3
-SystemRequirements: mono-runtime 4.x or higher (including System.Data library)
+SystemRequirements: mono-runtime 5.x (including System.Data library)
     on Linux/macOS, .Net Framework (>= 4.5.1) on Microsoft Windows.
+LinkingTo: Rcpp (>= 1.0)
+RcppModules: RawrrMod
 URL: https://github.com/fgcz/rawrr/
 BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
-NeedsCompilation: no
+NeedsCompilation: yes
 RoxygenNote: 7.1.2
 biocViews: MassSpectrometry, Proteomics, Metabolomics
 VignetteBuilder: knitr

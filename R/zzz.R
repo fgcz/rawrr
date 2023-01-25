@@ -26,3 +26,5 @@
     .buildOnLoad()
    }
 }
+
+loadModule("RawrrMod", TRUE)

@@ -1,0 +1,5 @@
+PKG_CPPFLAGS=-I. $(shell pkg-config --cflags --libs mono-2)
+PKG_CXXFLAGS=$(shell pkg-config --cflags mono-2` -O3)
+PKG_LIBS=$(shell pkg-config --libs mono-2)
+MONO_LOG_LEVEL=all
+MONO_LOG_MASK=dll,cfg
