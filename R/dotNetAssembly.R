@@ -232,7 +232,7 @@ installRawFileReaderDLLs <-
 #' @aliases rawrr.exe
 #' @export installRawrrExe
 installRawrrExe <-
-  function (sourceUrl = "http://fgcz-ms.uzh.ch/~cpanse/rawrr/rawrr.1.5.3.exe",
+  function (sourceUrl = "https://github.com/fgcz/rawrr/releases/download/1.5.3/rawrr.1.5.3.exe",
             ...)
   {
    
