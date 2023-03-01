@@ -3,6 +3,12 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.7.4 (2023-03-01)}{
+  \itemize{
+	  \item Add \code{rawrr::readTrailer}.
+  }
+}
+
 \section{Changes in version 1.5 (2022-08-22)}{
   \itemize{
 	  \item Add \code{centroid.PreferredNoises}.

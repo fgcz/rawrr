@@ -28,5 +28,5 @@ plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 table(Idx$MSOrder)
 }
 \author{
-Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020
+Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020, 2021
 }
