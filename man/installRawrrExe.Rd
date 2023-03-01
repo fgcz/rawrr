@@ -6,7 +6,7 @@
 \title{Download and install the \code{rawrr.exe} console application}
 \usage{
 installRawrrExe(
-  sourceUrl = "https://github.com/fgcz/rawrr/releases/download/1.5.3/rawrr.1.5.3.exe",
+  sourceUrl = "https://github.com/fgcz/rawrr/releases/download/1.7.3/rawrr.1.7.3.exe",
   ...
 )
 }
