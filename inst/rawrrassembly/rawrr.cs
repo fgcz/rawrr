@@ -363,7 +363,6 @@
 
             public static void WriteTrailerValues(this IRawDataPlus rawFile, string label)
 	    {
-                    Console.WriteLine("BEGIN DEBUG ");
 		    int idx = -1;
 		    try{
 		    	idx = rawFile.GetIndexOfPattern(label);
