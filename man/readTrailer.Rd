@@ -14,7 +14,7 @@ readTrailer(rawfile, label = NULL, tmpdir = tempdir(), verbose = FALSE)
 \item{verbose}{print message of temp files; default is \code{FALSE}.}
 }
 \value{
-an vector of trailers or values of a given trailer. Of note, 
+an vector of trailers or values of a given trailer. Of note,
 the values are usually returned as a character.
 }
 \description{
