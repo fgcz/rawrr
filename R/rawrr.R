@@ -1421,17 +1421,21 @@ auc.rawrrChromatogram <- function(x){
 
 
 # readTrailer ---------
-#' Read scan trailer
+#' Read and extract scan trailer from TFS raw files.
 #'
 #' @param rawfile 
-#' @param label if NULL; the function scans for all available label
+#' @param label if NULL; the function scans for all available labels.
+#' @param verbose print message of temp files; default is \code{FALSE}.
 #'
-#' @return an vector.
+#' @return an vector of trailers or values of a given trailer. Of note,
+#' the values are usually returned as a character.
+#'
 #' @export
 #'
 #' @examples
 #' rawrr::sampleFilePath() |> rawrr:::readTrailer()
-readTrailer <- function(rawfile, label=NULL, tmpdir=tempdir()) {
+#' rawrr::sampleFilePath() |> rawrr:::readTrailer("AGC:") |> head()
+readTrailer <- function(rawfile, label = NULL, tmpdir = tempdir(), verbose = FALSE) {
   .isAssemblyWorking()
   .checkRawFile(rawfile)
   
@@ -1470,10 +1474,10 @@ readTrailer <- function(rawfile, label=NULL, tmpdir=tempdir()) {
     }
   }
   #unlink(c(tfi, tfo, tfstdout))
-  message(paste0("stdout: ", tfstdout))
-  message(paste0("stderr: ", tfstderr))
-  S <- NULL
- # try(S <- scan(tfstdout, what=character(), sep = "\n"), silent = TRUE)
-  S <- scan(tfstdout, what=character(), sep = "\n")
-  S
+  if (isTRUE(verbose)){
+    message(paste0("stdout: ", tfstdout))
+    message(paste0("stderr: ", tfstderr))
+  }
+
+  scan(tfstdout, what=character(), sep = "\n", quiet = !verbose)
 }
