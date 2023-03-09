@@ -4,9 +4,10 @@ context("index")
 
 library(rawrr)
 
-
 test_that("check readIndex.", {
-  x <- readIndex(sampleFilePath())
+  x <- sampleFilePath() |>
+      readIndex()
+
   expect_equivalent(dim(x) == c(573, 9),
       c(TRUE, TRUE))
   expect_true(is.data.frame(x))
@@ -20,6 +21,5 @@ test_that("check readIndex.", {
 
 
 test_that("check readIndex error.", {
-  rawfile <- "this file does not exists"
-  expect_error(S <- readIndex(rawfile))
+  expect_error("this_file_does_not_exists.raw" |> readIndex())
 })
