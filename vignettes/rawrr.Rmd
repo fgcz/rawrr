@@ -110,6 +110,7 @@ The Orbitrap detector has been a tremendous success story in MS, since it offers
 |`readFileHeader()`  |Reads meta information from a raw file header       |`list`                   |
 |`readIndex()`       |Generates a scan index from a raw file              |`data.frame`             |
 |`readSpectrum()`    |Reads spectral data from a raw file                 |`rawrrSpectrum(Set)`     |
+|`readTrailer()`     |Reads trailer values for each scan event            |`vector`                 |
 |`readChromatogram()`|Reads chromatographic data from a raw file          |`rawrrChromatogram(Set)` |
 
 Table: lists `rawrr` package functions connected to reading functionality. More details can be found in the package documentation (see supporting information, S-20 onwards [@Kockmann2021]).
