@@ -1481,5 +1481,6 @@ readTrailer <- function(rawfile, label = NULL, tmpdir = tempdir(), verbose = FAL
     message(paste0("stderr: ", tfstderr))
   }
 
-  scan(tfstdout, what=character(), sep = "\n", quiet = !verbose)
+  scan(tfstdout, what=character(), sep = "\n", quiet = !verbose,
+       blank.lines.skip = FALSE)
 }
