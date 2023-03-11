@@ -7,7 +7,7 @@
 readTrailer(rawfile, label = NULL, tmpdir = tempdir(), verbose = FALSE)
 }
 \arguments{
-\item{rawfile}{}
+\item{rawfile}{the name of the Thermo Fisher Scientific raw file.}
 
 \item{label}{if NULL; the function scans for all available labels.}
 
