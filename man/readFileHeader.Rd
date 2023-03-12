@@ -7,7 +7,7 @@
 readFileHeader(rawfile)
 }
 \arguments{
-\item{rawfile}{the name of the Thermo Fisher Scietific raw file}
+\item{rawfile}{the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.}
 }
 \value{
 A list object containing the following entries: RAW file version,
@@ -21,7 +21,7 @@ Sample volume, Sample injection volume, Sample row number,
 Sample dilution factor, or Sample barcode.
 }
 \description{
-The function extracts meta information from a given rawfile.
+This function extracts the meta information from a given raw file.
 }
 \examples{
 rawrr::sampleFilePath() |> readFileHeader()

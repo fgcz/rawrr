@@ -7,7 +7,7 @@
 readChromatogram(rawfile, mass = NULL, tol = 10, filter = "ms", type = "xic")
 }
 \arguments{
-\item{rawfile}{the file name.}
+\item{rawfile}{the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.}
 
 \item{mass}{a vector of mass values iff \code{type = 'xic'}.}
 

@@ -14,7 +14,7 @@ readSpectrum(
 )
 }
 \arguments{
-\item{rawfile}{the name of the Thermo Fisher Scientific raw file.}
+\item{rawfile}{the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.}
 
 \item{scan}{a vector of requested scan numbers.}
 

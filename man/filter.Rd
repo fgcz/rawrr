@@ -7,7 +7,7 @@
 filter(rawfile, filter = "ms", precision = 10, tmpdir = tempdir())
 }
 \arguments{
-\item{rawfile}{the name of the Thermo Fisher Scietific raw file}
+\item{rawfile}{the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.}
 
 \item{filter}{scan filter string, e.g., \code{ms} or \code{ms2}}
 
