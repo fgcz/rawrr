@@ -15,6 +15,10 @@ Validated \code{rawrrSpectrum} object
 \description{
 Checks the validity of \code{rawrrSpectrum} object attributes.
 }
+\examples{
+S <- rawrr::sampleFilePath() |>
+  rawrr::readSpectrum(scan = 1:9, validate=TRUE)
+}
 \author{
 Tobias Kockmann and Christian Panse, 2020.
 }

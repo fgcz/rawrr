@@ -177,7 +177,7 @@
 		    double monoIsotopicMz;
 	            int masterScan, dependencyType;
 
-	            Console.WriteLine("scan;scanType;rtinseconds;precursorMass;MSOrder;charge;masterScan;dependencyType;monoisotopicMz");
+	            Console.WriteLine("scan;scanType;StartTime;precursorMass;MSOrder;charge;masterScan;dependencyType;monoisotopicMz");
 
 	            for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
 		            var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
@@ -220,7 +220,7 @@
 
 		            Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7};{8}", scanNumber,
 			            scanStatistics.ScanType.ToString(),
-			            Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000,
+			            scanStatistics.StartTime,
 			            precursorMass,
 			            scanFilter.MSOrder.ToString(),
 			            charge,
@@ -288,6 +288,7 @@
                         file.WriteLine("e$Spectrum[[{0}]] <- list(", scanNumber);
                         file.WriteLine("\tscan = {0};", scanNumber);
                         file.WriteLine("\tscanType = \"{0}\";", scanStatistics.ScanType.ToString());
+                        file.WriteLine("\tStartTime = {0},", scanStatistics.StartTime);
                         file.WriteLine("\trtinseconds = {0};", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
                         file.WriteLine("\tprecursorMass = {0};", pc);
 			file.WriteLine("\tMSOrder = '{0}';", scanFilter.MSOrder.ToString());
@@ -325,6 +326,7 @@
 
                         file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
                         file.WriteLine("\tscan = {0},", scanNumber);
+                        file.WriteLine("\tStartTime = {0},", scanStatistics.StartTime);
                         file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
                         if (indexCharge > 0)
                                 file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
@@ -424,6 +426,7 @@
                                 file.WriteLine("\tTIC = {0},", scanStatistics.TIC.ToString());
                                 file.WriteLine("\tmassRange = c({0}, {1}),", scanStatistics.LowMass.ToString(), scanStatistics.HighMass.ToString());
                                 file.WriteLine("\tscanType = \"{0}\",", scanStatistics.ScanType.ToString());
+                                file.WriteLine("\tStartTime = {0},", scanStatistics.StartTime);
                                 file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
 			try
 			{

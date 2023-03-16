@@ -6,13 +6,13 @@ library(rawrr)
 
 test_that("check readSpectrum object names and types.", {
 
-  rawfile <- sampleFilePath()
+  rawfile <- rawrr::sampleFilePath()
 
   S <- readSpectrum(rawfile, 1:22)
 
   lapply(S, function(x){expect_true(is.rawrrSpectrum(x))})
 
-  B <- readSpectrum(rawfile, 1:22, mode = 'barebone')
+  B <- rawrr::readSpectrum(rawfile, 1:22, mode = 'barebone')
   
   expect_true(all(sapply(B, function(x){'scan' %in% names(x)})))
   expect_true(all(sapply(B, function(x){'mZ' %in% names(x)})))
