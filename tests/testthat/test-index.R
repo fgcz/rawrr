@@ -11,7 +11,7 @@ test_that("check readIndex.", {
   expect_equivalent(dim(x) == c(573, 9),
       c(TRUE, TRUE))
   expect_true(is.data.frame(x))
-  IndexColNames <- c("scan", "scanType", "rtinseconds", "precursorMass",
+  IndexColNames <- c("scan", "scanType", "StartTime", "precursorMass",
                      "MSOrder", "charge", "masterScan", "dependencyType", "monoisotopicMz")
   expect_true(is.integer(x$scan))
   expect_true(all(IndexColNames %in% colnames(x)))
