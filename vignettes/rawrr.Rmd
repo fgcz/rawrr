@@ -319,6 +319,11 @@ f <- rawrr::sampleFilePath()
   base::Reduce(f=rbind)
 ```
 
+## mZ and intensity vectors have different lengths. What shall I do?
+
+On Windows, the decimal symbol has to be configured as a '.'!
+See also [#fgcz/rawDiag/issues/33](https://github.com/fgcz/rawDiag/issues/33).
+
 # Session information {-}
 
 ```{r sessioninfo, echo=FALSE}
