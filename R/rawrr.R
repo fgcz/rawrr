@@ -1072,7 +1072,7 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                        "TIC: "),
                      c(x$scan,
                        x$scanType,
-                       x$,StartTime
+                       x$StartTime,
                        format(x$basePeak[1], nnsmall = 4),
                        format(x$basePeak[2], scientific = TRUE),
                        format(x$TIC, scientific = TRUE))
