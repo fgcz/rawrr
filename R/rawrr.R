@@ -237,7 +237,7 @@ readFileHeader <- function(rawfile){
 #' @examples
 #' Idx <- rawrr::sampleFilePath() |> rawrr::readIndex()
 #' table(Idx$scanType)
-#' plot(Idx$rtinseconds, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
+#' plot(Idx$StartTime, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 #'
 #' table(Idx$MSOrder)
 readIndex <- function(rawfile, tmpdir=tempdir()){
