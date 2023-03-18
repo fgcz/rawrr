@@ -3,6 +3,12 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.7.12 (2023-03-17)}{
+  \itemize{
+	  \item Replace rtinseconds by StartTime [min] as provided by the TFS assembly \ghit{60}. 
+  }
+}
+
 \section{Changes in version 1.7.4 (2023-03-01)}{
   \itemize{
 	  \item Add \code{rawrr::readTrailer}.
