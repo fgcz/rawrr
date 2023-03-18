@@ -72,7 +72,7 @@
     res <- lapply(scanIdx, function(x){
         rv <- readSpectrum(rawfile, scan=x, tmpdir=tmpdir)[[1]]
         list(scanType=rv$scanType, mZ=rv$mZ, intensity=rv$intensity,
-             charge=rv$charge, rtinseconds=rv$rtinseconds)
+             charge=rv$charge, rtinseconds = 60 * rv$StartTime)
     })
     e <- new.env()
     objName <- paste("S",basename(rawfile), sep='')
@@ -156,7 +156,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
 #' rawrr::is.rawrrSpectrum(S[[1]])
 is.rawrrSpectrum <- function(x){
        if (isFALSE(all(c('scan', 'massRange', 'scanType',
-	       'rtinseconds', 'centroidStream', 'mZ',
+	       'StartTime', 'centroidStream', 'mZ',
 	       'intensity') %in% names(x)))){
 	       return (FALSE)
 	       }
@@ -164,7 +164,7 @@ is.rawrrSpectrum <- function(x){
        all(c(is.numeric(x$scan),
          is.numeric(x$massRange),
 	 is.character(x$scanType),
-         is.numeric(x$rtinseconds),
+         is.numeric(x$StartTime),
 	 is.logical(x$centroidStream),
          is.numeric(x$mZ),
 	 is.numeric(x$intensity)))
@@ -227,7 +227,7 @@ readFileHeader <- function(rawfile){
 #' \code{tempdir()}.
 #' 
 #' @return returns a \code{data.frame} with the column names
-#' scan, scanType, rtinseconds, precursorMass, MSOrder, charge, masterScan, and 
+#' scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and 
 #' dependencyType of all spectra.
 #' 
 #' @export readIndex
@@ -351,7 +351,7 @@ validate_rawrrIndex <- function(x){
         valideIndex <- FALSE
     }
 
-    IndexColNames <- c("scan", "scanType", "rtinseconds", "precursorMass",
+    IndexColNames <- c("scan", "scanType", "StartTime", "precursorMass",
                        "MSOrder", "charge", "masterScan", "dependencyType")
 
     for (i in IndexColNames){
@@ -366,7 +366,6 @@ validate_rawrrIndex <- function(x){
         message("Column 'scan' is not an integer.")
         valideIndex <- FALSE
     }
-
 
     if (!all(na.omit(x$masterScan) %in% x$scan)){
         message("Master scan not in scan index.")
@@ -469,7 +468,7 @@ sampleFilePath <- function(){
 #' @param scan a vector of requested scan numbers.
 #' @param validate boolean default is \code{FALSE}.
 #' @param mode if \code{mode = "barebone"} only mZ (centroidStream.Masses),
-#' intensity (centroidStream.Intensities), pepmass, rtinseconds
+#' intensity (centroidStream.Intensities), pepmass, StartTime
 #' and charge state is returned. As default mode is \code{""}.
 #'
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch> 2018, 2019, 2020, 2021
@@ -809,26 +808,26 @@ readChromatogram <- function(rawfile,
 #' @param scan scan number
 #' @param massRange Mass range covered by spectrum
 #' @param scanType Character string describing the scan type.
-#' @param rtinseconds Retention time in seconds
+#' @param StartTime Retention time in minutes
 #' @param centroidStream Logical indicating if centroided data is available
 #' @param mZ m/z values
 #' @param intensity Intensity values
 #' @author Tobias Kockmann, 2020.
 #' @return Object of class \code{rawrrSpectrum}
 new_rawrrSpectrum <- function(scan = numeric(), massRange = numeric(),
-                             scanType = character(), rtinseconds = numeric(),
+                             scanType = character(), StartTime = numeric(),
                              centroidStream = logical(),
                              mZ = numeric(), intensity = numeric()){
 
     stopifnot(is.numeric(scan), is.numeric(massRange), is.character(scanType),
-              is.numeric(rtinseconds), is.logical(centroidStream),
+              is.numeric(StartTime), is.logical(centroidStream),
               is.numeric(mZ), is.numeric(intensity)
     )
 
     structure(list(scan = scan,
                    basePeak = c(mZ[which.max(intensity)], intensity[which.max(intensity)]),
                    TIC = sum(intensity), massRange = massRange,
-                   scanType = scanType, rtinseconds = rtinseconds,
+                   scanType = scanType, StartTime = StartTime,
                    centroidStream = centroidStream,
                    mZ = mZ, intensity = intensity),
               class = "rawrrSpectrum")
@@ -857,7 +856,7 @@ rawrrSpectrum <- function(sim = "TESTPEPTIDE") {
     if (sim == "example_1") {
         S <- new_rawrrSpectrum(scan = 1,
                               massRange = c(90, 1510),
-                              rtinseconds = 1,
+                              StartTime = 1,
                               scanType = "simulated",
                               centroidStream = FALSE,
                               mZ = seq_len(15) * 100,
@@ -866,7 +865,7 @@ rawrrSpectrum <- function(sim = "TESTPEPTIDE") {
     }else if (sim == "TESTPEPTIDE") {
         S <- new_rawrrSpectrum(scan = 1,
                               massRange = c(90, 1510),
-                              rtinseconds = 1,
+                              StartTime = 1,
                               scanType = "simulated",
                               centroidStream = FALSE,
                               mZ = c(148.0604, 263.0874, 376.1714, 477.2191,
@@ -956,8 +955,8 @@ validate_rawrrSpectrum <- function(x){
 
     ##
 
-    if (values$rtinseconds < 0) {
-        stop("rtinseconds must be greater than zero.", call. = FALSE)
+    if (values$StartTime < 0) {
+        stop("StartTime (rt) must be greater than zero.", call. = FALSE)
     }
 
     x
@@ -1073,7 +1072,7 @@ plot.rawrrSpectrum <- function(x, relative = TRUE, centroid = FALSE, SN = FALSE,
                        "TIC: "),
                      c(x$scan,
                        x$scanType,
-                       x$rtinseconds,
+                       x$,StartTime
                        format(x$basePeak[1], nnsmall = 4),
                        format(x$basePeak[2], scientific = TRUE),
                        format(x$TIC, scientific = TRUE))
@@ -1130,7 +1129,7 @@ print.rawrrSpectrum <- function(x, ...){
     cat("Total Ion Current:\t", x$TIC, fill = TRUE)
     cat("Scan Low Mass:\t", x$massRange[1], fill = TRUE)
     cat("Scan High Mass:\t", x$massRange[2], fill = TRUE)
-    cat("Scan Start Time (Min):\t", round(x$rtinseconds/60,2), fill = TRUE)
+    cat("Scan Start Time (min):\t", x$StartTime, fill = TRUE)
     cat("Scan Number:\t", x$scan, fill=TRUE)
     cat("Base Peak Intensity:\t", x$basePeak[2], fill = TRUE)
     cat("Base Peak Mass:\t", x$basePeak[1], fill = TRUE)

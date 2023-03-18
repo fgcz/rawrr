@@ -312,7 +312,7 @@ f <- rawrr::sampleFilePath()
   parallel::mclapply(FUN = function(x){
     idx <- x$intensity == max(x$intensity);
     data.frame(scan=x$scan,
-               rtinseconds=x$rtinseconds,
+               StartTime=x$StartTime,
                mZ=x$mZ[idx],
                intensity=x$intensity[idx]
                )}) |>
