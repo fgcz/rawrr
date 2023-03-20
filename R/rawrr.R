@@ -600,7 +600,9 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
   if(validate){
     rv <- lapply(rv, validate_rawrrSpectrum)
   }else{
-	  validate_rawrrSpectrum(rv[[1]])
+    if (mode != "barebone"){
+      validate_rawrrSpectrum(rv[[1]])
+    }
   }
   
   class(rv) <- 'rawrrSpectrumSet'
