@@ -25,7 +25,7 @@ the .NET assembly \code{rawrr.exe}. The default uses the output of
 \item{validate}{boolean default is \code{FALSE}.}
 
 \item{mode}{if \code{mode = "barebone"} only mZ (centroidStream.Masses),
-intensity (centroidStream.Intensities), pepmass, rtinseconds
+intensity (centroidStream.Intensities), pepmass, StartTime
 and charge state is returned. As default mode is \code{""}.}
 }
 \value{

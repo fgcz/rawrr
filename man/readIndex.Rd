@@ -15,7 +15,7 @@ the .NET assembly \code{rawrr.exe}. The default uses the output of
 }
 \value{
 returns a \code{data.frame} with the column names
-scan, scanType, rtinseconds, precursorMass, MSOrder, charge, masterScan, and 
+scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and 
 dependencyType of all spectra.
 }
 \description{

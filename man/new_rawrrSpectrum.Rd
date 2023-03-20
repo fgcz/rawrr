@@ -8,7 +8,7 @@ new_rawrrSpectrum(
   scan = numeric(),
   massRange = numeric(),
   scanType = character(),
-  rtinseconds = numeric(),
+  StartTime = numeric(),
   centroidStream = logical(),
   mZ = numeric(),
   intensity = numeric()
@@ -21,7 +21,7 @@ new_rawrrSpectrum(
 
 \item{scanType}{Character string describing the scan type.}
 
-\item{rtinseconds}{Retention time in seconds}
+\item{StartTime}{Retention time in minutes}
 
 \item{centroidStream}{Logical indicating if centroided data is available}
 

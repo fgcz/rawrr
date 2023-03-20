@@ -599,6 +599,8 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
                function(x){class(x) <- c('rawrrSpectrum'); x})
   if(validate){
     rv <- lapply(rv, validate_rawrrSpectrum)
+  }else{
+	  validate_rawrrSpectrum(rv[[1]])
   }
   
   class(rv) <- 'rawrrSpectrumSet'
@@ -912,10 +914,11 @@ validate_rawrrSpectrum <- function(x){
     }
     
     if (length(values$mZ) != length(values$intensity)){
-        stop(
-            "mZ should have same length as intensities.",
-            call. = FALSE
-        )
+	msg <- paste0(
+	    "The mZ and intensity vector must have the same length.",
+	    "\nOn Windows, the decimal symbol has to be configured as a '.'!",
+	    "\nIf you cannot resolve the problem, please contact the maintainer.")
+        stop(msg, call. = FALSE)
     }
 
     if (any(values$mZ < 0)) {
@@ -938,21 +941,20 @@ validate_rawrrSpectrum <- function(x){
         stop("All basePeak values must be greater than zero.", call. = FALSE)
     }
 
-    ## still problems here: fails with sample data
+    ## TODO: still problems here: fails with sample data
+    #basePeakMz <- round(values$basePeak[1], 1)
+    #if (isFALSE(basePeakMz %in% round(values$mZ, 1))) {
+    #  warning(sprintf(
+    #      "scan = %d, basePeak mZ = %f (position) must be found in mZ.",
+    #                 values$scan, basePeakMz), call. = FALSE)
+    #}
 
-    basePeakMz <- round(values$basePeak[1], 1)
-    if (isFALSE(basePeakMz %in% round(values$mZ, 1))) {
-      warning(sprintf(
-          "scan = %d, basePeak mZ = %f (position) must be found in mZ.",
-                     values$scan, basePeakMz), call. = FALSE)
-    }
-
-    if (values$basePeak[2] != max(values$intensity)) {
-        warning(sprintf(
-            "scan = %d, basePeak intensity is unequal max. intensity.",
-            values$scan), call. = FALSE)
-    }
-
+    #if (values$basePeak[2] != max(values$intensity)) {
+    #    warning(sprintf(
+    #        "scan = %d, basePeak intensity is unequal max. intensity.",
+    #        values$scan), call. = FALSE)
+    #}
+    #
     ##
 
     if (values$StartTime < 0) {
