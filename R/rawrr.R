@@ -431,7 +431,6 @@ validate_rawrrIndex <- function(x){
 #' @examples
 #' sampleFilePath()
 sampleFilePath <- function(){
-    # path.package(package = 'rawrr')
     f <- file.path(system.file(package = 'rawrr'), 'extdata', 'sample.raw')
     stopifnot(file.exists(f))
     f
@@ -663,6 +662,15 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
   
   unlink(c(tfi, tfcsv, tfstdout, tfstderr))
   return(rv)
+}
+
+#' Validate output of the readChromatogram function
+#' @noRd
+#' @param x chromatogram object
+#' @return Validated chromatogram object
+## TODO
+validate_rawrrChromatogram <- function(x){
+  return(x)
 }
   
 # readChromatogram ---------
