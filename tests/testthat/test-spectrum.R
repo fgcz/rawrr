@@ -6,13 +6,13 @@ library(rawrr)
 
 test_that("check readSpectrum object names and types.", {
 
-  rawfile <- rawrr::sampleFilePath()
+  S <- rawrr::sampleFilePath() |>
+    rawrr::readSpectrum(1:22, validate = TRUE)
 
-  S <- readSpectrum(rawfile, 1:22)
+  lapply(S, function(x){ expect_true(rawrr::is.rawrrSpectrum(x)) })
 
-  lapply(S, function(x){expect_true(is.rawrrSpectrum(x))})
-
-  B <- rawrr::readSpectrum(rawfile, 1:22, mode = 'barebone')
+  B <- rawrr::sampleFilePath() |>
+    rawrr::readSpectrum(1:22, mode = 'barebone')
   
   expect_true(all(sapply(B, function(x){'scan' %in% names(x)})))
   expect_true(all(sapply(B, function(x){'mZ' %in% names(x)})))
@@ -41,10 +41,14 @@ test_that("check readSpectrum object names and types.", {
 
 test_that("check readSpectrum scan 23.", {
 
-  rawfile <- sampleFilePath()
-  S <- readSpectrum(rawfile, 23)[[1]]
+  
+  S <- rawrr::sampleFilePath() |>
+    rawrr::readSpectrum(23) |>
+    unlist(recursive = FALSE)
 
-  DF <- read.table(file.path(path.package(package = 'rawrr'), 'extdata', 'scan23_peakList.txt'), sep="\t", header=TRUE)
+  DF <- system.file("extdata", name = 'scan23_peakList.txt',
+                    package = 'rawrr') |>
+    read.table(sep="\t", header=TRUE)
 
   expect_true(sum(S$mZ %in% DF$m.z) >= 720)
   expect_true(sum(S$intensity %in% DF$Intensity) >= 720)

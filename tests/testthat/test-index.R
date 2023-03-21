@@ -5,8 +5,9 @@ context("index")
 library(rawrr)
 
 test_that("check readIndex.", {
-  x <- sampleFilePath() |>
-      readIndex()
+  x <- rawrr::sampleFilePath() |>
+    rawrr::readIndex() |>
+    rawrr::validate_rawrrIndex()
 
   expect_equivalent(dim(x) == c(573, 9),
       c(TRUE, TRUE))
