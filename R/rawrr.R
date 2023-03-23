@@ -1437,15 +1437,17 @@ dependentScan <- function(x, scanNumber){
     return(i)
 }
 
-
-#' Example snippet for deriving an AUC
+#=======AUC========
+#' deriving area under the curve (AUC)
 #'
-#' @param x an rawrrChromatogram
+#' @param x an rawrrChromatogram object contains \code{x$times} and
+#' \code{x$intensities}. \code{x$times} is assumed to be in minutes.
 #'
 #' @return A numeric value.
 #' @importFrom utils head tail
 auc.rawrrChromatogram <- function(x){
-	times <- x$times; intensities <- x$intensities
+	times <- 60 * x$times
+	intensities <- x$intensities
 	sum(diff(times) * (head(intensities, -1) + tail(intensities, -1))) / 2
 }
 

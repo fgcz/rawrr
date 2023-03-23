@@ -2,16 +2,17 @@
 % Please edit documentation in R/rawrr.R
 \name{auc.rawrrChromatogram}
 \alias{auc.rawrrChromatogram}
-\title{Example snippet for deriving an AUC}
+\title{deriving area under the curve (AUC)}
 \usage{
 auc.rawrrChromatogram(x)
 }
 \arguments{
-\item{x}{an rawrrChromatogram}
+\item{x}{an rawrrChromatogram object contains \code{x$times} and
+\code{x$intensities}. \code{x$times} is assumed to be in minutes.}
 }
 \value{
 A numeric value.
 }
 \description{
-Example snippet for deriving an AUC
+deriving area under the curve (AUC)
 }
