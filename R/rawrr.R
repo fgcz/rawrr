@@ -1452,8 +1452,8 @@ dependentScan <- function(x, scanNumber){
 }
 
 ## https://cran.r-project.org/src/contrib/Archive/deisotoper/
+#' @importFrom stats predict lm
 .fitChromatographicPeak <- function(x, y){
-
   peak <- data.frame(logy = log(y + 1), x = x)
   x.mean <- mean(peak$x)
   peak$xc <- peak$x - x.mean
