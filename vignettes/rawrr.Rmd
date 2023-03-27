@@ -232,29 +232,50 @@ rawrr::readIndex(rawfile = rawfile) |>
   head()
 ```
 
-The delta between consecutive scans is always 22 scans (one PRM cycle) and the `depedencyType` of the MS2 scans is `NA` (since it was triggered by an inclusion list). For regression, we now extract the RTs at the maximum of the intensity traces stored in the `rawrrChromatogram` object and fit a linear model of the form $rt = a + b \cdot score$. In theory, we could do this at the precursor or fragment ion level. For simplicity, we show only the first option.  
+The delta between consecutive scans is always 22 scans (one PRM cycle) and the `depedencyType` of the MS2 scans is `NA` (since it was triggered by an inclusion list).
+
+For regression, we now extract the RTs at the maximum of the fitted intensity traces stored in the `rawrrChromatogram` object and fit a linear model of the form $rt = a + b \cdot score$. In theory, we could do this at the precursor or fragment ion level. For simplicity, we show only the first option.  
+
+
+```{r fittedAPEX, fig.cap="The plots show the fitted peak curves in red."}
+par(mfrow = c(3, 4), mar=c(4,4,4,1))
+rtFittedAPEX <- C |>
+  rawrr:::pickPeak.rawrrChromatogram() |>
+  rawrr:::fitPeak.rawrrChromatogram() |>
+  lapply(function(x){
+    plot(x$times, x$intensities, type='p',
+         ylim=range(c(x$intensities,x$yp)),
+         main=x$mass); lines(x$xx, x$yp,
+                             col='red'); x}) |>
+  sapply(function(x){x$xx[which.max(x$yp)[1]]})
+
+## a simple alternative to derive rtFittedAPEX could be
+rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
+```
 
 ```{r iRTscoreFit, error=TRUE}
 iRTscore <- c(-24.92, 19.79, 70.52, 87.23, 0, 28.71, 12.39, 33.38, 42.26, 54.62, 100)
-rt <- sapply(C, function(x) x$times[which.max(x$intensities)[1]])
-fit <- lm(rt ~ iRTscore)
+fit <- lm(rtFittedAPEX ~ iRTscore)
 ```
 
 The fitted model can then be inspected using standard procedures. Figure 6, shows a visual inspection by plotting observed RTs as a function of iRT score together with the fitted model regression line. The corresponding R-squared indicates that the RTs behave highly linear. This is expected since the iRT peptides were separated on a 20 min linear gradient from 5% buffer B to 35% buffer B using C18 reversed-phase material (the change rate is therefore constant at 1.5% per minute). The magnitude of the slope parameter (b) is a direct equivalent of this gradient change rate. The intercept (a) is equal to the predicted RT of iRT peptide `GAGSSEPVTGLDAK` since it was defined to have a zero score on the iRT scale.
 
 
+
+
+
 ```{r iRTscoreFitPlot, fig.small=TRUE, echo=FALSE, fig.cap="iRT regression. Plot shows observed peptide RTs as a function of iRT scores and fitted regression line of corresponding linear model obtained by ordinary least squares (OLS) regression."}
 # iRTscoreFitPlot
-plot(rt ~ iRTscore,
+plot(rtFittedAPEX ~ iRTscore,
      ylab = 'Retention time [min]',
      xlab = "iRT score",
-     pch=16,frame.plot = FALSE)
+     pch=16, frame.plot = FALSE)
 abline(fit, col = 'grey')
 abline(v = 0, col = "grey", lty = 2)
 legend("topleft", legend = paste("Regression line: ", "rt =",
                                  format(coef(fit)[1], digits = 4), " + ",
                                  format(coef(fit)[2], digits = 2), "score",
-                                 "\nR2: ", format(summary(fit)$r.squared, digits = 2)),
+                                 "\nR2: ", format(summary(fit)$r.squared, digits = 4)),
        bty = "n", cex = 0.75)
 text(iRTscore, rt, iRTmz, pos=1,cex=0.5)
 ```

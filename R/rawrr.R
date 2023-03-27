@@ -1437,6 +1437,58 @@ dependentScan <- function(x, scanNumber){
     return(i)
 }
 
+# returns a sequence of indicies representing one peak area
+.extractMaximumPeak <- function(y){
+  # 1st max peak
+  idx <- which(y == max(y))[1]
+  d <- diff(y)
+  # iterate left and right maximal nmax steps 
+  # until intensity increase again
+  for (l in rev(2:idx))
+    if (d[l - 1] <= 0) break;
+  for (r in idx:(length(y)-1))
+    if (d[r + 1] >= 0) break;
+  seq(l, r)
+}
+
+## https://cran.r-project.org/src/contrib/Archive/deisotoper/
+.fitChromatographicPeak <- function(x, y){
+
+  peak <- data.frame(logy = log(y + 1), x = x)
+  x.mean <- mean(peak$x)
+  peak$xc <- peak$x - x.mean
+  weights <- y^2
+  fit <- lm(logy ~ xc + I(xc^2), data = peak, weights = weights)
+  x0 <- -fit$coefficients[2] / (2 * fit$coefficients[3])
+  xx <- with(peak, seq(min(xc)-0.15, max(xc)+0.15, length = 200))
+  yp <- exp(predict(fit, data.frame(xc = xx)))
+  data.frame(xx=xx + x.mean, yp=yp)
+}
+
+
+
+#=======pickPeak========
+pickPeak.rawrrChromatogram <- function(x){
+  lapply(x, function(y){
+    idx <- .extractMaximumPeak(y$intensities)
+    rv <- y
+    rv$times <- y$times[idx]
+    rv$intensities <- y$intensities[idx]
+    rv
+  })
+}
+
+#=======fitPeak========
+fitPeak.rawrrChromatogram <- function(x){
+  lapply(x, function(y){
+    fittedPeak <- .fitChromatographicPeak(y$times, y$intensities)
+    rv <- y
+    rv$xx <- fittedPeak$xx
+    rv$yp <- fittedPeak$yp
+    rv
+  })
+}
+
 #=======AUC========
 #' deriving area under the curve (AUC)
 #'
@@ -1450,6 +1502,7 @@ auc.rawrrChromatogram <- function(x){
 	intensities <- x$intensities
 	sum(diff(times) * (head(intensities, -1) + tail(intensities, -1))) / 2
 }
+
 
 
 # readTrailer ---------
