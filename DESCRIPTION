@@ -23,12 +23,11 @@ Suggests:
     testthat
 Description: This package wraps the functionality
     of the RawFileReader .NET assembly. Within the R environment,
-    spectra and chromatograms are represented by S3 objects
-    (Kockmann T. et al. (2020) <doi:10.1101/2020.10.30.362533>).
+    spectra and chromatograms are represented by S3 objects.
     The package provides basic functions to download and install
     the required third-party libraries.
     The package is developed, tested, and used at the Functional
-    Genomics Center Zurich, Switzerland <https://fgcz.ch>.
+    Genomics Center Zurich, Switzerland.
 License: GPL-3
 SystemRequirements: mono-runtime 4.x or higher (including System.Data library)
     on Linux/macOS, .Net Framework (>= 4.5.1) on Microsoft Windows.
