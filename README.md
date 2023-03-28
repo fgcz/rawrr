@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/fgcz/rawrr/branch/master/graph/badge.svg?token=OO4Y7G4UUX)](https://codecov.io/gh/fgcz/rawrr)
 [![bioc-check](https://bioconductor.org/shields/build/devel/bioc/rawrr.svg)](http://bioconductor.org/checkResults/devel/bioc-LATEST/rawrr/)
 
-![rawrrHexSticker](https://github.com/fgcz/rawrr/blob/master/rawrr_logo.png)
+![rawrrHexSticker](rawrr_logo.png)
 
 # rawrr
 
