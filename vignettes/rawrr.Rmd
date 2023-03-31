@@ -3,7 +3,7 @@ title: "The rawrr R package - Direct Access to Orbitrap Data and Beyond"
 author:
 - name: Tobias Kockmann
   affiliation:
-    - &id Functional Genomics Center Zurich - Functional Genomics Center Zurich (FGCZ) - University of Zurich | ETH Zurich, Winterthurerstrasse 190, CH-8057 Zurich, Switzerland
+    - &id Functional Genomics Center Zurich (FGCZ) - University of Zurich | ETH Zurich, Winterthurerstrasse 190, CH-8057 Zurich, Switzerland
   email: Tobias.Kockmann@fgcz.ethz.ch
 - name: Christian Panse
   affiliation:
