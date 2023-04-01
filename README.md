@@ -17,6 +17,10 @@ Please follow the [INSTALL](https://bioconductor.org/packages/release/bioc/insta
 
 https://bioconductor.org/packages/rawrr/
 
+The latest source package build [bioconductor devel branch](https://bioconductor.org/packages/devel/bioc/html/rawrr.html) can be found through
+
+https://fgcz-ms.uzh.ch/~cpanse/rawrr/
+
 ## Manuscript
 
 http://dx.doi.org/10.1021/acs.jproteome.0c00866
