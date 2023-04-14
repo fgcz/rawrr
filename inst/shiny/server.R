@@ -2,6 +2,7 @@
 # This is the server logic of a Shiny web application. 
 #
 
+stopifnot(packageVersion('rawrr') >= '1.7.19')
 
 library(shiny)
 
@@ -13,16 +14,18 @@ function(input, output, session) {
         peptides = c("YDSAPATDGSGTALGWTVAWK", "NAHSATTWSGQYVGGAEAR",
                      "INTQWLLTSGTTEANAWK", "STLVGHDTFTK", "VKPSAASIDAAK",
                      "AGVNNGNPLDAVQQ"),
-        ion = list(mass2Hplus = function(x){(protViz::parentIonMass(x) + 1.008) / 2},
-                   mass3Hplus = function(x){(protViz::parentIonMass(x) + 2 * 1.008) / 3})),
+        ion = list(m2Hplus0 = function(x){(protViz::parentIonMass(x) + 1.008) / 2},
+                   m3Hplus0 = function(x){(protViz::parentIonMass(x) + 2 * 1.008) / 3},
+                   m2Hplus1 = function(x){1.008 + ((protViz::parentIonMass(x) + 1.008) / 2)},
+                   m3Hplus1 = function(x){1.008 + ((protViz::parentIonMass(x) + 2 * 1.008) / 3)})),
         iRT = list(
             peptides = c("LGGNEQVTR", "GAGSSEPVTGLDAK", "VEATFGVDESNAK", "YILAGVENSK",
                          "TPVISGGPYEYR", "TPVITGAPYEYR", "DGLDAASYYAPVR",
                          "ADVTPADFSEWSK", "GTFIIDPGGVIR","GTFIIDPAAVIR",
                          "LFLQFGAQGSPFLK"),
-            ion = list(mass2Hplus0 = function(x){(protViz::parentIonMass(x) + 1.008) / 2},
-                       mass2Hplus1 = function(x){1.008 + ((protViz::parentIonMass(x) + 1.008) / 2)},
-                       mass2Hplus2 = function(x){2 * 1.008 + ((protViz::parentIonMass(x) + 1.008) / 2)}))
+            ion = list(m2Hplus0 = function(x){(protViz::parentIonMass(x) + 1.008) / 2},
+                       m2Hplus1 = function(x){1.008 + ((protViz::parentIonMass(x) + 1.008) / 2)},
+                       m2Hplus2 = function(x){2 * 1.008 + ((protViz::parentIonMass(x) + 1.008) / 2)}))
     )
     
     output$statistics <- renderTable({
@@ -32,17 +35,39 @@ function(input, output, session) {
             n <- processXIC() |> nrow()
         }
         data.frame(
-            key = c("#files", "#peptides", "#rf_d", "#pep_d", "nrow", "ions"),
-            value = c(length(input$rawfiles), length(input$peptides), length(rf_d()), length(pep_d()), n,
+            key = c("nrow",
+                    "available ions"),
+            value = c(n,
                       getProteins()[[input$proteins]][['ion']] |> names() |> paste(collapse = ", "))
         )
     })
     
+    output$header <- renderTable({
+      if (is.null(getHeaders())){
+        NULL
+      }else{
+        getHeaders()
+      }
+    })
+    
+    output$table <- renderTable({
+      progress <- shiny::Progress$new()
+      on.exit(progress$close())
+      progress$set(message="rendering DataTable ...")
+      
+      subsetXIC()
+      })
+    
+    
     getRootDir <- reactive({
      # "/Users/cp/project/2023/20230403--Streptavidin"
-     #   "/scratch/rawrr_shiny_demo/"
-      d <- file.path(Sys.getenv('HOME'), 'Downloads')
-      stopifnot(file.exists(d))
+     d <- "/scratch/rawrr_shiny_demo/"
+     if (file.exists(d)) return (d)
+
+     d <- file.path(Sys.getenv('HOME'), 'Downloads')
+     if (file.exists(d)) return (d)
+
+     stopifnot(file.exists(d))
       d
     })
     
@@ -107,29 +132,47 @@ function(input, output, session) {
                   multiple = multiple)
     })
     
+    output$ions <- renderUI({
+      if (input$filter != "Full ms2") {
+        selectInput(inputId = "ions",
+                    label = "ions",
+                    choices = getProteins()[[input$proteins]][['ion']] |> names(),
+                    selected = getProteins()[[input$proteins]][['ion']] |> names(),
+                    multiple = TRUE)
+      }
+    })
+    
     output$fragments <- renderUI({
       if (input$filter == "Full ms2") {
-        selectInput(inputId = "framents",
+        abcxyz <- protViz::fragmentIon(input$peptides, FUN=function(b, y){cbind(y)}) |>
+          as.data.frame() |>
+          rownames()
+        
+        selectInput(inputId = "fragments",
                     label = "fragment ion",
-                    choices = protViz::fragmentIon(input$peptides, FUN=function(b, y){cbind(b,y)}) |>
-                      as.data.frame() |>
-                      rownames(),
+                    choices = abcxyz,
+                    selected = abcxyz,
                     multiple = TRUE)
       }
     })
     
     output$tabs <- renderUI({
-      if (length(input$peptides) > 0 && length(input$rawfiles) > 0){
+      #if (length(input$peptides) > 0 && length(input$rawfiles) > 0){
         tabsetPanel(
           tabPanel("XIC", list(helpText(paste("displays the XIC of ",
                                               getProteins()[[input$proteins]][['ion']] |> names() |> paste(collapse = ", "),
                                               "peptide sequences.")),
                                plotOutput("xicPlot",
-                                          width = 300 * length(pep_d()),
-                                          height = 200 * length(rf_d()))))
-        )}else{
-          helpText("select peptide and rawfile.")
-        }
+                                          width = 400 * length(pep_d()),
+                                          height = 200 * length(rf_d())))),
+          tabPanel("header", list(helpText("Shows output of rawrr::readFileHeader() method."),
+                                  htmlOutput("header"))),
+          tabPanel("data", list(helpText("Shows input for ggplot2"),
+                                  htmlOutput("table")))
+        )
+      #}else{
+       #   helpText("select peptide and rawfile.")
+      # }
     })
     
     
@@ -151,25 +194,36 @@ function(input, output, session) {
    })
    pep_d <- debounce(pep, 3000)
    
+   getHeaders <- eventReactive(rf_d(), {
+     h <- c("RAW file", "RAW file version", "Instrument name", "Number of scans", "Serial number", "Creation date")
+     
+     withProgress(message = 'Reading file header of', value = 0, {
+       lapply(input$rawfiles, function(x){file.path(getRootDir(), x)}) |>
+         lapply(FUN = function(f){
+           incProgress(1/length(input$rawfiles), detail = paste( f |> basename()))
+           rawrr::readFileHeader(f);
+           }) |>
+         lapply(function(x){
+           x[h] |> as.data.frame()
+         }) |> Reduce(f = rbind)
+     })})
+   
    getXIC <- eventReactive(c(pep_d(), rf_d(), input$tol, input$filter), {
      
      progress <- shiny::Progress$new()
      on.exit(progress$close())
+    
      
-     message(length(input$peptides))
-     if (length(input$peptides) > 0 && length(input$rawfiles) > 0){
+     if (length(input$peptides) > 0 &&
+         length(input$rawfiles) > 0 &&
+         input$filter == "Full ms"){
        
        ion.mass <- lapply(getProteins()[[input$proteins]][['ion']] , function(f){f(input$peptides)}) |> unlist() |> as.vector()
        ion.peptide <- rep(input$peptides, getProteins()[[input$proteins]][['ion']] |> length())  |> unlist() |> as.vector()
        ion.charge <- lapply(getProteins()[[input$proteins]][['ion']] |> names(), function(x){rep(x, length(input$peptides))}) |> unlist() |> as.vector()
        
        rf <- lapply(input$rawfiles, function(x){file.path(getRootDir(), x)}) |> unlist()
-       
-       print(rf)
-       print(ion.mass)
-       print(ion.peptide)
-       print(ion.charge)
-       
+      
        progress$set(message='rawrr::readChromatogram ...')
        X <- lapply(rf,
                    FUN = function(f, ...){
@@ -179,11 +233,7 @@ function(input, output, session) {
                    filter = input$filter,
                    tol = input$tol)
        
-       print(paste0("number of chromatograms = ", X |> length()))
-       
-       
        stopifnot(length(rf) == length(X))
-       
        
        X <- lapply(X, function(y){
          for(i in 1:length(ion.peptide)){
@@ -193,12 +243,51 @@ function(input, output, session) {
          return(y)
        }) |> unlist(recursive = FALSE)
        return(X)
+     }else if (length(input$peptides) > 0 &&
+               length(input$rawfiles) > 0 &&
+               input$filter == "Full ms2"){
        
+       ## here we can have only one peptide!
+       abcxyz <- protViz::fragmentIon(input$peptides, FUN=function(b, y){cbind(y)}) |>
+         as.data.frame()
+       
+       rf <- lapply(input$rawfiles, function(x){file.path(getRootDir(), x)}) |> unlist()
+       
+       ion.mass <- abcxyz
+       ion.peptide <- rep(input$peptides, nrow(abcxyz))
+       ion.charge <- abcxyz |> rownames()
+       
+       progress$set(message='rawrr::readChromatogram ...')
+       X <- lapply(rf,
+                   FUN = function(f, ...){
+                     progress$inc(1 / length(rf), detail = paste0('processing file ', f |> basename()))
+                     x <- rawrr::readChromatogram(f, ...)
+                     stopifnot(all(sapply(x, FUN = rawrr::is.rawrrChromatogram)))
+                     return(x)},
+                   mass = ion.mass$mass,
+                   filter = input$filter,
+                   tol = input$tol)
+       
+       stopifnot(length(rf) == length(X))
+       
+       X <- lapply(X, function(y){
+         for(i in 1:length(ion.peptide)){
+           y[[i]]$peptide <- ion.peptide[i]
+           y[[i]]$charge <- ion.charge[i]
+         }
+         return(y)
+       }) |> unlist(recursive = FALSE)
+       
+       
+       return(X)
+       
+       }else{
+       return(NULL)
      }
      NULL
    })
          
-   .peak <- function(y){
+   .peak0 <- function(y){
      idx.max <- which(y$intensities == max(y$intensities))[1]
      n <- 10
      idx <- seq(max(0, idx.max - n), min(idx.max + n, length(y$intensities)))
@@ -208,17 +297,18 @@ function(input, output, session) {
    }
    
    processXIC <- reactive({
+     message("processXIC ...")
+     X <- getXIC()
+     
      progress <- shiny::Progress$new()
      on.exit(progress$close())
      progress$set(message="Post-processing ...")
      
-     X <- getXIC()
-     
      if (input$process == "MaxPeak0"){
-       X <- X |> lapply(FUN=.peak) 
+       X <- X |> lapply(FUN=.peak0) 
      }
      else if (input$process == "MaxPeak0Fit"){
-       X <- X |>  lapply(FUN=.peak) |>
+       X <- X |>  lapply(FUN=.peak0) |>
          rawrr:::fitPeak.rawrrChromatogram() |>
          lapply(FUN = function(x){x$times <- x$xx; x$intensities <- x$yp; x})
      }
@@ -231,9 +321,16 @@ function(input, output, session) {
          lapply(FUN = function(x){x$times <- x$xx; x$intensities <- x$yp; x})
      }
      
+     message(paste("lenght of X", length(X)))
      ## reshape to data.frame
      X <- X |> 
        lapply(FUN = function(y){
+         message(paste("lenght of y", length(y)))
+         #if (length(y) != 7) return(NULL)
+         print(head(y$times))
+         print(head(y$charge))
+         print(head(y$mass))
+         print(head(y$peptide))
          data.frame(times = y$times,
                     intensities = y$intensities,
                     mass = y$mass,
@@ -241,28 +338,45 @@ function(input, output, session) {
                     pepitde = y$peptide,
                     charge = y$charge,
                     filename = basename(attributes(y)$filename))
-       }) |> Reduce(f = rbind)
+       }) |> 
+       Reduce(f = rbind) 
+     return(X)
+   })
+   subsetXIC <- reactive({
+     progress <- shiny::Progress$new()
+     on.exit(progress$close())
+     progress$set(message = "subsetting ...")
+     message("subsetting ...")
+     message(paste("number of rows = ", nrow(processXIC() )))
+     if (input$filter == "Full ms")
+       X <- processXIC() |> subset(charge %in% input$ions)
+     else if (input$filter == "Full ms2")
+       X <- processXIC() |> subset(charge %in% input$fragments)
+     else X <- NULL
      return(X)
    })
    
    
-       output$xicPlot <- renderPlot({
-         X <- processXIC()
-         
-         if (is.null(X)){
-           plot(0,0)
-         }else{
-           progress <- shiny::Progress$new()
-           on.exit(progress$close())
-           progress$set(message="GG Plotting ...")
-           print(head(X))
-           gp <- ggplot2::ggplot(X, ggplot2::aes_string(x = "times", y = "intensities")) +
-             ggplot2::geom_line(stat='identity', size = 1,
-                                ggplot2::aes_string(group = "charge", colour = factor(paste(cbind(X$mass))))) +
-             ggplot2::facet_wrap(X$filename ~ X$pepitde, scales="free", nrow = length(input$rawfiles)) 
-           gp 
-         }
-         
-       })
+   output$xicPlot <- renderPlot({
+     if (is.null(processXIC())){
+       NULL
+     }else if (nrow(processXIC()) > 0){
+       progress <- shiny::Progress$new()
+       on.exit(progress$close())
+       progress$set(message = "GG plotting ...")
+       X <- subsetXIC()
+       print(head(X))
        
+       message(paste("number of rows = ", nrow(X)))
+       print(head(X))
+       
+       gp <- ggplot2::ggplot(X, ggplot2::aes_string(x = "times", y = "intensities")) +
+         ggplot2::geom_line(stat='identity', size = 1,
+                            ggplot2::aes_string(group = "charge", colour = factor(paste(cbind(X$mass))))) +
+         ggplot2::facet_wrap(X$filename ~ X$pepitde, scales="free", nrow = length(input$rawfiles))
+       gp
+       #+
+       # ggplot2::scale_color_manual(values = c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"))
+     }else{NULL}
+   })
 }

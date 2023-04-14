@@ -22,6 +22,7 @@ fluidPage(
               htmlOutput("tol"),
               htmlOutput("proteins"),
               htmlOutput("peptides"),
+              htmlOutput("ions"),
               htmlOutput("fragments"))),
       
       # Show a plot of the generated distribution
