@@ -32,8 +32,8 @@ jobs:
         shell: bash {0}
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck", "rmarkdown", "protViz", "testthat", "knitr", "BiocManager"))
-          BiocManager::install(c("BiocStyle","ExperimentHub","tartar"))
+          install.packages(c("remotes", "covr", "rcmdcheck", "rmarkdown", "protViz", "testthat", "knitr", "BiocManager"))
+          BiocManager::install(c("BiocStyle", "ExperimentHub", "tartar"))
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check
