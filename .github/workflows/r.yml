@@ -11,16 +11,16 @@ env:
     ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 on:
   push:
-    branches: [ master ]
+    branches: [ devel ]
   pull_request:
-    branches: [ master ]
+    branches: [ devel ]
 
 jobs:
   build:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        r-version: [4.2]
+        r-version: [4.3]
     steps:
       - uses: actions/checkout@v2
       - name: Set up R ${{ matrix.r-version }}
