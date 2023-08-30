@@ -96,6 +96,9 @@
     tfstderr <- tempfile(tmpdir=tmpdir, fileext = ".stderr" )
     
     cat(input, file = tfi, sep="\n")
+    if(isFALSE(file.exists(tfi))){
+            stop(paste0("No input file '", tfi, "' available!"))
+    }
     
     if (mono){
       rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
