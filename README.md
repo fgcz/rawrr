@@ -2,6 +2,7 @@
 [![JPR](https://img.shields.io/badge/JPR-10.1021%2Facs.jproteome.0c00866-brightgreen)](http://dx.doi.org/10.1021/acs.jproteome.0c00866)
 [![codecov](https://codecov.io/gh/fgcz/rawrr/branch/master/graph/badge.svg?token=OO4Y7G4UUX)](https://codecov.io/gh/fgcz/rawrr)
 [![bioc-check](https://bioconductor.org/shields/build/devel/bioc/rawrr.svg)](http://bioconductor.org/checkResults/devel/bioc-LATEST/rawrr/)
+![ReleseeDownloads](https://img.shields.io/github/downloads/fgcz/rawrr/total)
 
 ![rawrrHexSticker](rawrr_logo.png)
 
