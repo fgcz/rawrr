@@ -49,6 +49,7 @@
 .rawfileReaderDLLs <- function(){
   # 'ThermoFisher.CommonCore.BackgroundSubtraction.dll',
   c(
+    'ThermoFisher.CommonCore.BackgroundSubtraction.dll',
     'ThermoFisher.CommonCore.Data.dll',
     'ThermoFisher.CommonCore.MassPrecisionEstimator.dll',
     'ThermoFisher.CommonCore.RawFileReader.dll')
@@ -121,7 +122,7 @@ rawrrAssemblyPath <- function(){
 #' @return an URL
 #' @export
 .thermofisherlsmsUrl <- function(){
-  "https://github.com/thermofisherlsms/ThermoRawFileParser/raw/master/packages/ThermoFisher.CommonCore.RawFileReader.4.0.26/lib/"
+  "https://github.com/thermofisherlsms/RawFileReader/raw/main/Libs/Net471/"
 }
 
 
@@ -232,7 +233,7 @@ installRawFileReaderDLLs <-
 #' @aliases rawrr.exe
 #' @export installRawrrExe
 installRawrrExe <-
-  function (sourceUrl = "https://github.com/fgcz/rawrr/releases/download/1.7.10/rawrr.1.7.10.exe",
+  function (sourceUrl = "https://github.com/fgcz/rawrr/releases/download/1.9.2/rawrr.1.9.2.exe",
             ...)
   {
    
