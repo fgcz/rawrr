@@ -3,6 +3,11 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.9.2 (2023-10-24)}{
+  \itemize{
+	  \item Download RawFileReader DLL’s from  \url{https://github.com/thermofisherlsms/RawFileReader \ghit{66}. 
+  }
+
 \section{Changes in version 1.7.12 (2023-03-17)}{
   \itemize{
 	  \item Replace rtinseconds by StartTime [min] as provided by the TFS assembly \ghit{60}. 
