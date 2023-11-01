@@ -9,7 +9,7 @@ test_that("check readIndex.", {
     rawrr::readIndex() |>
     rawrr::validate_rawrrIndex()
 
-  expect_equivalent(dim(x) == c(573, 9),
+  expect_equivalent(dim(x) == c(574, 9),
       c(TRUE, TRUE))
   expect_true(is.data.frame(x))
   IndexColNames <- c("scan", "scanType", "StartTime", "precursorMass",

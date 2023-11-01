@@ -373,7 +373,7 @@
                         return;
 		    }
 
-		    for  (int scanNumber = rawFile.RunHeaderEx.FirstSpectrum; scanNumber < rawFile.RunHeaderEx.LastSpectrum; scanNumber++)
+		    foreach (int scanNumber in Enumerable.Range(rawFile.RunHeaderEx.FirstSpectrum, rawFile.RunHeaderEx.LastSpectrum))
                     {
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                     	Console.WriteLine(scanTrailer.Values.ToArray()[idx]);

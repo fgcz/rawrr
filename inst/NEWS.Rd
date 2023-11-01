@@ -3,6 +3,13 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.11 (2023-11-01)}{
+  \itemize{
+	  \item Fix index error \ghit{67}. 
+  }
+}
+
+
 \section{Changes in version 1.9.2 (2023-10-24)}{
   \itemize{
 	  \item Download RawFileReader DLL’s from  \url{https://github.com/thermofisherlsms/RawFileReader} \ghit{66}. 
