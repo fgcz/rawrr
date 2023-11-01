@@ -179,7 +179,7 @@
 
 	            Console.WriteLine("scan;scanType;StartTime;precursorMass;MSOrder;charge;masterScan;dependencyType;monoisotopicMz");
 
-	            for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
+		    foreach (int scanNumber in Enumerable.Range(firstScanNumber, lastScanNumber)){
 		            var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
 		            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
 		            var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
