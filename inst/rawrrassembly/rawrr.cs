@@ -368,10 +368,8 @@
 		    int idx = -1;
 		    try{
 		    	idx = rawFile.GetIndexOfPattern(label);
-                    	//Console.WriteLine("idx = {}.", idx.ToString());
 		    }catch (Exception ex){
-                    	//Console.WriteLine("GetIndexOfPattern {} caused an exception {}.", label, ex.Message);
-                    	Console.WriteLine("GetIndexOfPattern  caused an exception .");
+                        Console.WriteLine("GetIndexOfPattern {} caused an exception {}.", label, ex.Message);
                         return;
 		    }
 
@@ -571,10 +569,10 @@
 		        {
 			        if (args.Length == 0)
 			        {
-						Console.WriteLine("No RAW file specified!");
-			        return;
-				        Console.WriteLine("run 'rawrr.exe help'.");
-				        Environment.Exit(1);
+				    Console.WriteLine("No RAW file specified!");
+			            return;
+				        //Console.WriteLine("run 'rawrr.exe help'.");
+				        //Environment.Exit(1);
 			        }
 			        else if (args[0] == "version")
 			        {
