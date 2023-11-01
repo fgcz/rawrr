@@ -263,7 +263,7 @@
                 using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(filename))
                 {
-             	    for  (int scanNumber = firstScanNumber; scanNumber < lastScanNumber; scanNumber++){
+		    foreach (int scanNumber in Enumerable.Range(firstScanNumber, lastScanNumber)){
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                         var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
@@ -355,7 +355,7 @@
 
             public static void WriteTrailerLabel(this IRawDataPlus rawFile)
 	    {
-		    for  (int scanNumber = rawFile.RunHeaderEx.FirstSpectrum; scanNumber < rawFile.RunHeaderEx.LastSpectrum; scanNumber++)
+		    foreach (int scanNumber in Enumerable.Range(rawFile.RunHeaderEx.FirstSpectrum, rawFile.RunHeaderEx.LastSpectrum))
                     {
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
                     	Console.WriteLine(string.Join("\n", scanTrailer.Labels.ToArray()));
