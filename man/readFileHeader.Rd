@@ -2,7 +2,7 @@
 % Please edit documentation in R/rawrr.R
 \name{readFileHeader}
 \alias{readFileHeader}
-\title{read file header Information}
+\title{read raw file header information}
 \usage{
 readFileHeader(rawfile)
 }
