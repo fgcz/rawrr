@@ -281,7 +281,7 @@ readIndex <- function(rawfile, tmpdir=tempdir()){
 }
 
 
-#' derive scans number which match a specified filter
+#' determine scan numbers which match a specified filter
 #'
 #' @inheritParams readIndex
 #' @param filter scan filter string, e.g., \code{ms} or \code{ms2}
