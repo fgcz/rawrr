@@ -2,7 +2,7 @@
 % Please edit documentation in R/rawrr.R
 \name{filter}
 \alias{filter}
-\title{derive scans number which match a specified filter}
+\title{determine scan numbers which match a specified filter}
 \usage{
 filter(rawfile, filter = "ms", precision = 10, tmpdir = tempdir())
 }
@@ -21,5 +21,5 @@ the .NET assembly \code{rawrr.exe}. The default uses the output of
 a vecntor of integer values.
 }
 \description{
-derive scans number which match a specified filter
+determine scan numbers which match a specified filter
 }
