@@ -1,7 +1,7 @@
 Package: rawrr
 Type: Package
 Title: Direct Access to Orbitrap Data and Beyond
-Version: 1.11.8
+Version: 1.11.9
 Authors@R: c(person("Christian", "Panse",
         email = "cp@fgcz.ethz.ch",
         role = c("aut", "cre"),
@@ -36,5 +36,5 @@ BugReports: https://github.com/fgcz/rawrr/issues
 Encoding: UTF-8
 NeedsCompilation: no
 RoxygenNote: 7.2.3
-biocViews: MassSpectrometry, Proteomics, Metabolomics
+biocViews: MassSpectrometry, Proteomics, Metabolomics, Infrastructure, Software
 VignetteBuilder: knitr
