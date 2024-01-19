@@ -345,6 +345,20 @@ f <- rawrr::sampleFilePath()
 On Windows, the decimal symbol has to be configured as a '.'!
 See also [#fgcz/rawDiag/issues/33](https://github.com/fgcz/rawDiag/issues/33).
 
+
+## Howto write the `rawrr::readFileHeader()` output into json file?
+
+```{r json, eval=FALSE}
+#R
+.rawrrHeaderJson <- function(inputRawFile,
+                             outputJsonFile = tempfile(fileext = ".json")){
+  inputRawFile |>
+  rawrr::readFileHeader() |>
+    rjson::toJSON(indent = 1) |>
+    cat(file = outputJsonFile)
+}
+```
+
 # Session information {-}
 
 ```{r sessioninfo, echo=FALSE}
