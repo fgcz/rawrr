@@ -1547,3 +1547,11 @@ readTrailer <- function(rawfile, label = NULL) {
        quiet = TRUE,
        blank.lines.skip = FALSE)
 }
+
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+## usethis namespace: end
+NULL
+
