@@ -69,3 +69,13 @@ https://planetorbitrap.com/rawfilereader
 by contacting Jim Shofstahl using
 
 jim.Shofstahl@thermofisher.com
+
+
+The `Dockerfile` performing `R CMD build` and `R CMD check` requires
+
+```
+from bioconductor/bioconductor_docker:devel
+run apt-get update && apt-get install mono-mcs mono-xbuild -y
+run apt-get install texlive-base texlive-latex-extra texinfo texlive-fonts-extra -y
+run R -q -e "BiocManager::install(c('BiocStyle', 'ExperimentHub', 'knitr', 'protViz', 'rmarkdown', 'tartare', 'testthat'))"
+```
