@@ -7,7 +7,7 @@ library(ExperimentHub)
 
 
 test_that("check tic of EH4547", {
-  if (getRversion() >= 4.1){
+  if (getRversion() >= "4.1"){
 
     eh <- ExperimentHub::ExperimentHub()
     EH4547 <- normalizePath(eh[["EH4547"]])
