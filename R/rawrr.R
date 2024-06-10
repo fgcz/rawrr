@@ -586,7 +586,17 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
   }
   
   rv <- lapply(e$Spectrum,
-               function(x){class(x) <- c('rawrrSpectrum'); x})
+               function(x){
+
+    if (length(x$mZ) < 1){
+        warning(
+            "length of mZ value vector is less than 1.",
+            call. = FALSE
+        )
+	x$mZ <- 1:10
+	x$intensity <- 1:10
+    }
+		       class(x) <- c('rawrrSpectrum'); x})
   if(validate){
     rv <- lapply(rv, validate_rawrrSpectrum)
   }else{
@@ -912,6 +922,8 @@ validate_rawrrSpectrum <- function(x){
             "length of mZ value vector is less than 1.",
             call. = FALSE
         )
+	values$mZ <- 1:10
+	values$intensity <- 1:10
     }
     
     if (length(values$mZ) != length(values$intensity)){
