@@ -87,6 +87,7 @@
   function(rawfile, input, rawrrArgs="scans", tmpdir=tempdir(),
            removeTempfile=TRUE){
     
+
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- .rawrrAssembly()
     
@@ -101,6 +102,10 @@
     }
     
     if (mono){
+      if (system2(command = "/usr/bin/which", args = c("mono"),
+            stderr = FALSE, stdout = FALSE) != 0){
+        stop("mono is not available; please check https://www.mono-project.com/")
+      }
       rvs <- system2(Sys.which("mono"), args = c(shQuote(exe),
                                                  shQuote(rawfile),
                                                  rawrrArgs, shQuote(tfi),
