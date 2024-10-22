@@ -14,6 +14,7 @@ on:
     branches: [ devel ]
   pull_request:
     branches: [ devel ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,9 +23,9 @@ jobs:
       matrix:
         r-version: [4.3]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up R ${{ matrix.r-version }}
-        uses: r-lib/actions/setup-r@v1
+        uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r-version }}
       - name: Install Linux packages
@@ -42,7 +43,7 @@ jobs:
       - name: codecov
         run: covr::codecov(type = "all",token=Sys.getenv('CODECOV_TOKEN'))
         shell: Rscript {0}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
             name: rawrr.Rcheck
             path: /tmp/rawrr.Rcheck
