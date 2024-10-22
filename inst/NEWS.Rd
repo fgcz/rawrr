@@ -3,6 +3,12 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.10.2 (Unreleased)}{
+  \itemize{
+    \item Consistently normalize paths \ghit{76}.
+  }
+}
+
 \section{Changes in version 1.10.1 (2023-11-02)}{
   \itemize{
 	  \item Fix index error \ghit{67}. 
