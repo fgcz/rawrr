@@ -191,11 +191,11 @@ installRawFileReaderDLLs <-
     rawfileReaderDLLsPath <- rawrrAssemblyPath()
     
     if (isTRUE(dir.exists(rawfileReaderDLLsPath))){
-      msg <- sprintf("removing files in directory '%s'", rawfileReaderDLLsPath)
+      msg <- sprintf("removing DLL files in directory '%s'", rawfileReaderDLLsPath)
       message(msg)
       
       file.remove(file.path(rawrrAssemblyPath(),
-                            list.files(rawrrAssemblyPath())))
+                            list.files(rawrrAssemblyPath(), pattern="\\.dll$")))
     }
     
     if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
