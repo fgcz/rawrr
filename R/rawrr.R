@@ -3,7 +3,7 @@
     system2("mono", "-V", stdout = TRUE)
 }
 
-  .checkReaderFunctions <- function(rawfile = sampleFilePath()){
+.checkReaderFunctions <- function(rawfile = sampleFilePath()){
   
   message("checkings rawrr::readFileHeader ...")
   start_time <- Sys.time()
@@ -53,10 +53,8 @@
 }
 
 .checkRawFile <- function(rawfile){
-  rawfile <- normalizePath(rawfile)
-  
   if (!file.exists(rawfile)){
-    msg <- sprintf("File '%s'  is not available.", rawfile)
+    msg <- sprintf("File '%s' does not exist.", rawfile)
     stop(msg)
   }
   
@@ -87,7 +85,6 @@
   function(rawfile, input, rawrrArgs="scans", tmpdir=tempdir(),
            removeTempfile=TRUE){
     
-
     mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
     exe <- .rawrrAssembly()
     
@@ -220,6 +217,7 @@ is.rawrrSpectrumSet <- function(x){
 #' rawrr::sampleFilePath() |> readFileHeader()
 readFileHeader <- function(rawfile){
   .isAssemblyWorking()
+  rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
 
   e <- .rawrrSystem2Source(rawfile, input = NULL, rawrrArgs="headerR")
@@ -248,6 +246,7 @@ readFileHeader <- function(rawfile){
 readIndex <- function (rawfile) 
 {
   .isAssemblyWorking()
+  rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
   mono <- if (Sys.info()["sysname"] %in% c("Darwin", "Linux")) 
     TRUE
@@ -280,6 +279,7 @@ readIndex <- function (rawfile)
 #' @return a vecntor of integer values.
 filter <- function(rawfile, filter = "ms", precision = 10, tmpdir=tempdir()){
   .isAssemblyWorking()
+  rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
   mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
   exe <- .rawrrAssembly()
@@ -578,6 +578,7 @@ sampleFilePath <- function(){
 readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
                          validate = FALSE, mode = ''){
   .isAssemblyWorking()
+  rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
   
   if (is.null(scan)){
@@ -772,6 +773,7 @@ readChromatogram <- function(rawfile,
                              tmpdir = tempdir()){
     
     .isAssemblyWorking()
+    rawfile <- normalizePath(rawfile)
     .checkRawFile(rawfile)
     
     stopifnot(type %in% c('xic', 'bpc', 'tic'))
@@ -1582,6 +1584,7 @@ auc.rawrrChromatogram <- function(x){
 #' rawrr::sampleFilePath() |> rawrr:::readTrailer("AGC:") |> head()
 readTrailer <- function(rawfile, label = NULL) {
   .isAssemblyWorking()
+  rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
   
   mono <- if(Sys.info()['sysname'] %in% c("Darwin", "Linux")) TRUE else FALSE
