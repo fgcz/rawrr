@@ -419,4 +419,16 @@ dotnet --info
 dotnet nuget list source
 ```
 
+prints the `rawrr` assembly path
+
+```{r rawrrAssemblyPath, echo=TRUE}
+rawrr:::.rawrrAssembly()
+```
+
+prints the `rawrr` assembly version
+
+```{r rawrrAssemblyVersion, echo=TRUE}
+system2(rawrr:::.rawrrAssembly(), args = c('version'), stdout = TRUE)
+```
+
 # References {-}
