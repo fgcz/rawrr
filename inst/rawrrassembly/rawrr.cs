@@ -186,10 +186,8 @@
 
                 	// TODO(cpanse): implement a public class ScanTrailer
                 	ScanTrailerDict = new Dictionary<string, string>();
-                        for (int i = 0; i < scanTrailer.Length; i++){
-                            ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
-                    // Console.WriteLine("## {0} = {1}", scanTrailer.Labels[i], scanTrailer.Values[i].Trim());
-                        }
+			foreach (var (key, value) in Enumerable.Range(0, scanTrailer.Length).Select(i => (scanTrailer.Labels[i], scanTrailer.Values[i])))
+			{ ScanTrailerDict[key] = value.Trim(); }
 
 		            try{
 			            var reaction0 = scanEvent.GetReaction(0);
@@ -234,26 +232,6 @@
 	            }
             }
 
-	    private static int _GetIndexOfPattern(this IRawDataPlus rawFile, string pattern="Charge State"){
-                    var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
-
-		    int idx = -1;
-                        try
-                        {
-                            idx = trailerFields
-                                .Select((item, index) => new
-                                {
-                                    name = item.Label.ToString(),
-                                    Position = index
-                                })
-                                .First(x => x.name.Contains(pattern)).Position;
-                        }
-                        catch
-                        {
-		        }
-			return (idx);
-	    }
-
             public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
             {
              	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
@@ -272,9 +250,8 @@
 			var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
 
 		        ScanTrailerDict = new Dictionary<string, string>();
-                        for (int i = 0; i < scanTrailer.Length; i++){
-                             ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
-                        }
+			foreach (var (key, value) in Enumerable.Range(0, scanTrailer.Length).Select(i => (scanTrailer.Labels[i], scanTrailer.Values[i])))
+			{ ScanTrailerDict[key] = value.Trim(); }
 
 
 		        try{
@@ -333,9 +310,8 @@
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
 
 		        ScanTrailerDict = new Dictionary<string, string>();
-                        for (int i = 0; i < scanTrailer.Length; i++){
-                             ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
-                        }
+			foreach (var (key, value) in Enumerable.Range(0, scanTrailer.Length).Select(i => (scanTrailer.Labels[i], scanTrailer.Values[i])))
+			{ ScanTrailerDict[key] = value.Trim(); }
 
 		        try{
                     	    charge = int.Parse(ScanTrailerDict["Charge State:"]);
@@ -394,9 +370,7 @@
                 	// TODO(cpanse): implement a public class ScanTrailer 
                 	ScanTrailerDict = new Dictionary<string, string>();
 			foreach (var (key, value) in Enumerable.Range(0, scanTrailer.Length).Select(i => (scanTrailer.Labels[i], scanTrailer.Values[i])))
-			{
-    				ScanTrailerDict[key] = value.Trim();
-			}
+			{ ScanTrailerDict[key] = value.Trim(); }
 
 			if (ScanTrailerDict.ContainsKey(label)){
                     		Console.WriteLine(ScanTrailerDict[label]);
@@ -437,9 +411,8 @@
  
 
 		        ScanTrailerDict = new Dictionary<string, string>();
-                        for (int i = 0; i < scanTrailer.Length; i++){
-                            ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
-                        }
+			foreach (var (key, value) in Enumerable.Range(0, scanTrailer.Length).Select(i => (scanTrailer.Labels[i], scanTrailer.Values[i])))
+			{ ScanTrailerDict[key] = value.Trim(); }
 
 		        try{
 			        charge = int.Parse(ScanTrailerDict["Charge State:"]);
@@ -580,7 +553,7 @@
 	        {
 		        // This local variable controls if the AnalyzeAllScans method is called
 		        // bool analyzeScans = false;
-		        const string rawR_version = "1.3.1";
+		        const string rawrr_version = "1.17.1";
 		        string filename = string.Empty;
 		        string mode = string.Empty;
 		        string filterString = string.Empty;
@@ -601,6 +574,7 @@
 			        {"trailer", "Prints all trailer labels."}
 		        };
 		        var helpOptions = new List<string>() {"help", "--help", "-h", "h", "/h"};
+		        var versionOptions = new List<string>() {"version", "--version", "-v", "-V", "/v"};
 
 		        if (args.Length >= 2){
 			        filename = args[0];
@@ -623,11 +597,11 @@
 				        //Console.WriteLine("run 'rawrr.exe help'.");
 				        //Environment.Exit(1);
 			        }
-			        else if (args[0] == "version")
-			        {
-				        Console.WriteLine(rawR_version);
+			        else if (versionOptions.Contains(args[0]))
+                                {
+				        Console.WriteLine(rawrr_version);
 				        Environment.Exit(0);
-			        }
+                                }
 			        else if (helpOptions.Contains(args[0]))
 			        {
 				        Console.WriteLine("\nUsage:\n");
@@ -752,12 +726,6 @@
                             Console.WriteLine(filter.ToString());
                         }
                         Environment.Exit(0);
-                    }
-
-                    if (mode == "version")
-                    {
-                         Console.WriteLine("version={}", rawR_version);
-                         Environment.Exit(0);
                     }
 
                     if (mode == "chromatogram")
