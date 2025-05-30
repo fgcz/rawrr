@@ -4,6 +4,11 @@
     system2("dotnet", "--version", stdout = TRUE)
 }
 
+.getRawrrAssemblyVersion <- function(){
+  .rawrrAssembly() |> 
+    system2(args = c('version'), stdout = TRUE)
+}
+
 .checkReaderFunctions <- function(rawfile = sampleFilePath()){
   
   message("checkings rawrr::readFileHeader ...")
@@ -548,7 +553,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
   }
   
   if (mode == "barebone"){
-    e <- .rawrrSystem2Source(rawfile, input = scan, rawrrArgs="cscans", tmpdir)
+    e <- .rawrrSystem2Source(rawfile, input = scan, rawrrArgs="barebone", tmpdir)
   }else{
     e <- .rawrrSystem2Source(rawfile, input = scan, rawrrArgs="scans", tmpdir)
   }

@@ -325,7 +325,7 @@
                         file.WriteLine("\tscan = {0},", scanNumber);
                         file.WriteLine("\tStartTime = {0},", scanStatistics.StartTime);
                         file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
-                        if (charge < 0)
+                        if (charge > 0)
                                 file.WriteLine("\tcharge = {0},", charge);
 			    else
                                 file.WriteLine("\tcharge = NA,");
@@ -553,7 +553,7 @@
 	        {
 		        // This local variable controls if the AnalyzeAllScans method is called
 		        // bool analyzeScans = false;
-		        const string rawrr_version = "1.17.1";
+		        const string rawrr_version = "1.17.2";
 		        string filename = string.Empty;
 		        string mode = string.Empty;
 		        string filterString = string.Empty;
@@ -569,7 +569,7 @@
 				        "Extracts filtered (option 2) ion chromatograms within a given mass and mass tolerance [in ppm] (option 3) xic of a given raw file as R code into a file."
 			        },
 			        {"scans", "Extracts scans (spectra) of a given ID as Rcode."},
-			        {"cscans", "Extracts 'barbone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode."},
+			        {"barebone", "Extracts 'barebone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode."},
 			        {"index", "Prints index as csv of all scans."},
 			        {"trailer", "Prints all trailer labels."}
 		        };
@@ -594,8 +594,6 @@
 			        {
 				    Console.WriteLine("No RAW file specified!");
 			            return;
-				        //Console.WriteLine("run 'rawrr.exe help'.");
-				        //Environment.Exit(1);
 			        }
 			        else if (versionOptions.Contains(args[0]))
                                 {
@@ -779,7 +777,8 @@
                         return;
 
                     }
-                    if (mode == "cscans")
+                    // extracs only the specta 
+                    if (mode == "barebone")
                     {
                         List<int> scans = new List<int>();
 
@@ -789,6 +788,7 @@
                         foreach (var line in File.ReadAllLines(scanfile))
                         {
 
+                            // parses the input while accepting only integers greater than 0
 			    try{
                             Int32.TryParse(line, out scanNumber);
 			    if (scanNumber > 0)
