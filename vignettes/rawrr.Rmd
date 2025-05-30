@@ -428,7 +428,8 @@ rawrr:::.rawrrAssembly()
 prints the `rawrr` assembly version
 
 ```{r rawrrAssemblyVersion, echo=TRUE}
-system2(rawrr:::.rawrrAssembly(), args = c('version'), stdout = TRUE)
+rawrr:::.getRawrrAssemblyVersion
+rawrr:::.getRawrrAssemblyVersion()
 ```
 
 # References {-}
