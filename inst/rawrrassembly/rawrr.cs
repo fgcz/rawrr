@@ -16,6 +16,7 @@
       2020-08-12 added headerR option
       2020-08-26 readSpectrum backend
       2021-05-03 reorder xic arguments
+      2025-05-27 https://github.com/fgcz/rawrr/issues/84
     */
 
     using System;
@@ -164,14 +165,10 @@
 	    }
 	    }
 
+
             public static void GetIndex(this IRawDataPlus rawFile){
 	            int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
 	            int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
-
-	            int idxCharge = rawFile.GetIndexOfPattern("Charge State");
-	            int idxMasterScan = rawFile.GetIndexOfPattern("Master Scan Number:");
-	            int idxDependencyType = rawFile.GetIndexOfPattern("Dependency Type:");
-		    int idxMonoisotopicmZ = rawFile.GetIndexOfPattern("Monoisotopic M/Z:");
 
 	            double charge, precursorMass;
 		    double monoIsotopicMz;
@@ -179,11 +176,20 @@
 
 	            Console.WriteLine("scan;scanType;StartTime;precursorMass;MSOrder;charge;masterScan;dependencyType;monoisotopicMz");
 
+                    Dictionary<string, string> ScanTrailerDict;
+
 		    foreach (int scanNumber in Enumerable.Range(firstScanNumber, lastScanNumber)){
 		            var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
 		            var scanStatistics = rawFile.GetScanStatsForScanNumber(scanNumber);
 		            var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
 		            var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
+
+                	// TODO(cpanse): implement a public class ScanTrailer
+                	ScanTrailerDict = new Dictionary<string, string>();
+                        for (int i = 0; i < scanTrailer.Length; i++){
+                            ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
+                    // Console.WriteLine("## {0} = {1}", scanTrailer.Labels[i], scanTrailer.Values[i].Trim());
+                        }
 
 		            try{
 			            var reaction0 = scanEvent.GetReaction(0);
@@ -193,29 +199,27 @@
 		            }
 
 		            try{
-			            charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
+			            charge = int.Parse(ScanTrailerDict["Charge State:"]);
 		            } catch {
 			            charge = -1;
 		            }
 
 		            try{
-			            masterScan = int.Parse(scanTrailer.Values.ToArray()[idxMasterScan]);
+			            masterScan = int.Parse(ScanTrailerDict["Master Scan Number:"]);
 		            } catch {
 			            masterScan= -1;
 		            }
 
 		            try{
-			            dependencyType = int.Parse(scanTrailer.Values.ToArray()[idxDependencyType]);
+			            dependencyType = int.Parse(ScanTrailerDict["Dependency Type:"]);
 		            } catch {
 			            dependencyType = -1;
 		            }
 
 		            try{
-                                monoIsotopicMz = Convert.ToDouble(scanTrailer.Values.ToArray()[idxMonoisotopicmZ]);
-				//monoisotopicMz = 0.0;
+                                monoIsotopicMz = Convert.ToDouble(ScanTrailerDict["Monoisotopic M/Z:"]);
 			    } catch {
 				monoIsotopicMz = -1.0;
-			        //monoisotopicMz = -1;
 			    }
 
 		            Console.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7};{8}", scanNumber,
@@ -230,7 +234,7 @@
 	            }
             }
 
-	    private static int GetIndexOfPattern(this IRawDataPlus rawFile, string pattern="Charge State"){
+	    private static int _GetIndexOfPattern(this IRawDataPlus rawFile, string pattern="Charge State"){
                     var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
 
 		    int idx = -1;
@@ -252,13 +256,11 @@
 
             public static void WriteSpectrumAsRcode0(this IRawDataPlus rawFile, string filename)
             {
-
-
-		    int idxCharge = rawFile.GetIndexOfPattern();
              	    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
             	    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
-		        int charge = -1;
-		        double pc=-1;
+		    int charge = -1;
+		    double pc=-1;
+                    Dictionary<string, string> ScanTrailerDict;
 
                 using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(filename))
@@ -269,20 +271,25 @@
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
 			var scanFilter = rawFile.GetFilterForScanNumber(scanNumber);
 
+		        ScanTrailerDict = new Dictionary<string, string>();
+                        for (int i = 0; i < scanTrailer.Length; i++){
+                             ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
+                        }
+
 
 		        try{
-                        var reaction0 = scanEvent.GetReaction(0);
-		        pc =  reaction0.PrecursorMass;
+                          var reaction0 = scanEvent.GetReaction(0);
+		          pc =  reaction0.PrecursorMass;
 		        }
 		        catch{
-			        pc = -1;
+			  pc = -1;
 		        }
 
 		        try{
-                    	    charge = int.Parse(scanTrailer.Values.ToArray()[idxCharge]);
+                    	    charge = int.Parse(ScanTrailerDict["Charge State:"]);
                         }
 		        catch {
-			        charge=-1;
+			        charge = -1;
 		        }
 
                         file.WriteLine("e$Spectrum[[{0}]] <- list(", scanNumber);
@@ -310,8 +317,9 @@
             public static void WriteCentroidSpectrumAsRcode(this IRawDataPlus rawFile, string filename, List<int> L)
             {
                 int count = 1;
+		int charge = -1;
+                Dictionary<string, string> ScanTrailerDict;
                 var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
-		            int indexCharge = rawFile.GetIndexOfPattern("Charge State");
 
                 using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(filename))
@@ -324,12 +332,25 @@
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
 
+		        ScanTrailerDict = new Dictionary<string, string>();
+                        for (int i = 0; i < scanTrailer.Length; i++){
+                             ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
+                        }
+
+		        try{
+                    	    charge = int.Parse(ScanTrailerDict["Charge State:"]);
+                        }
+		        catch {
+			        charge = -1;
+		        }
+
+
                         file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
                         file.WriteLine("\tscan = {0},", scanNumber);
                         file.WriteLine("\tStartTime = {0},", scanStatistics.StartTime);
                         file.WriteLine("\trtinseconds = {0},", Math.Round(scanStatistics.StartTime * 60 * 1000) / 1000);
-                        if (indexCharge > 0)
-                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+                        if (charge < 0)
+                                file.WriteLine("\tcharge = {0},", charge);
 			    else
                                 file.WriteLine("\tcharge = NA,");
 
@@ -365,18 +386,23 @@
 
             public static void WriteTrailerValues(this IRawDataPlus rawFile, string label)
 	    {
-		    int idx = -1;
-		    try{
-		    	idx = rawFile.GetIndexOfPattern(label);
-		    }catch (Exception ex){
-                        Console.WriteLine("GetIndexOfPattern {} caused an exception {}.", label, ex.Message);
-                        return;
-		    }
-
+                Dictionary<string, string> ScanTrailerDict;
 		    foreach (int scanNumber in Enumerable.Range(rawFile.RunHeaderEx.FirstSpectrum, rawFile.RunHeaderEx.LastSpectrum))
                     {
                         var scanTrailer = rawFile.GetTrailerExtraInformation(scanNumber);
-                    	Console.WriteLine(scanTrailer.Values.ToArray()[idx]);
+
+                	// TODO(cpanse): implement a public class ScanTrailer 
+                	ScanTrailerDict = new Dictionary<string, string>();
+			foreach (var (key, value) in Enumerable.Range(0, scanTrailer.Length).Select(i => (scanTrailer.Labels[i], scanTrailer.Values[i])))
+			{
+    				ScanTrailerDict[key] = value.Trim();
+			}
+
+			if (ScanTrailerDict.ContainsKey(label)){
+                    		Console.WriteLine(ScanTrailerDict[label]);
+			}else{
+                    		Console.WriteLine("NA");
+			}
 		    }
 	    }
 
@@ -388,9 +414,10 @@
             public static void WriteSpectrumAsRcode(this IRawDataPlus rawFile, string filename, List<int> L)
             {
                 int count = 1;
+                int charge = -1;
+                double monoIsotopicMz = -1;
                 var trailerFields = rawFile.GetTrailerExtraHeaderInformation();
-                int indexCharge = rawFile.GetIndexOfPattern("Charge State");
-		int indexMonoisotopicmZ = rawFile.GetIndexOfPattern("MonoisotopicmZ");
+                Dictionary<string, string> ScanTrailerDict;
 
                 using (System.IO.StreamWriter file =
                     new System.IO.StreamWriter(filename))
@@ -407,6 +434,24 @@
                         var scanEvent = rawFile.GetScanEventForScanNumber(scanNumber);
 
                         var scan = Scan.FromFile(rawFile, scanNumber);
+ 
+
+		        ScanTrailerDict = new Dictionary<string, string>();
+                        for (int i = 0; i < scanTrailer.Length; i++){
+                            ScanTrailerDict[scanTrailer.Labels[i]] = scanTrailer.Values[i].Trim();
+                        }
+
+		        try{
+			        charge = int.Parse(ScanTrailerDict["Charge State:"]);
+		        } catch {
+			        charge = -1;
+		        }
+
+		        try{
+                            monoIsotopicMz = Convert.ToDouble(ScanTrailerDict["Monoisotopic M/Z:"]);
+			} catch {
+			    monoIsotopicMz = -1.0;
+			}
 
                         file.WriteLine("e$Spectrum[[{0}]] <- list(", count++);
                         file.WriteLine("\tscan = {0},", scanNumber);
@@ -452,22 +497,19 @@
                                     null,
                                     scanNumber);
 
-			    if (indexMonoisotopicmZ > 0)
-                                file.WriteLine("\tmonoisotopicMz = {0},", Convert.ToDouble(scanTrailer.Values.ToArray()[indexMonoisotopicmZ]));
+			    if (monoIsotopicMz > 0)
+                                file.WriteLine("\tmonoisotopicMz = {0},", monoIsotopicMz);
 			    else
                                 file.WriteLine("\tmonoisotopicMz = NA,");
 
-                            // file.WriteLine("## DEBUG indexCharge={0} {1}", indexCharge, scanTrailer.Values.ToArray()[indexCharge]);
 
-			    if (indexCharge > 0){
-		              try{
-                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
-		              } catch {
-                                file.WriteLine("\tcharge = NA,");
-		              }
+			    if (charge > 0){
+                                file.WriteLine("\tcharge = {0},", charge);
 			    }
-			    else
+                            else{
                                 file.WriteLine("\tcharge = NA,");
+                            }
+	
 
                                 file.WriteLine("\tmZ = c(" + string.Join(", ", centroidStream.Masses) + "),");
                                 file.WriteLine("\tintensity = c(" + string.Join(", ", centroidStream.Intensities) + "),");
@@ -497,13 +539,14 @@
                                     null,
                                     scanNumber);
 
-			    if (indexCharge > 0)
-                                file.WriteLine("\tcharge = {0},", int.Parse(scanTrailer.Values.ToArray()[indexCharge]));
+
+			    if (charge > 0)
+                                file.WriteLine("\tcharge = {0},", charge);
 			    else
                                 file.WriteLine("\tcharge = NA,");
 
-			    if (indexMonoisotopicmZ > 0)
-                                file.WriteLine("\tmonoisotopicMz = {0},", Convert.ToDouble(scanTrailer.Values.ToArray()[indexMonoisotopicmZ]));
+			    if (monoIsotopicMz > 0)
+                                file.WriteLine("\tmonoisotopicMz = {0},", monoIsotopicMz);
 			    else
                                 file.WriteLine("\tmonoisotopicMz = NA,");
 
