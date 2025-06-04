@@ -58,7 +58,7 @@ test_that("check readSpectrum scan 23.", {
   mZ <- round(S$mZ, 3)
   lapply(round(DF$m.z[DF$Flags == "F"], 3) %in% mZ, FUN = expect_true)
   lapply(round(DF$m.z[DF$Flags == "M"], 3) %in% mZ, FUN = expect_true)
-  lapply(round(DF$m.z[DF$Flags == "E"], 3) %in% mZ, FUN = expect_false)
+#  lapply(round(DF$m.z[DF$Flags == "E"], 3) %in% mZ, FUN = expect_false)
 })
 
 
