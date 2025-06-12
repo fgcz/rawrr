@@ -25,21 +25,24 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        r-version: [4.3]
+        r-version: [4.5]
     steps:
       - uses: actions/checkout@v4
       - name: Set up R ${{ matrix.r-version }}
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.r-version }}
+          use-public-rspm: true
       - name: Install Linux packages
-        run: sudo apt-get install -y mono-mcs mono-xbuild libcurl4-openssl-dev libicu-dev pandoc pandoc-citeproc texlive texlive-latex-extra texlive-fonts-extra
+        run: sudo apt-get install -y libcurl4-openssl-dev libicu-dev pandoc texlive texlive-latex-extra texlive-fonts-extra
         shell: bash {0}
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "covr", "rcmdcheck", "rmarkdown", "protViz", "testthat", "knitr", "BiocManager"))
-          BiocManager::install(c("BiocStyle", "ExperimentHub", "tartar"))
-          remotes::install_deps(dependencies = TRUE)
+          install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
+          cat("Repository being used:\n")
+          print(getOption("repos"))
+          pak::pkg_install(c("covr", "rcmdcheck", "rmarkdown", "protViz", "testthat", "knitr", "bioc::BiocStyle", "bioc::ExperimentHub", "bioc::tartare"))
+          pak::local_install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check
         run: rcmdcheck::rcmdcheck(build_args = "", args = "", error_on = "error", check_dir = "/tmp/rawrr.Rcheck")
