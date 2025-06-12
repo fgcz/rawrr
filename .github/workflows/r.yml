@@ -33,13 +33,13 @@ jobs:
         with:
           r-version: ${{ matrix.r-version }}
       - name: Install Linux packages
-        run: sudo apt-get install -y mono-mcs mono-xbuild libcurl4-openssl-dev libicu-dev pandoc texlive texlive-latex-extra texlive-fonts-extra
+        run: sudo apt-get install -y libcurl4-openssl-dev libicu-dev pandoc texlive texlive-latex-extra texlive-fonts-extra
         shell: bash {0}
       - name: Install dependencies
         run: |
           install.packages("pak", repos = sprintf("https://r-lib.github.io/p/pak/stable/%s/%s/%s", .Platform$pkgType, R.Version()$os, R.Version()$arch))
           pak::pkg_install(c("covr", "rcmdcheck", "rmarkdown", "protViz", "testthat", "knitr"))
-          pak::pkg_install(c("bioc::BiocStyle", "bioc::ExperimentHub", "bioc::tartar"))
+          pak::pkg_install(c("bioc::BiocStyle", "bioc::ExperimentHub", "bioc::tartare"))
           pak::local_install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check
