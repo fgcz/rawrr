@@ -71,3 +71,10 @@ run apt-get update && apt-get install dotnet-sdk-8.0 -y
 run R -q -e "BiocManager::install(c('BiocStyle', 'ExperimentHub', 'knitr', 'protViz', 'rmarkdown', 'tartare', 'testthat'))"
 ```
 
+
+## Required packages to run `R CMD INSTALL`
+
+```
+BiocManager::install('ExperimentHub')
+BiocManager::install('tartare')
+```

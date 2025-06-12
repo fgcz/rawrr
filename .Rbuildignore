@@ -16,3 +16,7 @@
 rawR.Rproj
 .*.exe$
 .*.dll$
+inst/rawrrassembly/bin
+inst/rawrrassembly/obj
+inst/rawrrassembly/.*dll
+
