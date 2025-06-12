@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        r-version: [4.3]
+        r-version: [4.5]
     steps:
       - uses: actions/checkout@v4
       - name: Set up R ${{ matrix.r-version }}
