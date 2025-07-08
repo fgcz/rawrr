@@ -87,23 +87,29 @@
   }
 
 # system2 wrapper for readFileHeader, readSpectrum, readChromatogam
+# the system2 call will be used to generate R code
+#
+# param removeTempfile if \code{TRUE} the temp files for stdin and stdout are removed.
 .rawrrSystem2Source <-
-  function(rawfile, input, rawrrArgs="scans", tmpdir=tempdir(),
-           removeTempfile=TRUE){
+  function(rawfile, input, rawrrArgs = "scans", tmpdir = tempdir(),
+           removeTempfile = TRUE){
     
     exe <- .rawrrAssembly()
 
-    tfi <- tempfile(tmpdir=tmpdir, fileext = ".txt")
-    tfo <- tempfile(tmpdir=tmpdir, fileext = ".R")
-    tfstdout <- tempfile(tmpdir=tmpdir, fileext = ".stdout")
-    tfstderr <- tempfile(tmpdir=tmpdir, fileext = ".stderr" )
+    tempfile(tmpdir = tmpdir, fileext = ".R") -> tfo
+    tempfile(tmpdir = tmpdir, fileext = ".txt") -> tfi
+    tempfile(tmpdir = tmpdir, fileext = ".stdout") -> tfstdout
+    tempfile(tmpdir = tmpdir, fileext = ".stderr" ) -> tfstderr
     
-    cat(input, file = tfi, sep="\n")
+    cat(input, file = tfi, sep = "\n")
     if(isFALSE(file.exists(tfi))){
             stop(paste0("No input file '", tfi, "' available!"))
     }
 
-    rvs <- system2(exe, args = c( shQuote(rawfile), rawrrArgs, shQuote(tfi), shQuote(tfo)), )
+    system2(exe,
+        args = c(shQuote(rawfile), rawrrArgs, shQuote(tfi), shQuote(tfo)),
+        stdout = tfstdout,
+        stderr = tfstderr) -> rvs
     
     if (isFALSE(file.exists(tfo))){
       errmsg <- sprintf("Rcode file to parse does not exist. '%s' failed for an unknown reason.
@@ -115,7 +121,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
     
     
     e <- new.env()
-    try(source(tfo, local=TRUE), silent = TRUE)
+    try(source(tfo, local = TRUE), silent = TRUE)
     
     if (length(names(e)) == 0){
       errmsg <- sprintf("Parsing the output of '%s' failed for an unknown reason.
@@ -210,7 +216,7 @@ readFileHeader <- function(rawfile){
   rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
 
-  e <- .rawrrSystem2Source(rawfile, input = NULL, rawrrArgs="headerR")
+  .rawrrSystem2Source(rawfile, input = NULL, rawrrArgs="headerR") -> e
   e$info
 }
 
