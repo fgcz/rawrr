@@ -4,10 +4,20 @@
 \alias{readFileHeader}
 \title{read file header Information}
 \usage{
-readFileHeader(rawfile)
+readFileHeader(
+  rawfile,
+  stdout = tempfile(fileext = ".stdout"),
+  stderr = tempfile(fileext = ".stderr")
+)
 }
 \arguments{
 \item{rawfile}{the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.}
+
+\item{stdout, stderr}{where output to \file{stdout} or
+    \file{stderr} should be sent.  Possible values are \code{""}, to the \R
+    console (the default), \code{NULL} or \code{FALSE} (discard output),
+    \code{TRUE} (capture the output in a character vector) or a
+    character string naming a file.}
 }
 \value{
 A list object containing the following entries: RAW file version,
@@ -24,12 +34,12 @@ Sample dilution factor, or Sample barcode.
 This function extracts the meta information from a given raw file.
 }
 \examples{
-rawrr::sampleFilePath() |> readFileHeader()
+rawrr::sampleFilePath() |> rawrr::readFileHeader()
 }
 \references{
 Thermo Fisher Scientific's NewRawfileReader C# code snippets
 \url{https://planetorbitrap.com/rawfilereader}.
 }
 \author{
-Tobias Kockmann and Christian Panse 2018, 2019, 2020.
+Tobias Kockmann and Christian Panse 2018, 2019, 2020, 2025.
 }

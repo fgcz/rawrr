@@ -92,14 +92,12 @@
 # param removeTempfile if \code{TRUE} the temp files for stdin and stdout are removed.
 .rawrrSystem2Source <-
   function(rawfile, input, rawrrArgs = "scans", tmpdir = tempdir(),
-           removeTempfile = TRUE){
+           removeTempfile = TRUE, stdout = "", stderr = ""){
     
     exe <- .rawrrAssembly()
 
     tempfile(tmpdir = tmpdir, fileext = ".R") -> tfo
     tempfile(tmpdir = tmpdir, fileext = ".txt") -> tfi
-    tempfile(tmpdir = tmpdir, fileext = ".stdout") -> tfstdout
-    tempfile(tmpdir = tmpdir, fileext = ".stderr" ) -> tfstderr
     
     cat(input, file = tfi, sep = "\n")
     if(isFALSE(file.exists(tfi))){
@@ -108,14 +106,14 @@
 
     system2(exe,
         args = c(shQuote(rawfile), rawrrArgs, shQuote(tfi), shQuote(tfo)),
-        stdout = tfstdout,
-        stderr = tfstderr) -> rvs
+        stdout = stdout,
+        stderr = stderr) -> rvs
     
     if (isFALSE(file.exists(tfo))){
       errmsg <- sprintf("Rcode file to parse does not exist. '%s' failed for an unknown reason.
 Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
                         .rawrrAssembly(),
-                        tfstderr, tfstdout)
+                        stderr, stdout)
       stop(errmsg)
     }
     
@@ -127,7 +125,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
       errmsg <- sprintf("Parsing the output of '%s' failed for an unknown reason.
 Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
                         .rawrrAssembly(),
-                        tfstderr, tfstdout)
+                        stderr, stdout)
       stop(errmsg)
     }
     
@@ -136,7 +134,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
     }
     
     if(isTRUE(removeTempfile)){
-      unlink(c(tfi, tfo, tfstdout, tfstderr))
+      unlink(c(tfi, tfo))
     }else{
       msg <- sprintf("input file: %s\noutput file: %s\n", tfi, tfo)
       message(msg)
@@ -191,8 +189,9 @@ is.rawrrSpectrumSet <- function(x){
 #' read file header Information
 #'
 #' @param rawfile the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.
+#' @inheritParams base::system2
 #' @description This function extracts the meta information from a given raw file.
-#' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020.
+#' @author Tobias Kockmann and Christian Panse 2018, 2019, 2020, 2025.
 #' @references Thermo Fisher Scientific's NewRawfileReader C# code snippets
 #' \url{https://planetorbitrap.com/rawfilereader}.
 #'
@@ -210,13 +209,15 @@ is.rawrrSpectrumSet <- function(x){
 #' @export
 #'
 #' @examples
-#' rawrr::sampleFilePath() |> readFileHeader()
-readFileHeader <- function(rawfile){
+#' rawrr::sampleFilePath() |> rawrr::readFileHeader()
+readFileHeader <- function(rawfile, stdout = "", stderr = ""){
+
   .isAssemblyWorking()
   rawfile <- normalizePath(rawfile)
   .checkRawFile(rawfile)
 
-  .rawrrSystem2Source(rawfile, input = NULL, rawrrArgs="headerR") -> e
+  .rawrrSystem2Source(rawfile, input = NULL, rawrrArgs="headerR",
+    stdout = stdout, stderr = stderr) -> e
   e$info
 }
 
@@ -1339,12 +1340,13 @@ plot.rawrrChromatogramSet <- function(x, diagnostic = FALSE, ...){
 
         cm <- hcl.colors(length(x), "Set 2")
         mapply(function(o, co){lines(o$times, o$intensities, col=co)}, x, cm)
+
         legend("topleft",
                as.character(sapply(x, function(o){o$mass})),
-               col=cm,
-               pch=16,
-               title='target mass [m/z]',
-               bty='n', cex = 0.75)
+               col = cm,
+               pch = 16,
+               title = 'target mass [m/z]',
+               bty = 'n', cex = 0.75)
 
         if (diagnostic) {
             legend("topright", legend = paste(c("File: ",
