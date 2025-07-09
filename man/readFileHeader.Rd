@@ -4,11 +4,7 @@
 \alias{readFileHeader}
 \title{read file header Information}
 \usage{
-readFileHeader(
-  rawfile,
-  stdout = tempfile(fileext = ".stdout"),
-  stderr = tempfile(fileext = ".stderr")
-)
+readFileHeader(rawfile, stdout = "", stderr = "")
 }
 \arguments{
 \item{rawfile}{the name of the raw file containing the mass spectrometry data from the Thermo Fisher Scientific instrument.}
