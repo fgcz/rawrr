@@ -86,8 +86,8 @@
 
   }
 
-# system2 wrapper for readFileHeader, readSpectrum, readChromatogam
-# the system2 call will be used to generate R code
+# system2 wrapper for \link[rawrr]{readFileHeader}, \link[rawrr]{readSpectrum}, \link[rawrr]{readChromatogam}
+# the \link[base]{system2} call will be used to generate R code to get parsed by \link[base]{source}.
 #
 # param removeTempfile if \code{TRUE} the temp files for stdin and stdout are removed.
 .rawrrSystem2Source <-
@@ -104,16 +104,17 @@
             stop(paste0("No input file '", tfi, "' available!"))
     }
 
+    c(shQuote(rawfile), rawrrArgs, shQuote(tfi), shQuote(tfo)) -> args
     system2(exe,
-        args = c(shQuote(rawfile), rawrrArgs, shQuote(tfi), shQuote(tfo)),
+        args = args,
         stdout = stdout,
         stderr = stderr) -> rvs
     
     if (isFALSE(file.exists(tfo))){
-      errmsg <- sprintf("Rcode file to parse does not exist. '%s' failed for an unknown reason.
-Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
-                        .rawrrAssembly(),
-                        stderr, stdout)
+      errmsg <- sprintf("Rcode file to parse does not exist!\nsystem2 call:\n'%s %s'\nfailed for an unknown reason.\n
+Please check the debug files:\nstderr\t=\t%s\nstdout\t=\t%s\ninput\t=\t%s\noutput\t=\t%s\nand the System Requirements",
+                        exe, paste0(args, collapse = ' '),
+                        stderr, stdout, tfi, tfo)
       stop(errmsg)
     }
     
@@ -138,6 +139,7 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
     }else{
       msg <- sprintf("input file: %s\noutput file: %s\n", tfi, tfo)
       message(msg)
+      cat(msg)
     }
     return(e)
   }
@@ -602,7 +604,7 @@ readSpectrum <- function(rawfile, scan = NULL, tmpdir = tempdir(),
   
   system2args <- c(shQuote(rawfile), "chromatogram", shQuote(filter), tfcsv)
   
-  rvs <- system2(exe, args = system2args, stdout=tfstdout, stderr=tfstderr)
+  rvs <- system2(exe, args = system2args, stdout = tfstdout, stderr = tfstderr)
   
   if (isFALSE(file.exists(tfcsv)))
   {
@@ -622,8 +624,8 @@ Please check the debug files:\n\t%s\n\t%s\nand the System Requirements",
       intensities=DF$intensity.TIC)
   }else{
     # expect bpc
-    rv <- list(times=DF$rt,
-               intensities=DF$intensity.BasePeak)
+    rv <- list(times = DF$rt,
+               intensities = DF$intensity.BasePeak)
   }
   
   
