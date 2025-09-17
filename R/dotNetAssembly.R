@@ -1,6 +1,12 @@
 #R
 
-# Test if \code{rawrr.exe} .NET assembly is working
+#' Test if \code{rawrr.exe} .NET assembly is working
+#' The default when the assembly is not working is an 
+#' error message.
+#' @param FUN function triggered. default is using the \code{stop} method
+#' @param exe path to the assembly. default is \code{rawrr:::.rawrrAssembly()}.
+#' @return TRUE if assembly is working
+#' @export
 .isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
 
@@ -51,7 +57,9 @@ rawrrAssemblyPath <- function(){
 }
 
 
+#' Helper function providing the pass to the rawrr assembly.
 #' @importFrom tools R_user_dir
+#' @export
 .rawrrAssembly <- function(){
   libdir <- tools::R_user_dir("rawrr", which='cache')
   d <- file.path(libdir, 'rawrrassembly')
