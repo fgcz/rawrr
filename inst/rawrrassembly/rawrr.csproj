@@ -10,10 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ThermoFisher.CommonCore.BackgroundSubtraction" Version="8.0.42" />
-    <PackageReference Include="ThermoFisher.CommonCore.Data" Version="8.0.42" />
-    <PackageReference Include="ThermoFisher.CommonCore.MassPrecisionEstimator" Version="8.0.42" />
-    <PackageReference Include="ThermoFisher.CommonCore.RawFileReader" Version="8.0.42" />
+    <PackageReference Include="ThermoFisher.CommonCore.BackgroundSubtraction" Version="*" />
+    <PackageReference Include="ThermoFisher.CommonCore.Data" Version="*" />
+    <PackageReference Include="ThermoFisher.CommonCore.MassPrecisionEstimator" Version="*" />
+    <PackageReference Include="ThermoFisher.CommonCore.RawFileReader" Version="*" />
   </ItemGroup>
 
   <ItemGroup>
