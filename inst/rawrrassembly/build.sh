@@ -15,6 +15,10 @@ Arguments:
 Options:
   -h, --help   Show this help message and exit
 
+Binaries are written to <dist_dir>/<pkg_version>/<runtime>/rawrr[.exe],
+e.g. ./dist/1.21.1/linux-x64/rawrr. The package version is set via the
+pkg_version variable near the top of this script.
+
 Example:
   $0 ~/src/rawrr-temp ./dist
 EOF
@@ -31,6 +35,9 @@ if [ "$#" -ne 2 ]; then
 fi
 repo_dir="$1"
 dist_dir="$2"
+
+# rawrr R/Bioconductor package version these binaries are published under.
+pkg_version="1.21.1"
 
 cd "$repo_dir"
 
@@ -55,13 +62,13 @@ for runtime in $runtimes; do
         --source "$nuget_source"
 done
 
-mkdir -p "$dist_dir"
-
 for runtime in $runtimes; do
     source_path="bin/Release/net8.0/$runtime/publish"
     suffix=""
     if [[ "$runtime" == win-* ]]; then
         suffix=".exe"
     fi
-    cp "$source_path/rawrr$suffix" "$dist_dir/rawrr-$runtime$suffix"
+    out_dir="$dist_dir/$pkg_version/$runtime"
+    mkdir -p "$out_dir"
+    cp "$source_path/rawrr$suffix" "$out_dir/rawrr$suffix"
 done
