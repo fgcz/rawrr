@@ -555,7 +555,7 @@
 	        {
 		        // This local variable controls if the AnalyzeAllScans method is called
 		        // bool analyzeScans = false;
-		        const string rawrr_version = "1.17.2";
+		        const string rawrr_version = "1.21.1";
 		        string filename = string.Empty;
 		        string mode = string.Empty;
 		        string filterString = string.Empty;
