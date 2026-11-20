@@ -4,10 +4,18 @@
 \alias{buildRawrrExe}
 \title{Build \code{rawrr.exe} console application.}
 \usage{
-buildRawrrExe()
+buildRawrrExe(runtime = .rawrrRuntime(), sourceUrl = .thermofisherlsmsUrl())
+}
+\arguments{
+\item{runtime}{.NET runtime identifier, one of \code{linux-x64},
+\code{osx-x64}, \code{win-x64}, \code{linux-arm64}, \code{osx-arm64}, or
+\code{win-arm64}. Defaults to the platform of the running R session.}
+
+\item{sourceUrl}{url of the Thermo Fisher RawFileReader nupkgs.}
 }
 \value{
-the return value of the system2 command.
+for the host runtime, the result of the assembly sanity check;
+otherwise (invisibly) the path of the built executable.
 }
 \description{
 builds \code{rawrr.exe} file from C# source code requiring
@@ -15,11 +23,10 @@ builds \code{rawrr.exe} file from C# source code requiring
 is used by the package's reader functions through a \link{system2} call
 or a \link{textConnection}.
 
-To use this function, ensure that the local RawFileReader NuGet packages 
-are added to the NuGet source list. You can accomplish this by 
-downloading the necessary packages with 
-\code{rawrr:::.downloadNupkgs()} and subsequently running 
-\code{rawrr:::.addNupkgSource()}.
+The Thermo Fisher RawFileReader NuGet packages are downloaded (once) into a
+local feed directory in the rawrr cache and passed to
+\code{dotnet publish --source}; the user's global NuGet configuration is
+not modified.
 }
 \references{
 \itemize{
