@@ -19,4 +19,5 @@ rawR.Rproj
 inst/rawrrassembly/bin
 inst/rawrrassembly/obj
 inst/rawrrassembly/.*dll
-
+.*nupkg$
+.*xml$

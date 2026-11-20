@@ -254,7 +254,7 @@ installRawFileReaderDLLs <- function(){
 #' @aliases rawrr.exe
 #' @export
 installRawrrExe <-
-  function (sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/1.17.2/",
+  function (sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/1.21.1/",
             force = FALSE,
             ...) {
   rawrrAssembly <- .rawrrAssembly()
