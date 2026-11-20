@@ -5,7 +5,8 @@
 #' error message.
 #' @param FUN function triggered. default is using the \code{stop} method
 #' @param exe path to the assembly. default is \code{rawrr:::.rawrrAssembly()}.
-#' @return TRUE if assembly is working
+#' @return TRUE if assembly is working; otherwise the return value of
+#' \code{FUN}.
 #' @export
 .isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
@@ -14,22 +15,34 @@
       msg <- c("'rawrr.exe' not found.\n",
                "Run 'rawrr::installRawrrExe()'.",
                " For more information, type '?rawrr.exe'.")
-      FUN(msg)
+      return(FUN(paste0(msg, collapse = "")))
     }
 
-    # execute rawrr.exe assembly and keep output string
-    rvs <-  "?"
-    if (file.exists(exe)){
-      rvs <- system2(exe, stdout = TRUE)
+    # execute the assembly; keep its output and exit status.
+    # If the executable cannot be started, system2 returns character(0)
+    # with a 'status' attribute (e.g. 126) and a warning.
+    rvs <- suppressWarnings(system2(exe, stdout = TRUE, stderr = TRUE))
+    status <- attr(rvs, "status")
+
+    # rvs[1] is NA for empty output; identical() always yields TRUE/FALSE
+    if (!identical(trimws(rvs[1]), "No RAW file specified!")){
+      msg <- c("The 'rawrr' .NET assembly '", exe, "' is not working",
+               if (!is.null(status)) sprintf(" (exit status %d)", status),
+               ".\n",
+               if (identical(as.integer(status), 126L))
+                 c("The file is not executable or not built for this ",
+                   "platform (runtime '", .rawrrRuntime(), "'). ",
+                   if (Sys.info()[["sysname"]] == "Darwin")
+                     c("On macOS, also check for the quarantine attribute: ",
+                       "xattr -d com.apple.quarantine '", exe, "'. ")),
+               "Try 'rawrr::installRawrrExe(force = TRUE)' or ",
+               "'rawrr::buildRawrrExe()'.",
+               if (length(rvs) > 0)
+                 c("\nOutput:\n", paste(head(rvs, 5), collapse = "\n")))
+      return(FUN(paste0(msg, collapse = "")))
     }
 
-    # expect that output string
-    if (rvs != "No RAW file specified!"){
-      msg <- ("The 'rawrr.exe' dot Net assembly is not working!")
-      FUN(msg)
-    }
-
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+    if (interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
     TRUE
   }
 
