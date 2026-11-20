@@ -57,6 +57,27 @@ rawrrAssemblyPath <- function(){
 }
 
 
+#' .NET runtime identifier (RID) of the running R session
+#'
+#' @param sysname operating system name, default \code{Sys.info()[["sysname"]]}.
+#' @param arch architecture of the R build, default \code{R.version$arch}.
+#'
+#' @return one of \code{linux-x64}, \code{osx-x64}, \code{win-x64},
+#' \code{linux-arm64}, \code{osx-arm64}, or \code{win-arm64}.
+#' @noRd
+.rawrrRuntime <- function(sysname = Sys.info()[["sysname"]],
+                          arch = R.version$arch){
+  os <- if (sysname == "Darwin") {
+    "osx"
+  } else if (sysname == "Linux") {
+    "linux"
+  } else {
+    "win"
+  }
+  cpu <- if (tolower(arch) %in% c("aarch64", "arm64")) "arm64" else "x64"
+  paste(os, cpu, sep = "-")
+}
+
 #' Helper function providing the pass to the rawrr assembly.
 #' @importFrom tools R_user_dir
 #' @export
@@ -64,14 +85,9 @@ rawrrAssemblyPath <- function(){
   libdir <- tools::R_user_dir("rawrr", which='cache')
   d <- file.path(libdir, 'rawrrassembly')
 
-  if (Sys.info()['sysname'] == "Darwin"){
-    file.path(d, 'osx-x64', 'rawrr') -> f
-  } else if (Sys.info()['sysname'] == "Linux"){
-    file.path(d, 'linux-x64', 'rawrr') -> f
-  } else {
-    file.path(d, 'win-x64', 'rawrr.exe') -> f
-  }
-    return(f)
+  rid <- .rawrrRuntime()
+  exe <- if (startsWith(rid, "win-")) "rawrr.exe" else "rawrr"
+  file.path(d, rid, exe)
 }
 
 
@@ -116,11 +132,11 @@ rawrrAssemblyPath <- function(){
                             list.files(rawrrAssemblyPath(), pattern="\\.nupkg$")))
     }
 
-    c('ThermoFisher.CommonCore.BackgroundSubtraction.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.RandomAccessReaderPlugin.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.Data.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.RawfileReader.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.MassPrecisionEstimator.8.0.6.nupkg') |> vapply(FUN = function(nupkg){
+    c('thermofisher.commoncore.backgroundsubtraction.8.0.42.nupkg',
+      'thermofisher.commoncore.randomaccessreaderplugin.8.0.42.nupkg',
+      'thermofisher.commoncore.data.8.0.42.nupkg',
+      'thermofisher.commoncore.rawfilereader.8.0.42.nupkg',
+      'thermofisher.commoncore.massprecisionestimator.8.0.42.nupkg') |> vapply(FUN = function(nupkg){
       destfile <- file.path(rawfileReaderDLLsPath, nupkg)
       download.file(file.path(sourceUrl, nupkg),
                     destfile = destfile, mode='wb')
@@ -190,7 +206,7 @@ rawrrAssemblyPath <- function(){
   message("Write stdout to", tempOut)
   message("Write stderr to", tempErr)
 
-  system2('dotnet', args = c('publish', '-c', 'Release', '-a', 'x64', '-p',
+  system2('dotnet', args = c('publish', '-c', 'Release', '-r', .rawrrRuntime(), '-p',
     'PublishReadyToRun=true', '-o', dirname(.rawrrAssembly())),
     stdout = tempOut,
     stderr = tempErr) -> rv
@@ -266,15 +282,7 @@ installRawrrExe <-
         dir.create(rawrrAssemblyPath(), recursive = TRUE)
   }
 
-  if (Sys.info()["sysname"] == "Darwin") {
-            sourceUrl <- file.path(sourceUrl, "osx-x64", "rawrr")
-  }
-  else if (Sys.info()["sysname"] == "Linux") {
-            sourceUrl <- file.path(sourceUrl, "linux-x64", "rawrr")
-  }
-  else {
-            sourceUrl <- file.path(sourceUrl, "win-x64", "rawrr.exe")
-  }
+  sourceUrl <- file.path(sourceUrl, .rawrrRuntime(), basename(rawrrAssembly))
   message("Overwrite sourceUrl to ", sourceUrl)
 
 
