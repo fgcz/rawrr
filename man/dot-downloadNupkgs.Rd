@@ -7,12 +7,18 @@
 \alias{ThermoFisherScientific}
 \title{Download and install the Thermo Fisher Scientific .NET 8.0 nupkgs}
 \usage{
-.downloadNupkgs(sourceUrl = .thermofisherlsmsUrl(), force = TRUE)
+.downloadNupkgs(
+  sourceUrl = .thermofisherlsmsUrl(),
+  feed = .nupkgFeedPath(),
+  force = FALSE
+)
 }
 \arguments{
 \item{sourceUrl}{url of nupkgs.}
 
-\item{force}{if \code{TRUE} it will overwrite the pkgs.}
+\item{feed}{local directory the nupkgs are downloaded to.}
+
+\item{force}{if \code{TRUE} it will overwrite already downloaded pkgs.}
 }
 \value{
 An (invisible) vector of integer code, 0 for success and non-zero for

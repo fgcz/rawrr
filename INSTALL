@@ -1,19 +1,46 @@
 # System requirements
 
-The `rawrr` executable will run out of the box. 
+The `rawrr` package reads Thermo Fisher raw files through a self-contained
+.NET console application, the `rawrr` executable. Prebuilt binaries are
+provided for six runtimes:
 
-I you want to build on your own follow the text below.
+| OS      | x64         | arm64         |
+|---------|-------------|---------------|
+| Linux   | `linux-x64` | `linux-arm64` |
+| macOS   | `osx-x64`   | `osx-arm64`   |
+| Windows | `win-x64`   | `win-arm64`   |
 
-## Compile and Link yourself
+The runtime is derived from the running R session (`R.version$arch`), so an
+x64 R running under emulation (e.g. Rosetta 2) uses the x64 binary.
 
-In case you prefer to compile `rawrr.exe` from C# source code, please install
-the .NET 8.0
+The executable is stored in the rawrr cache directory:
 
-### Linux (debian:10/ubuntu:20.04) (debian:12/ubuntu:24)
+```
+tools::R_user_dir("rawrr", which = "cache")/rawrrassembly/<runtime>/rawrr[.exe]
+```
 
+`rawrr::rawrrAssemblyPath()` returns the directory for the current session.
+
+
+## Install the prebuilt executable (recommended)
+
+No .NET installation is required.
+
+```{r}
+rawrr::installRawrrExe()
+```
+
+Use `force = TRUE` to replace an existing executable.
+
+
+## Compile and link yourself
+
+In case you prefer to compile the `rawrr` executable from C# source code,
+please install the .NET 8.0 SDK.
+
+### Linux (debian:12/ubuntu:24.04)
 
 ```{sh}
-## DEPRECIATED: sudo apt-get install mono-mcs mono-xbuild
 sudo apt-get install dotnet-sdk-8.0
 ```
 
@@ -25,40 +52,83 @@ https://dotnet.microsoft.com/en-us/download
 
 https://dotnet.microsoft.com/en-us/download
 
-## Install the .NET assemblies 
+### Build from R
 
-assemblies aka Common Intermediate Language bytecode
+```{r}
+## build for the runtime of the current R session
+rawrr::buildRawrrExe()
 
-In general, ThermoFisher.CommonCore dlls can be obtained through:
+## cross-build for another runtime
+rawrr::buildRawrrExe(runtime = "osx-arm64")
+```
+
+`buildRawrrExe()`
+
+* downloads the Thermo Fisher `ThermoFisher.CommonCore` NuGet packages (once)
+  into a local feed `<cache>/rawrrassembly/nupkgs`,
+* runs `dotnet publish --runtime <runtime>` in a temporary directory, passing
+  nuget.org and the local feed via `--source`,
+* writes the executable to `<cache>/rawrrassembly/<runtime>/`.
+
+The user's global NuGet configuration is not modified. Older rawrr versions
+registered the local feed with `dotnet nuget add source`; stale entries can
+make restores fail with `NU1301`. List and remove them with
+
+```{sh}
+dotnet nuget list source
+dotnet nuget remove source "<name>"
+```
+
+### Build all runtimes (maintainers)
+
+`inst/rawrrassembly/build.sh` builds all six runtimes and copies the binaries
+into a versioned tree, as served by `installRawrrExe()`:
+
+```{sh}
+inst/rawrrassembly/build.sh <repo_dir> <dist_dir>
+## -> <dist_dir>/<pkg_version>/<runtime>/rawrr[.exe]
+```
+
+
+## The Thermo Fisher RawFileReader .NET assemblies
+
+The `ThermoFisher.CommonCore` NuGet packages (.NET 8, version 8.0.42) can be
+obtained through:
 
 https://github.com/thermofisherlsms/RawFileReader
 
-or 
+or
 
 by contacting Jim Shofstahl using
 
 jim.Shofstahl@thermofisher.com
 
+Using them requires accepting the Thermo Fisher license agreement
+(`inst/rawrrassembly/RawFileReaderLicense.txt`); in interactive sessions
+rawrr asks for it once.
 
-## build
 
-* source nuget pkgs
+## Test the executable
 
-* add libraries
+`rawrr:::.isAssemblyWorking()` only checks that the executable starts. The
+test suite additionally compares the reader output of `inst/extdata/sample.raw`
+against reference values (`tests/testthat/test-reference.R`).
 
-* (cross)-dcompile and link
+From a source checkout, run the tests against the installed package:
 
+```{r}
+testthat::test_dir("tests/testthat", package = "rawrr",
+                   load_package = "installed")
 ```
-dotnet publish rawrr-dotnet.csproj --os osx -a x64 --output /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/osx-x64
-dotnet publish rawrr-dotnet.csproj --os win -a x64 --output /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/win-x64
-dotnet publish rawrr-dotnet.csproj --os linux -a x64 --output /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/linux-x64
 
+Or install the package including its tests and run them from anywhere:
 
-## generates a ~110MB BLOB
-dotnet publish -c Release -r linux-x64 -p PublishReadyToRun=true
-dotnet publish -c Release -r win-x64 -p PublishReadyToRun=true
-dotnet publish -c Release -r osx-x64 -p PublishReadyToRun=true
+```{sh}
+R CMD INSTALL --install-tests .
+Rscript -e 'testthat::test_package("rawrr")'
 ```
+
+Note that the tests always use the executable of the current runtime.
 
 
 ## Docker

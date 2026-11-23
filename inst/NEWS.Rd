@@ -3,6 +3,33 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.21.1 (Unreleased)}{
+  \itemize{
+    \item Provide native \code{rawrr} executables for \code{linux-arm64},
+    \code{osx-arm64}, and \code{win-arm64} in addition to the x64 runtimes;
+    the runtime is derived from the architecture of the running R session,
+    so Apple Silicon no longer requires Rosetta \ghit{96} \ghit{97}.
+    \item Use Thermo Fisher RawFileReader 8.0.42 (.NET 8) \ghit{97}.
+    \item \code{buildRawrrExe()} gains the arguments \code{runtime}, allowing
+    cross-builds for all six runtimes, and \code{sourceUrl}; it mirrors
+    \code{inst/rawrrassembly/build.sh}: the RawFileReader NuGet packages are
+    downloaded once into a local feed and passed via
+    \code{dotnet publish --source}, leaving the user's global NuGet
+    configuration untouched \ghit{97}.
+    \item Remove the internal helpers \code{.addPackages()} and
+    \code{.addNupkgSource()}.
+    \item \code{.isAssemblyWorking()} reports the exit status and hints
+    (e.g., macOS quarantine attribute) instead of failing with
+    'argument is of length zero' if the executable cannot be started
+    \ghit{96}.
+    \item \code{installRawrrExe()} downloads from the 1.21.1 binary tree.
+    \item Add tests comparing reader output of \code{sample.raw} against
+    reference values (scan header, trailer, file header) and tests for the
+    runtime detection.
+    \item Update \code{INSTALL}.
+  }
+}
+
 \section{Changes in version 1.15.x (Unreleased)}{
   \itemize{
     \item Add Leo as author.

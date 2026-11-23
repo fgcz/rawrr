@@ -5,7 +5,8 @@
 #' error message.
 #' @param FUN function triggered. default is using the \code{stop} method
 #' @param exe path to the assembly. default is \code{rawrr:::.rawrrAssembly()}.
-#' @return TRUE if assembly is working
+#' @return TRUE if assembly is working; otherwise the return value of
+#' \code{FUN}.
 #' @export
 .isAssemblyWorking <-
   function(FUN = stop, exe = .rawrrAssembly()){
@@ -14,22 +15,34 @@
       msg <- c("'rawrr.exe' not found.\n",
                "Run 'rawrr::installRawrrExe()'.",
                " For more information, type '?rawrr.exe'.")
-      FUN(msg)
+      return(FUN(paste0(msg, collapse = "")))
     }
 
-    # execute rawrr.exe assembly and keep output string
-    rvs <-  "?"
-    if (file.exists(exe)){
-      rvs <- system2(exe, stdout = TRUE)
+    # execute the assembly; keep its output and exit status.
+    # If the executable cannot be started, system2 returns character(0)
+    # with a 'status' attribute (e.g. 126) and a warning.
+    rvs <- suppressWarnings(system2(exe, stdout = TRUE, stderr = TRUE))
+    status <- attr(rvs, "status")
+
+    # rvs[1] is NA for empty output; identical() always yields TRUE/FALSE
+    if (!identical(trimws(rvs[1]), "No RAW file specified!")){
+      msg <- c("The 'rawrr' .NET assembly '", exe, "' is not working",
+               if (!is.null(status)) sprintf(" (exit status %d)", status),
+               ".\n",
+               if (identical(as.integer(status), 126L))
+                 c("The file is not executable or not built for this ",
+                   "platform (runtime '", .rawrrRuntime(), "'). ",
+                   if (Sys.info()[["sysname"]] == "Darwin")
+                     c("On macOS, also check for the quarantine attribute: ",
+                       "xattr -d com.apple.quarantine '", exe, "'. ")),
+               "Try 'rawrr::installRawrrExe(force = TRUE)' or ",
+               "'rawrr::buildRawrrExe()'.",
+               if (length(rvs) > 0)
+                 c("\nOutput:\n", paste(head(rvs, 5), collapse = "\n")))
+      return(FUN(paste0(msg, collapse = "")))
     }
 
-    # expect that output string
-    if (rvs != "No RAW file specified!"){
-      msg <- ("The 'rawrr.exe' dot Net assembly is not working!")
-      FUN(msg)
-    }
-
-    if(interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
+    if (interactive()){ stopifnot(.isRawFileReaderLicenseAccepted()) }
     TRUE
   }
 
@@ -57,6 +70,27 @@ rawrrAssemblyPath <- function(){
 }
 
 
+#' .NET runtime identifier (RID) of the running R session
+#'
+#' @param sysname operating system name, default \code{Sys.info()[["sysname"]]}.
+#' @param arch architecture of the R build, default \code{R.version$arch}.
+#'
+#' @return one of \code{linux-x64}, \code{osx-x64}, \code{win-x64},
+#' \code{linux-arm64}, \code{osx-arm64}, or \code{win-arm64}.
+#' @noRd
+.rawrrRuntime <- function(sysname = Sys.info()[["sysname"]],
+                          arch = R.version$arch){
+  os <- if (sysname == "Darwin") {
+    "osx"
+  } else if (sysname == "Linux") {
+    "linux"
+  } else {
+    "win"
+  }
+  cpu <- if (tolower(arch) %in% c("aarch64", "arm64")) "arm64" else "x64"
+  paste(os, cpu, sep = "-")
+}
+
 #' Helper function providing the pass to the rawrr assembly.
 #' @importFrom tools R_user_dir
 #' @export
@@ -64,14 +98,9 @@ rawrrAssemblyPath <- function(){
   libdir <- tools::R_user_dir("rawrr", which='cache')
   d <- file.path(libdir, 'rawrrassembly')
 
-  if (Sys.info()['sysname'] == "Darwin"){
-    file.path(d, 'osx-x64', 'rawrr') -> f
-  } else if (Sys.info()['sysname'] == "Linux"){
-    file.path(d, 'linux-x64', 'rawrr') -> f
-  } else {
-    file.path(d, 'win-x64', 'rawrr.exe') -> f
-  }
-    return(f)
+  rid <- .rawrrRuntime()
+  exe <- if (startsWith(rid, "win-")) "rawrr.exe" else "rawrr"
+  file.path(d, rid, exe)
 }
 
 
@@ -84,10 +113,20 @@ rawrrAssemblyPath <- function(){
 }
 
 
+#' Local NuGet feed directory holding the Thermo Fisher nupkgs
+#'
+#' Shared by all runtimes; passed to \code{dotnet publish --source}.
+#' @noRd
+.nupkgFeedPath <- function(){
+  file.path(tools::R_user_dir("rawrr", which = "cache"), "rawrrassembly",
+            "nupkgs")
+}
+
 #' Download and install the Thermo Fisher Scientific .NET 8.0 nupkgs
 #'
 #' @param sourceUrl url of nupkgs.
-#' @param force if \code{TRUE} it will overwrite the pkgs.
+#' @param feed local directory the nupkgs are downloaded to.
+#' @param force if \code{TRUE} it will overwrite already downloaded pkgs.
 #'
 #' @aliases Thermo
 #' @aliases ThermoFisher
@@ -100,40 +139,22 @@ rawrrAssemblyPath <- function(){
 #' by the external program.
 #'
 #' @importFrom utils download.file
-.downloadNupkgs <- function(sourceUrl = .thermofisherlsmsUrl(), force = TRUE){
+.downloadNupkgs <- function(sourceUrl = .thermofisherlsmsUrl(),
+                            feed = .nupkgFeedPath(), force = FALSE){
+  dir.create(feed, recursive = TRUE, showWarnings = FALSE)
 
-    rawfileReaderDLLsPath <- rawrrAssemblyPath()
+  nupkgs <- sprintf("thermofisher.commoncore.%s.8.0.42.nupkg",
+                    c("backgroundsubtraction", "randomaccessreaderplugin",
+                      "data", "rawfilereader", "massprecisionestimator"))
 
-    if (isFALSE(dir.exists(rawfileReaderDLLsPath))){
-      dir.create(rawfileReaderDLLsPath, recursive = TRUE)
+  vapply(nupkgs, FUN = function(nupkg){
+    destfile <- file.path(feed, nupkg)
+    if (file.exists(destfile) && isFALSE(force)){
+      return(0L)
     }
-
-    if (isTRUE(dir.exists(rawfileReaderDLLsPath))){
-      msg <- sprintf("removing nupkgs files in directory '%s'", rawfileReaderDLLsPath)
-      message(msg)
-
-      file.remove(file.path(rawrrAssemblyPath(),
-                            list.files(rawrrAssemblyPath(), pattern="\\.nupkg$")))
-    }
-
-    c('ThermoFisher.CommonCore.BackgroundSubtraction.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.RandomAccessReaderPlugin.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.Data.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.RawfileReader.8.0.6.nupkg',
-      'ThermoFisher.CommonCore.MassPrecisionEstimator.8.0.6.nupkg') |> vapply(FUN = function(nupkg){
-      destfile <- file.path(rawfileReaderDLLsPath, nupkg)
-      download.file(file.path(sourceUrl, nupkg),
-                    destfile = destfile, mode='wb')
-    }, FUN.VALUE = 0) -> rv
-
-    rv
-  }
-
-# dotnet nuget add source /Users/cp/Library/Caches/org.R-project.R/R/rawrr/rawrrassembly/
-# dotnet nuget remove source "Package source 1"
-# dotnet nuget list source
-.addNupkgSource <- function(){
-  system2('dotnet', args = c('nuget', 'add', 'source', rawrrAssemblyPath()))
+    download.file(file.path(sourceUrl, nupkg), destfile = destfile,
+                  mode = "wb")
+  }, FUN.VALUE = 0L)
 }
 
 .copySourceCode <- function(dir) {
@@ -150,61 +171,44 @@ rawrrAssemblyPath <- function(){
   })
 }
 
-# dotnet add package ThermoFisher.CommonCore.MassPrecisionEstimator
-.addPackages <- function(dir, version = "8.0.6"){
-  tempOut <- tempfile(pattern = "rawrr.add.packages.stdout.", tmpdir = dir, fileext = ".txt")
-  tempErr <- tempfile(pattern = "rawrr.add.packages.stderr.", tmpdir = dir, fileext = ".txt")
-   setwd(dir)
-    c('ThermoFisher.CommonCore.BackgroundSubtraction',
-      'ThermoFisher.CommonCore.RandomAccessReaderPlugin',
-      'ThermoFisher.CommonCore.Data',
-      'ThermoFisher.CommonCore.RawfileReader',
-      'ThermoFisher.CommonCore.MassPrecisionEstimator') |>
-   vapply(FUN = function(nupkg){
-     system2('dotnet', args = c('add', 'package', nupkg, '-v', version),
-       stdout = tempOut,
-       stderr = tempErr) -> rv
-     if (interactive()){
-	if (rv != 0){
-	  file.show(tempOut)
-	  file.show(tempErr)
-	}
-     }
-     rv
-   }, FUN.VALUE = 0)
-}
-
 .clean <- function(){
   message("Removing ", .rawrrAssembly())
   file.remove(.rawrrAssembly())
 }
 
-.build <- function(dir){
-################################################################################
-  setwd(dir)
+.build <- function(dir, runtime = .rawrrRuntime(), feed = .nupkgFeedPath()){
+  exe <- if (startsWith(runtime, "win-")) "rawrr.exe" else "rawrr"
+  outDir <- file.path(dirname(rawrrAssemblyPath()), runtime)
 
-  tempOut <- tempfile(pattern = "rawrr.build.stdout.", tmpdir = dir, fileext = ".txt")
-  tempErr <- tempfile(pattern = "rawrr.build.stderr.", tmpdir = dir, fileext = ".txt")
+  ## logs go to tempdir() so they survive removal of the build dir
+  tempOut <- tempfile(pattern = "rawrr.build.stdout.", fileext = ".txt")
+  tempErr <- tempfile(pattern = "rawrr.build.stderr.", fileext = ".txt")
 
-  message("Running build ...")
-  message("Write stdout to", tempOut)
-  message("Write stderr to", tempErr)
+  message("Running dotnet publish for runtime '", runtime, "' ...")
+  message("Write stdout to ", tempOut)
+  message("Write stderr to ", tempErr)
 
-  system2('dotnet', args = c('publish', '-c', 'Release', '-a', 'x64', '-p',
-    'PublishReadyToRun=true', '-o', dirname(.rawrrAssembly())),
-    stdout = tempOut,
-    stderr = tempErr) -> rv
+  ## --source only applies to this invocation, unlike 'dotnet nuget add
+  ## source', which writes to the user's global nuget.config (see build.sh).
+  rv <- system2("dotnet",
+    args = c("publish", shQuote(file.path(dir, "rawrr.csproj")),
+             "--runtime", runtime, "-c", "Release",
+             "--source", "https://api.nuget.org/v3/index.json",
+             "--source", shQuote(feed),
+             "-o", shQuote(outDir)),
+    stdout = tempOut, stderr = tempErr)
 
-
-  if (rv == 0){
-    message("Build succesfully done.")
-  }else{
-    message("Build error.")
+  if (rv != 0){
     if (interactive()){
-	file.show(tempOut)
-	file.show(tempErr)
+      file.show(tempOut)
+      file.show(tempErr)
     }
+    stop("dotnet publish failed (exit code ", rv, "); see ", tempOut,
+         " and ", tempErr)
   }
+
+  message("Build successfully done: ", file.path(outDir, exe))
+  invisible(file.path(outDir, exe))
 }
 
 
@@ -238,7 +242,7 @@ installRawFileReaderDLLs <- function(){
 #' @aliases rawrr.exe
 #' @export
 installRawrrExe <-
-  function (sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/1.17.2/",
+  function (sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/1.21.1/",
             force = FALSE,
             ...) {
   rawrrAssembly <- .rawrrAssembly()
@@ -266,15 +270,7 @@ installRawrrExe <-
         dir.create(rawrrAssemblyPath(), recursive = TRUE)
   }
 
-  if (Sys.info()["sysname"] == "Darwin") {
-            sourceUrl <- file.path(sourceUrl, "osx-x64", "rawrr")
-  }
-  else if (Sys.info()["sysname"] == "Linux") {
-            sourceUrl <- file.path(sourceUrl, "linux-x64", "rawrr")
-  }
-  else {
-            sourceUrl <- file.path(sourceUrl, "win-x64", "rawrr.exe")
-  }
+  sourceUrl <- file.path(sourceUrl, .rawrrRuntime(), basename(rawrrAssembly))
   message("Overwrite sourceUrl to ", sourceUrl)
 
 
@@ -313,12 +309,16 @@ installRawrrExe <-
 #' .NET SDK. The console application \code{rawrr.exe}
 #' is used by the package's reader functions through a \link{system2} call
 #' or a \link{textConnection}.
-#' 
-#' To use this function, ensure that the local RawFileReader NuGet packages 
-#' are added to the NuGet source list. You can accomplish this by 
-#' downloading the necessary packages with 
-#' \code{rawrr:::.downloadNupkgs()} and subsequently running 
-#' \code{rawrr:::.addNupkgSource()}.
+#'
+#' The Thermo Fisher RawFileReader NuGet packages are downloaded (once) into a
+#' local feed directory in the rawrr cache and passed to
+#' \code{dotnet publish --source}; the user's global NuGet configuration is
+#' not modified.
+#'
+#' @param runtime .NET runtime identifier, one of \code{linux-x64},
+#' \code{osx-x64}, \code{win-x64}, \code{linux-arm64}, \code{osx-arm64}, or
+#' \code{win-arm64}. Defaults to the platform of the running R session.
+#' @param sourceUrl url of the Thermo Fisher RawFileReader nupkgs.
 #'
 #' @author Christian Panse <cp@fgcz.ethz.ch>, 2021, 2024
 #'
@@ -332,46 +332,42 @@ installRawrrExe <-
 #'   \item{\doi{10.1021/acs.jproteome.0c00866}}
 #' }
 #'
-#' @return the return value of the system2 command.
+#' @return for the host runtime, the result of the assembly sanity check;
+#' otherwise (invisibly) the path of the built executable.
 #' @export
-buildRawrrExe <- function(){
-  packagedir <- system.file(package = 'rawrr')
-  buildDir <- tempdir()
+buildRawrrExe <- function(runtime = .rawrrRuntime(),
+                          sourceUrl = .thermofisherlsmsUrl()){
+  runtime <- match.arg(runtime, c("linux-x64", "osx-x64", "win-x64",
+                                  "linux-arm64", "osx-arm64", "win-arm64"))
 
-  if (Sys.which("dotnet") == "")
-  {
-    msg <- c("Could not find 'dotnet' in the path. Therefore, ",
-         "it is not possible to build the 'rawrr.exe' assembly from",
-         " source code.\nTry to run rawrr::installRawrrExe().")
-    stop(msg)
+  if (Sys.which("dotnet") == ""){
+    stop("Could not find 'dotnet' in the path. Therefore, it is not ",
+         "possible to build the 'rawrr' assembly from source code.\n",
+         "Try to run rawrr::installRawrrExe().")
   }
 
-  message("Building rawrr assembly using .NET 8.0 ...")
+  ## dedicated build directory, removed on exit
+  buildDir <- tempfile(pattern = "rawrr.build.")
+  dir.create(buildDir)
+  on.exit(unlink(buildDir, recursive = TRUE), add = TRUE)
 
-  if (isFALSE(dir.exists( rawrrAssemblyPath() ))){
-    dir.create(rawrrAssemblyPath(), recursive = TRUE)
-  }
+  message("Building rawrr assembly for '", runtime, "' using .NET 8.0 ...")
 
   .copySourceCode(dir = buildDir)
-
-  (system2("dotnet", args =c('nuget', 'list', 'source'),
-    stdout = TRUE) |>
-    grepl(pattern = "rawrrassembly") |>
-    sum()  >= 1) -> nugetPkgsPresent
-
-  if(nugetPkgsPresent){
-    warning("Have you downloaded the 'thermofisherlsms/RawFileReader' NuGet packages? \n",
-    "If not, please consider executing the methods:\n",
-    "  -> rawrr:::.downloadNupkgs()\n",
-    "  -> rawrr:::.addNupkgSource()\n",
-    "These steps should be performed once to ensure proper setup.")
-    # .downloadNupkgs()
-    # .addNupkgSource()
+  rv <- .downloadNupkgs(sourceUrl = sourceUrl)
+  if (any(rv != 0)){
+    stop("Downloading the RawFileReader nupkgs failed: ",
+         paste(names(rv)[rv != 0], collapse = ", "))
   }
 
-  .addPackages(dir = buildDir)
-  .build(dir = buildDir)
-  .isAssemblyWorking()
+  exe <- .build(dir = buildDir, runtime = runtime)
+
+  ## only the host runtime can be executed for the sanity check
+  if (runtime == .rawrrRuntime()){
+    .isAssemblyWorking()
+  } else {
+    invisible(exe)
+  }
 }
 
 .eulaPath <- function(){
