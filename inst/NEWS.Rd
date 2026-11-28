@@ -3,6 +3,43 @@
 
 \newcommand{\ghit}{\href{https://github.com/fgcz/rawrr/issues/#1}{##1}}
 
+\section{Changes in version 1.23.2 (Unreleased)}{
+  \itemize{
+    \item Add access to the instruments (devices) and status logs of a raw
+    file, e.g., LC pump pressure: \code{readDevices()} lists all devices
+    (MS, LC pump, autosampler, analog channels, ...),
+    \code{readStatusLog()} returns the plottable status log labels of a
+    device or the time series of one label, and
+    \code{readPressureProfile()} extracts all status log labels matching
+    \code{"[Pp]ressure"} of the non-MS devices as a long
+    \code{data.frame}.
+    \item The man pages of \code{readPressureProfile()},
+    \code{readStatusLog()}, and \code{readIndex()} document which LC
+    systems log pressure (e.g., Vanquish Neo
+    \code{AnalyticalPumpPressureInBar}; empty status log for Waters
+    nanoACQUITY) and that status log times and \code{readIndex()$StartTime}
+    share the same time axis (minutes since the start of the run).
+    \item The \code{rawrr} executable gains the options \code{devices} and
+    \code{statusLog}.
+    \item Refactor the option dispatch of \code{rawrr.cs} into a command
+    table; the command line interface and all data outputs are unchanged.
+    Errors (raw file not accessible, missing arguments, invalid filter,
+    \code{xic} failures) are written to stderr with exit status 1; the
+    unused \code{GetFilters()} call executed for every MS option and the
+    'Memory Usage' output on stdout are removed.
+    \item The command line help is generated from the command table:
+    \code{rawrr help <option>} prints the arguments and output of an
+    option, \code{rawrr help --markdown} the option table, which is
+    embedded in \code{inst/rawrrassembly/README.md} at render time.
+    \item \code{inst/rawrrassembly/README.md} documents \code{devices},
+    \code{statusLog}, and the new error behavior; it uses the installed
+    assembly and \code{sampleFilePath()} instead of fixed paths.
+    \item Add tests for the status log functions and a test ensuring that
+    every option of the \code{rawrr} executable is documented in
+    \code{inst/rawrrassembly/README.md}.
+  }
+}
+
 \section{Changes in version 1.21.1 (Unreleased)}{
   \itemize{
     \item Provide native \code{rawrr} executables for \code{linux-arm64},
