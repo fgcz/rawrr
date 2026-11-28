@@ -608,352 +608,243 @@
 
         internal static class Program
         {
-	        private static void Main(string[] args)
+	        private const string rawrr_version = "1.23.2";
+
+	        private static readonly List<string> HelpOptions = new List<string>() {"help", "--help", "-h", "h", "/h"};
+	        private static readonly List<string> VersionOptions = new List<string>() {"version", "--version", "-v", "-V", "/v"};
+
+	        /// <summary>
+	        /// A rawrr mode (command line option).
+	        /// args[0] is the raw file, args[1] the mode, args[2..] the mode specific arguments.
+	        /// </summary>
+	        /// <param name="Name">mode name, the second command line argument</param>
+	        /// <param name="Help">one line description, used by 'rawrr help'</param>
+	        /// <param name="MinArgs">minimal number of arguments after the mode</param>
+	        /// <param name="Run">handler; returns the process exit code</param>
+	        private sealed record Command(string Name, string Help, int MinArgs, Func<IRawDataPlus, string[], int> Run);
+
+	        /// <summary>
+	        /// All modes; the order defines the order of the help output.
+	        /// To add a mode, add an entry here.
+	        /// </summary>
+	        private static readonly List<Command> Commands = new List<Command>()
 	        {
-		        // This local variable controls if the AnalyzeAllScans method is called
-		        // bool analyzeScans = false;
-		        const string rawrr_version = "1.23.2";
-		        string filename = string.Empty;
-		        string mode = string.Empty;
-		        string filterString = string.Empty;
-		        Hashtable hashtable = new Hashtable()
-		        {
-			        {"filter", "List all scan ids pass the filter string (option 2)."},
-			        {"getFilters", "List all scan filters of a given raw file."},
-			        {"isValidFilter", "Checks whether the provided argument string (option 2) is a valid filter."},
-			        {"headerR", "Writes the raw file's meta data as R code to a file."},
-			        {"chromatogram", "Extracts base peak and total ion count chromatograms into a file."},
-			        {
-				        "xic",
-				        "Extracts filtered (option 2) ion chromatograms within a given mass and mass tolerance [in ppm] (option 3) xic of a given raw file as R code into a file."
-			        },
-			        {"scans", "Extracts scans (spectra) of a given ID as Rcode."},
-			        {"barebone", "Extracts 'barebone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode."},
-			        {"index", "Prints index as csv of all scans."},
-			        {"trailer", "Prints all trailer labels."},
-			        {"devices", "Lists all instruments (devices) stored in the raw file."},
-			        {"statusLog", "Prints plottable status log labels of a device (option 2 = device type, e.g., MS or Other; option 3 = device index) or the trend of a label position (option 4)."}
-		        };
-		        var helpOptions = new List<string>() {"help", "--help", "-h", "h", "/h"};
-		        var versionOptions = new List<string>() {"version", "--version", "-v", "-V", "/v"};
+		        new Command("index", "Prints index as csv of all scans.", 0,
+			        (raw, a) => { raw.GetIndex(); return 0; }),
+		        new Command("headerR", "Writes the raw file's meta data as R code to a file.", 2,
+			        (raw, a) => { raw.PrintHeaderAsRcode(a[3]); return 0; }),
+		        new Command("filter", "List all scan ids pass the filter string (option 2).", 3, Filter),
+		        new Command("getFilters", "List all scan filters of a given raw file.", 0, GetFilters),
+		        new Command("isValidFilter", "Checks whether the provided argument string (option 2) is a valid filter.", 1,
+			        (raw, a) => { Console.WriteLine(IsValidFilter(raw, a[2]).ToString()); return 0; }),
+		        new Command("scans", "Extracts scans (spectra) of a given ID as Rcode.", 2,
+			        (raw, a) => WriteScans(raw, a, barebone: false)),
+		        new Command("barebone", "Extracts 'barebone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode.", 2,
+			        (raw, a) => WriteScans(raw, a, barebone: true)),
+		        new Command("chromatogram", "Extracts base peak and total ion count chromatograms into a file.", 0, Chromatogram),
+		        new Command("xic", "Extracts filtered (option 2) ion chromatograms within a given mass and mass tolerance [in ppm] (option 3) xic of a given raw file as R code into a file.", 4, Xic),
+		        new Command("trailer", "Prints all trailer labels, or the values of a given trailer label (option 2).", 0,
+			        (raw, a) => { if (a.Length > 2) raw.WriteTrailerValues(a[2]); else raw.WriteTrailerLabel(); return 0; }),
+		        new Command("devices", "Lists all instruments (devices) stored in the raw file.", 0,
+			        (raw, a) => { raw.WriteDevices(); return 0; }),
+		        new Command("statusLog", "Prints plottable status log labels of a device (option 2 = device type, e.g., MS or Other; option 3 = device index) or the trend of a label position (option 4).", 1, StatusLog),
+	        };
 
-		        if (args.Length >= 2){
-			        filename = args[0];
-			        mode = args[1];
-			        if (!hashtable.Contains(mode))
-			        {
-				        Console.WriteLine("\nOption '{0}' is not defined. Please use one of the following options as argument:", mode);
-				        foreach (var k in hashtable.Keys)
-					        Console.WriteLine("  {0,-15}   {1}", k.ToString(), hashtable[k].ToString());
-				        Console.WriteLine();
-
-				        Environment.Exit(1);
-			        }}
-		        else
+	        private static int Main(string[] args)
+	        {
+		        if (args.Length == 0)
 		        {
-			        if (args.Length == 0)
-			        {
-				    Console.WriteLine("No RAW file specified!");
-			            return;
-			        }
-			        else if (versionOptions.Contains(args[0]))
-                                {
-				        Console.WriteLine(rawrr_version);
-				        Environment.Exit(0);
-                                }
-			        else if (helpOptions.Contains(args[0]))
-			        {
-				        Console.WriteLine("\nUsage:\n");
-				        Console.WriteLine("  rawrr.exe <raw file> <option>\n");
-				        Console.WriteLine("  rawrr.exe <raw file> <option> <input file> <output file>\n");
-				        Console.WriteLine(
-					        "  rawrr.exe <raw file> <option 1> <option 2> <option 3> <input file> <output file>\n");
-				        Console.WriteLine("\nOptions:\n");
-				        foreach (var k in hashtable.Keys)
-				        {
-					        Console.WriteLine("  {0,-15}   {1}", k.ToString(), hashtable[k].ToString());
-				        }
-				        Console.WriteLine("\nReport bugs at <https://github.com/fgcz/rawrr/issues>.\n");
-				        Environment.Exit(0);
-			        }
-			        else
-			        {
-				        Console.WriteLine("run 'rawrr.exe help'.");
-				        Environment.Exit(1);
-			        }
-		        }
-
-	        if (string.IsNullOrEmpty(filename))
-		        {
+			        // health check used by rawrr:::.isAssemblyWorking(); keep text and exit code 0
 			        Console.WriteLine("No RAW file specified!");
-			        return;
+			        return 0;
 		        }
-				//Environment.Exit(0);
 
-		        // Get the memory used at the beginning of processing
-		        Process processBefore = Process.GetCurrentProcess();
-		        long memoryBefore = processBefore.PrivateMemorySize64 / 1024;
-                try
-                {
-                    // Create the IRawDataPlus object for accessing the RAW file
-                    var rawFile = RawFileReaderAdapter.FileFactory(filename);
+		        if (args.Length == 1)
+		        {
+			        if (VersionOptions.Contains(args[0]))
+			        {
+				        Console.WriteLine(rawrr_version);
+				        return 0;
+			        }
+			        if (HelpOptions.Contains(args[0]))
+			        {
+				        PrintHelp();
+				        return 0;
+			        }
+			        Console.Error.WriteLine("run 'rawrr.exe help'.");
+			        return 1;
+		        }
 
-                    if (!rawFile.IsOpen || rawFile.IsError)
-                    {
-                        Console.WriteLine("Unable to access the RAW file using the RawFileReader class!");
+		        var command = Commands.FirstOrDefault(c => c.Name == args[1]);
+		        if (command == null)
+		        {
+			        // stdout: the R package checks for 'is not defined' to detect outdated assemblies
+			        Console.WriteLine("\nOption '{0}' is not defined. Please use one of the following options as argument:", args[1]);
+			        PrintOptions();
+			        Console.WriteLine();
+			        return 1;
+		        }
 
-                        return;
-                    }
+		        if (args.Length - 2 < command.MinArgs)
+		        {
+			        Console.Error.WriteLine("Option '{0}' requires at least {1} argument(s) after the option name.\n  {0,-15}   {2}",
+				        command.Name, command.MinArgs, command.Help);
+			        return 1;
+		        }
 
-                    // Check for any errors in the RAW file
-                    if (rawFile.IsError)
-                    {
-                        Console.WriteLine("Error opening ({0}) - {1}", rawFile.FileError, filename);
+		        string filename = args[0];
+		        try
+		        {
+			        // Create the IRawDataPlus object for accessing the RAW file
+			        using (var rawFile = RawFileReaderAdapter.FileFactory(filename))
+			        {
+				        if (!rawFile.IsOpen || rawFile.IsError)
+				        {
+					        Console.Error.WriteLine("Unable to access the RAW file using the RawFileReader class! Error opening ({0}) - {1}",
+						        rawFile.FileError?.ErrorMessage, filename);
+					        return 1;
+				        }
 
-                        return;
-                    }
+				        if (rawFile.InAcquisition)
+				        {
+					        Console.Error.WriteLine("RAW file still being acquired - " + filename);
+					        return 1;
+				        }
 
-                    // Check if the RAW file is being acquired
-                    if (rawFile.InAcquisition)
-                    {
-                        Console.WriteLine("RAW file still being acquired - " + filename);
+				        rawFile.SelectInstrument(Device.MS, 1);
+				        return command.Run(rawFile, args);
+			        }
+		        }
+		        catch (Exception ex)
+		        {
+			        Console.Error.WriteLine("Error accessing RAWFileReader library! - {0} failed: {1}", command.Name, ex.Message);
+			        return 1;
+		        }
+	        }
 
-                        return;
-                    }
+	        private static void PrintOptions()
+	        {
+		        foreach (var c in Commands)
+			        Console.WriteLine("  {0,-15}   {1}", c.Name, c.Help);
+	        }
 
-                    rawFile.SelectInstrument(Device.MS, 1);
-                    //Console.WriteLine("DEBUG {0}", rawFile.GetInstrumentMethod(3).ToString());
+	        private static void PrintHelp()
+	        {
+		        Console.WriteLine("\nUsage:\n");
+		        Console.WriteLine("  rawrr.exe <raw file> <option>\n");
+		        Console.WriteLine("  rawrr.exe <raw file> <option> <input file> <output file>\n");
+		        Console.WriteLine("  rawrr.exe <raw file> <option 1> <option 2> <option 3> <input file> <output file>\n");
+		        Console.WriteLine("\nOptions:\n");
+		        PrintOptions();
+		        Console.WriteLine("\nReport bugs at <https://github.com/fgcz/rawrr/issues>.\n");
+	        }
 
-                    // Get the first and last scan from the RAW file
-                    int firstScanNumber = rawFile.RunHeaderEx.FirstSpectrum;
-                    int lastScanNumber = rawFile.RunHeaderEx.LastSpectrum;
+	        // filter <filter string> <precision> <output file>
+	        private static int Filter(IRawDataPlus rawFile, string[] args)
+	        {
+		        string filterString = args[2];
+		        int precision = int.Parse(args[3]);
+		        var outputFilename = args[4];
 
-                    // Get the start and end time from the RAW file
-                    double startTime = rawFile.RunHeaderEx.StartTime;
-                    double endTime = rawFile.RunHeaderEx.EndTime;
+		        if (!IsValidFilter(rawFile, filterString))
+		        {
+			        Console.Error.WriteLine("'{0}' is not a valid filter string.", filterString);
+			        return 1;
+		        }
 
-                    if (mode == "headerR"){
-	                    var outputFilename = args[3];
-	                    rawFile.PrintHeaderAsRcode(outputFilename);
-	                    return;
-                    }
+		        using (var file = new StreamWriter(outputFilename))
+		        {
+			        foreach (var scan in rawFile.GetFilteredScanEnumerator(rawFile.GetFilterFromString(filterString, precision)))
+				        file.WriteLine(scan);
+		        }
+		        return 0;
+	        }
 
-                    // device/status-log modes must run before any MS-only call (e.g. GetFilters)
-                    if (mode == "devices"){
-	                    rawFile.WriteDevices();
-	                    return;
-                    }
+	        private static int GetFilters(IRawDataPlus rawFile, string[] args)
+	        {
+		        foreach (var filter in rawFile.GetFilters())
+			        Console.WriteLine(filter.ToString());
+		        return 0;
+	        }
 
-                    if (mode == "statusLog"){
-	                    Device device;
-	                    int deviceIndex = 1;
-	                    if (args.Length < 3 || !Enum.TryParse<Device>(args[2], true, out device)){
-		                    Console.Error.WriteLine("statusLog: invalid or missing device type. Use one of: {0}",
-			                    string.Join(", ", Enum.GetNames(typeof(Device))));
-		                    Environment.Exit(1);
-		                    return;
-	                    }
-	                    if (args.Length >= 4 && !Int32.TryParse(args[3], out deviceIndex)){
-		                    Console.Error.WriteLine("statusLog: invalid device index '{0}'.", args[3]);
-		                    Environment.Exit(1);
-	                    }
-	                    try {
-		                    if (args.Length >= 5)
-			                    rawFile.WriteStatusLogValues(device, deviceIndex, Int32.Parse(args[4]));
-		                    else
-			                    rawFile.WriteStatusLogLabels(device, deviceIndex);
-	                    }
-	                    catch (Exception ex){
-		                    Console.Error.WriteLine("statusLog: failed to read status log of {0} {1}: {2}",
-			                    device, deviceIndex, ex.Message);
-		                    Environment.Exit(1);
-	                    }
-	                    return;
-                    }
-
-                    // Get the number of filters present in the RAW file
-                    int numberFilters = rawFile.GetFilters().Count;
-
-		    if (mode == "trailer" && args.Length == 2){
-		    	rawFile.WriteTrailerLabel();
-			return;
-		    } else if (mode == "trailer" && args.Length == 3) {
-			//Console.WriteLine(args[2]);
-		    	rawFile.WriteTrailerValues(args[2]);
-			return;
-		    }
-
-                    if (mode == "filter")
-                    {
-	                    filterString = args[2].ToString();
-                            int precision = int.Parse(args[3]);
-	                    var outputFilename = args[4];
-
-	                    if(!IsValidFilter(rawFile, filterString))
-							Environment.Exit(1);
-
-	                    using (System.IO.StreamWriter file =
-		                    new System.IO.StreamWriter(outputFilename))
-	                    {
-		                    foreach (var ss in rawFile
-			                    .GetFilteredScanEnumerator(rawFile.GetFilterFromString(filterString, precision)).ToArray())
-		                    {
-			                    file.WriteLine(ss);
-		                    }
-	                    }
-
-	                    Environment.Exit(0);
-                    }
-
-                    if (mode == "isValidFilter")
-                    {
-	                    Console.WriteLine(IsValidFilter(rawFile, args[2].ToString()).ToString());
-                        Environment.Exit(0);
-                    }
-
-                    if (mode == "getFilters")
-                    {
-                        foreach (var filter in rawFile.GetFilters())
-                        {
-                            Console.WriteLine(filter.ToString());
-                        }
-                        Environment.Exit(0);
-                    }
-
-                    if (mode == "chromatogram")
-                    {
-                        // Get the BasePeak chromatogram for the MS data
-			string filter = "ms";
-			string outputcsv = "chromatogram.csv";
-			try {
-			    filter = args[2];
-			}
-			catch{
-			}
-			try {
-			    outputcsv = args[3];
-			}
-			catch{
-			}
-                        GetChromatogram(rawFile, firstScanNumber, lastScanNumber, outputcsv, filter);
-                        Environment.Exit(0);
-                    }
-
-
-                    if (mode == "index"){
-                    	    rawFile.GetIndex();
-			    return;
-		    }
-
-                    if (mode == "scans")
-                    {
-                        List<int> scans = new List<int>();
-
-                        var scanfile = args[2];
-                        int scanNumber;
-
-                        foreach (var line in File.ReadAllLines(scanfile))
-                        {
-
-			    try{
-                            Int32.TryParse(line, out scanNumber);
-			    if (scanNumber > 0)
-                        	    scans.Add(scanNumber);
-			    }
-			    catch{}
-                        }
+	        // scans|barebone <scan file> <output file>; an empty scan file selects all scans
+	        private static int WriteScans(IRawDataPlus rawFile, string[] args, bool barebone)
+	        {
+		        // accepts only integers greater than 0
+		        var scans = File.ReadAllLines(args[2])
+			        .Select(line => Int32.TryParse(line, out int scanNumber) ? scanNumber : 0)
+			        .Where(scanNumber => scanNumber > 0)
+			        .ToList();
+		        var outputFilename = args[3];
 
 		        if (scans.Count == 0)
-                    	    rawFile.WriteSpectrumAsRcode0(args[3]);
+			        rawFile.WriteSpectrumAsRcode0(outputFilename);
+		        else if (barebone)
+			        rawFile.WriteCentroidSpectrumAsRcode(outputFilename, scans);
 		        else
-                    	    rawFile.WriteSpectrumAsRcode(args[3], scans);
+			        rawFile.WriteSpectrumAsRcode(outputFilename, scans);
+		        return 0;
+	        }
 
-                        return;
+	        // chromatogram [<filter> [<output csv>]]
+	        private static int Chromatogram(IRawDataPlus rawFile, string[] args)
+	        {
+		        string filter = args.Length > 2 ? args[2] : "ms";
+		        string outputcsv = args.Length > 3 ? args[3] : "chromatogram.csv";
+		        return GetChromatogram(rawFile, rawFile.RunHeaderEx.FirstSpectrum, rawFile.RunHeaderEx.LastSpectrum,
+			        outputcsv, filter) ? 0 : 1;
+	        }
 
-                    }
-                    // extracs only the specta 
-                    if (mode == "barebone")
-                    {
-                        List<int> scans = new List<int>();
+	        // xic <ppm> <filter> <mass file> <output file>
+	        private static int Xic(IRawDataPlus rawFile, string[] args)
+	        {
+		        double ppmError = Convert.ToDouble(args[2]);
+		        string filter = args[3];
+		        var inputFilename = args[4];
+		        var outputFilename = args[5];
 
-                        var scanfile = args[2];
-                        int scanNumber;
+		        if (!File.Exists(inputFilename))
+		        {
+			        Console.Error.WriteLine("xic: mass file '{0}' does not exist.", inputFilename);
+			        return 1;
+		        }
 
-                        foreach (var line in File.ReadAllLines(scanfile))
-                        {
+		        List<double> massList = File.ReadAllLines(inputFilename).Select(line => Convert.ToDouble(line)).ToList();
+		        ExtractIonChromatogramAsRcode(rawFile, -1, -1, massList, ppmError, outputFilename, filter);
+		        return 0;
+	        }
 
-                            // parses the input while accepting only integers greater than 0
-			    try{
-                            Int32.TryParse(line, out scanNumber);
-			    if (scanNumber > 0)
-                        	    scans.Add(scanNumber);
-			    }
-			    catch{}
-                        }
-
-		        if (scans.Count == 0)
-                    	    rawFile.WriteSpectrumAsRcode0(args[3]);
-		        else
-                    	    rawFile.WriteCentroidSpectrumAsRcode(args[3], scans);
-
-                        return;
-
-                    }
-
-                    if (mode == "xic")
-                    {
-                          //  Console.WriteLine("xic");
-                        try
-                        {
-                            double ppmError = Convert.ToDouble(args[2]);
-                            // Console.WriteLine(ppmError);
-			    string filter = "ms";
-			    try {
-				    filter = args[3];
-			    }
-			    catch{
-			    }
-                            //Console.WriteLine(filter);
-                            var inputFilename = args[4];
-                            var outputFilename = args[5];
-
-                            List<double> massList = new List<double>();
-                            if (File.Exists(inputFilename))
-                            {
-                                foreach (var line in File.ReadAllLines(inputFilename))
-                                {
-                               	    //Console.WriteLine(Convert.ToDouble(line));
-                                    massList.Add(Convert.ToDouble(line));
-                                }
-
-                                ExtractIonChromatogramAsRcode(rawFile, -1, -1, massList, ppmError, outputFilename, filter);
-                            }
-
-                            return;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.Error.WriteLine("failed to catch configfile and itol");
-                            Console.Error.WriteLine("{}", ex.Message);
-                            return;
-                        }
-                    }
-                }
-
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error accessing RAWFileReader library! - " + ex.Message);
-                }
-
-                // Get the memory used at the end of processing
-                Process processAfter = Process.GetCurrentProcess();
-                long memoryAfter = processAfter.PrivateMemorySize64 / 1024;
-
-                Console.WriteLine();
-                Console.WriteLine("Memory Usage:");
-                Console.WriteLine("   Before {0} kb, After {1} kb, Extra {2} kb", memoryBefore, memoryAfter,
-                    memoryAfter - memoryBefore);
-            }
+	        // statusLog <device type> [<device index> [<position>]]
+	        private static int StatusLog(IRawDataPlus rawFile, string[] args)
+	        {
+		        Device device;
+		        int deviceIndex = 1;
+		        if (!Enum.TryParse<Device>(args[2], true, out device))
+		        {
+			        Console.Error.WriteLine("statusLog: invalid or missing device type. Use one of: {0}",
+				        string.Join(", ", Enum.GetNames(typeof(Device))));
+			        return 1;
+		        }
+		        if (args.Length >= 4 && !Int32.TryParse(args[3], out deviceIndex))
+		        {
+			        Console.Error.WriteLine("statusLog: invalid device index '{0}'.", args[3]);
+			        return 1;
+		        }
+		        try
+		        {
+			        if (args.Length >= 5)
+				        rawFile.WriteStatusLogValues(device, deviceIndex, Int32.Parse(args[4]));
+			        else
+				        rawFile.WriteStatusLogLabels(device, deviceIndex);
+		        }
+		        catch (Exception ex)
+		        {
+			        Console.Error.WriteLine("statusLog: failed to read status log of {0} {1}: {2}",
+				        device, deviceIndex, ex.Message);
+			        return 1;
+		        }
+		        return 0;
+	        }
 
 
             /// <summary>
@@ -974,11 +865,12 @@
             /// <param name="filter">
             /// The chromatic filter flag.
             /// </param>
-            private static void GetChromatogram(IRawDataPlus rawFile, int startScan, int endScan,  string filename, string filter = "ms")
+            /// <returns>false if the filter is not valid</returns>
+            private static bool GetChromatogram(IRawDataPlus rawFile, int startScan, int endScan,  string filename, string filter = "ms")
             {
 	            if (IsValidFilter(rawFile, filter) == false){
-                    Console.WriteLine("# '{0}' is not a valid filter string.", filter);
-		          return;
+                    Console.Error.WriteLine("# '{0}' is not a valid filter string.", filter);
+		          return false;
 	            }
 
 using (System.IO.StreamWriter file =
@@ -1026,7 +918,7 @@ using (System.IO.StreamWriter file =
                 }
                 file.WriteLine();
             }
-              
+                return true;
             }
 
 	    private static bool IsValidFilter(IRawDataPlus rawFile, string filter)
