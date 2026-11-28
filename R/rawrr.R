@@ -229,9 +229,15 @@ readFileHeader <- function(rawfile, stdout = "", stderr = ""){
 #' @inheritParams readFileHeader
 #' 
 #' @return returns a \code{data.frame} with the column names
-#' scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and 
+#' scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and
 #' dependencyType of all spectra.
-#' 
+#'
+#' @details \code{StartTime} is the scan start time in minutes since the start
+#' of the run. Status logs of all devices, e.g., LC pump pressure profiles,
+#' use the same time axis, see \code{\link{readStatusLog}} and
+#' \code{\link{readPressureProfile}}.
+#'
+#' @seealso \code{\link{readStatusLog}}, \code{\link{readPressureProfile}}
 #' @export
 #' @importFrom utils read.table
 #' @author Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020, 2021
@@ -1649,7 +1655,17 @@ readDevices <- function(rawfile){
 #' with the columns \code{times} (retention time in minutes) and \code{values}
 #' (numeric).
 #'
-#' @seealso \code{\link{readDevices}}, \code{\link{readPressureProfile}}
+#' @section Time axis:
+#' \code{times} is the retention time in minutes since the start of the run,
+#' for all devices. It is the same time axis as \code{StartTime} of
+#' \code{\link{readIndex}}, so status log values can be related to scans,
+#' e.g., by \code{approx(times, values, xout = Idx$StartTime)}. Status logs
+#' are sampled independently of the scans; for non-MS devices (e.g., an LC
+#' pump, logging about every 2 s) the log may extend beyond the end of the MS
+#' acquisition. See also \code{\link{readPressureProfile}}.
+#'
+#' @seealso \code{\link{readDevices}}, \code{\link{readPressureProfile}},
+#' \code{\link{readIndex}}
 #' @export
 #'
 #' @examples
@@ -1709,15 +1725,58 @@ readStatusLog <- function(rawfile, device = "Other", deviceIndex = 1L,
 #' by the device and are typically part of the label. Zero rows if no
 #' matching label is found.
 #'
-#' @seealso \code{\link{readDevices}}, \code{\link{readStatusLog}}
+#' @section Which LC systems log pressure:
+#' Whether a pressure profile is available depends on the LC system and its
+#' driver, not on the mass spectrometer. Observed on 16 autoQC runs
+#' (2017-2026, LTQ Orbitrap Velos to Orbitrap Astral):
+#' \itemize{
+#'   \item Thermo Vanquish Neo (device type \code{Other}): logs
+#'   \code{AnalyticalPumpPressureInBar} about every 2 s, together with
+#'   \code{PercentBComposition}, \code{AnalyticalPumpNominalFlowInMicroLPM},
+#'   and autosampler temperatures. Profiles show the gradient phase followed
+#'   by the column equilibration step at the end of the run.
+#'   \item Waters nanoACQUITY (Binary Solvent Manager, Sample Manager, Trap
+#'   Valve Manager; device type \code{Other}): the device is stored, but its
+#'   status log is empty; the pressure is routed to an analog output, which is
+#'   only available if it was recorded.
+#'   \item Eksigent NanoLC: stored as \code{Analog} channel devices only.
+#'   \item Some files contain no LC device at all.
+#' }
+#' Analog channels (e.g., the Vanquish Neo \code{Sampler_Pressure} channel of
+#' the \code{Analog} device) are chromatogram data, not status logs, and are
+#' not read by this function. Use \code{\link{readDevices}} and
+#' \code{\link{readStatusLog}} to inspect what a given file provides.
+#'
+#' The status log of the mass spectrometer contains vacuum and gas pressures
+#' (e.g., \code{Ion Gauge Pressure}, \code{Fore Vacuum Sensor (mbar)}); they
+#' are excluded by default and can be read with \code{device = "MS"}.
+#'
+#' @section Time axis:
+#' \code{times} is the retention time in minutes since the start of the run,
+#' i.e., the same time axis as \code{StartTime} of \code{\link{readIndex}}.
+#' Non-MS devices such as the LC pump are status-only devices without a run
+#' header of their own; their log entries are time-stamped on the run clock.
+#' Time zero is the start of acquisition (LC/MS start trigger), not
+#' necessarily the injection. The pump log is sampled much more sparsely than
+#' the MS scans (seconds vs. sub-seconds) and usually continues a few minutes
+#' after the MS acquisition has ended. To attach a pressure value to each
+#' scan, interpolate, see the examples.
+#'
+#' @seealso \code{\link{readDevices}}, \code{\link{readStatusLog}},
+#' \code{\link{readIndex}}
 #' @export
 #'
 #' @examples
 #' P <- rawrr::sampleFilePath() |> rawrr::readPressureProfile()
 #' \dontrun{
-#' P <- rawrr::readPressureProfile("yourLCMSrun.raw")
-#' lattice::xyplot(pressure ~ times | label, data = P, type = "l",
-#'   xlab = "Retention Time [min]", scales = list(y = list(relation = "free")))
+#' f <- "yourLCMSrun.raw"
+#' P <- rawrr::readPressureProfile(f)
+#' plot(P$times, P$pressure, type = "l", xlab = "Retention Time [min]",
+#'   ylab = unique(P$label))
+#'
+#' # pressure at each scan; scans and pressure share the same time axis
+#' Idx <- rawrr::readIndex(f)
+#' Idx$pressure <- approx(P$times, P$pressure, xout = Idx$StartTime)$y
 #' }
 readPressureProfile <- function(rawfile, pattern = "[Pp]ressure",
                                 device = NULL){

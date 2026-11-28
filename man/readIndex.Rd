@@ -11,11 +11,17 @@ readIndex(rawfile)
 }
 \value{
 returns a \code{data.frame} with the column names
-scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and 
+scan, scanType, StartTime, precursorMass, MSOrder, charge, masterScan, and
 dependencyType of all spectra.
 }
 \description{
 Read scan index
+}
+\details{
+\code{StartTime} is the scan start time in minutes since the start
+of the run. Status logs of all devices, e.g., LC pump pressure profiles,
+use the same time axis, see \code{\link{readStatusLog}} and
+\code{\link{readPressureProfile}}.
 }
 \examples{
 Idx <- rawrr::sampleFilePath() |> rawrr::readIndex()
@@ -23,6 +29,9 @@ table(Idx$scanType)
 plot(Idx$StartTime, Idx$precursorMass, col=as.factor(Idx$charge), pch=16)
 
 table(Idx$MSOrder)
+}
+\seealso{
+\code{\link{readStatusLog}}, \code{\link{readPressureProfile}}
 }
 \author{
 Tobias Kockmann and Christian Panse <cp@fgz.ethz.ch>, 2020, 2021
