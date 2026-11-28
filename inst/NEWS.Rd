@@ -13,12 +13,19 @@
     \code{readPressureProfile()} extracts all status log labels matching
     \code{"[Pp]ressure"} of the non-MS devices as a long
     \code{data.frame}.
+    \item Status log values are read unformatted, i.e., with full precision
+    instead of the display precision of the device (e.g., an ion gauge
+    pressure of 1.36e-05 Torr was returned as 0).
     \item The man pages of \code{readPressureProfile()},
     \code{readStatusLog()}, and \code{readIndex()} document which LC
     systems log pressure (e.g., Vanquish Neo
     \code{AnalyticalPumpPressureInBar}; empty status log for Waters
     nanoACQUITY) and that status log times and \code{readIndex()$StartTime}
     share the same time axis (minutes since the start of the run).
+    \item \code{?readPressureProfile} shows how to extract MS vacuum and gas
+    pressure profiles from the \code{tartare} ExperimentHub files
+    \code{EH4547}, \code{EH3220}, and \code{EH3222}, which contain no LC
+    pressure.
     \item The \code{rawrr} executable gains the options \code{devices} and
     \code{statusLog}.
     \item Refactor the option dispatch of \code{rawrr.cs} into a command

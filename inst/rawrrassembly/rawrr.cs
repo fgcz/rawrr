@@ -405,17 +405,38 @@
 
             /// <summary>
             /// Prints the trend (retention time [min]; value) of a status log item at a given position.
+            /// Uses the unformatted values: the formatted ones (GetStatusLogAtPosition) are rounded to
+            /// the display precision of the device, e.g., an ion gauge pressure of 1.36e-05 Torr is
+            /// formatted as '0.0'.
             /// </summary>
             public static void WriteStatusLogValues(this IRawDataPlus rawFile, Device type, int index, int position)
             {
+                var invariant = System.Globalization.CultureInfo.InvariantCulture;
                 rawFile.SelectInstrument(type, index);
+                // all time points come from the (formatted) single value log;
+                // GetStatusLogEntriesCount() can be smaller than its length
+                // (e.g., Orbitrap Fusion Lumos MS: 1052 vs. 1168). Entries align
+                // 1:1 by index; values are replaced by the unformatted ones where
+                // available, otherwise the formatted value is kept.
                 var log = rawFile.GetStatusLogAtPosition(position);
                 Console.WriteLine("times;values");
                 for (int i = 0; i < log.Times.Length; i++)
                 {
-                    Console.WriteLine("{0};{1}",
-                        log.Times[i].ToString(System.Globalization.CultureInfo.InvariantCulture),
-                        log.Values[i].Trim());
+                    string value = log.Values[i].Trim();
+                    try
+                    {
+                        var entry = rawFile.GetStatusLogValues(i, false);
+                        if (entry != null && position < entry.Values.Length
+                            && Math.Abs(entry.RetentionTime - log.Times[i]) < 1e-6)
+                            value = entry.Values[position].Trim();
+                    }
+                    catch { }
+                    // print numbers culture-invariant with full precision;
+                    // values stored as 32-bit float are printed as float (298.3, not 298.29998779296875)
+                    if (double.TryParse(value, System.Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.CurrentCulture, out double d))
+                        value = ((double)(float)d == d) ? ((float)d).ToString("R", invariant) : d.ToString("R", invariant);
+                    Console.WriteLine("{0};{1}", log.Times[i].ToString(invariant), value);
                 }
             }
 

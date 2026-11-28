@@ -1640,7 +1640,9 @@ readDevices <- function(rawfile){
 #' @description Status logs are time series recorded by each device, e.g.,
 #' the pump pressure of an LC pump or vacuum readings of the mass
 #' spectrometer. Only numeric ('plottable') status log items are
-#' considered.
+#' considered. Values are read unformatted, i.e., with full precision and not
+#' rounded to the display precision defined by the device (e.g., an ion gauge
+#' pressure of 1.36e-05 Torr would be displayed as 0.0).
 #'
 #' @inheritParams readSpectrum
 #' @param device device type as reported by \code{\link{readDevices}},
@@ -1749,7 +1751,24 @@ readStatusLog <- function(rawfile, device = "Other", deviceIndex = 1L,
 #'
 #' The status log of the mass spectrometer contains vacuum and gas pressures
 #' (e.g., \code{Ion Gauge Pressure}, \code{Fore Vacuum Sensor (mbar)}); they
-#' are excluded by default and can be read with \code{device = "MS"}.
+#' are excluded by default and can be read with \code{device = "MS"}, see the
+#' examples. The labels differ between instrument types; list them with
+#' \code{readStatusLog(rawfile, device = "MS")}.
+#'
+#' @section Example data:
+#' The raw files of the \code{tartare} package available through
+#' \code{ExperimentHub} do not contain an LC pressure profile: their LC
+#' (Waters nanoACQUITY) is stored as device \code{Other}, but its status log is
+#' empty, so \code{readPressureProfile()} returns zero rows. Their MS status
+#' logs can be used to demonstrate MS pressure profiles:
+#' \itemize{
+#'   \item \code{EH4547} (Q Exactive HF) and \code{EH3220} (Q Exactive HF-X):
+#'   \code{Fore Vacuum Sensor (mbar)}, \code{High Vacuum Sensor (mbar)}, and
+#'   \code{UHV Sensor (mbar)}.
+#'   \item \code{EH3222} (Orbitrap Fusion Lumos): \code{Ion Gauge Pressure},
+#'   \code{Collision Pressure}, \code{Source Pressure}, and
+#'   \code{UHV Pressure}.
+#' }
 #'
 #' @section Time axis:
 #' \code{times} is the retention time in minutes since the start of the run,
@@ -1777,6 +1796,39 @@ readStatusLog <- function(rawfile, device = "Other", deviceIndex = 1L,
 #' # pressure at each scan; scans and pressure share the same time axis
 #' Idx <- rawrr::readIndex(f)
 #' Idx$pressure <- approx(P$times, P$pressure, xout = Idx$StartTime)$y
+#' }
+#'
+#' ## MS pressure profiles of the ExperimentHub example files
+#' \dontrun{
+#' library(ExperimentHub)
+#' eh <- ExperimentHub::ExperimentHub()
+#' .ehRawFile <- function(id){
+#'   f <- normalizePath(eh[[id]])
+#'   rawfile <- paste0(f, ".raw")
+#'   if (!file.exists(rawfile)) file.copy(f, rawfile)
+#'   rawfile
+#' }
+#'
+#' # Q Exactive HF: the Waters LC is stored, but logs no status log
+#' f <- .ehRawFile("EH4547")
+#' rawrr::readDevices(f)
+#' rawrr::readStatusLog(f, device = "Other")
+#' nrow(rawrr::readPressureProfile(f))
+#'
+#' # Q Exactive HF: vacuum sensors [mbar]
+#' V <- rawrr::readPressureProfile(f, device = "MS", pattern = "Sensor")
+#' aggregate(pressure ~ label, data = V, FUN = range)
+#' with(V[V$label == "UHV Sensor (mbar)", ],
+#'   plot(times, pressure, type = "l", log = "y",
+#'     xlab = "Retention Time [min]", ylab = "UHV Sensor (mbar)"))
+#'
+#' # Orbitrap Fusion Lumos: ion gauge, collision, source, and UHV pressure
+#' f2 <- .ehRawFile("EH3222")
+#' G <- rawrr::readPressureProfile(f2, device = "MS")
+#' aggregate(pressure ~ label, data = G, FUN = range)
+#' with(G[G$label == "Ion Gauge Pressure", ],
+#'   plot(times, pressure, type = "l",
+#'     xlab = "Retention Time [min]", ylab = "Ion Gauge Pressure"))
 #' }
 readPressureProfile <- function(rawfile, pattern = "[Pp]ressure",
                                 device = NULL){
