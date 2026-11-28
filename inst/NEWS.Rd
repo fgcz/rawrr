@@ -13,6 +13,11 @@
     \code{readPressureProfile()} extracts all status log labels matching
     \code{"[Pp]ressure"} of the non-MS devices as a long
     \code{data.frame}.
+    \item The \code{rawrr} executable formats numbers and dates independently
+    of the system locale (invariant culture); the file header creation date
+    is always written as \code{M/d/yyyy h:mm:ss AM/PM}. Previously, e.g.,
+    CI runners wrote \code{02/13/2018 11:09:03} and German locales decimal
+    commas into the generated R code.
     \item Status log values are read unformatted, i.e., with full precision
     instead of the display precision of the device (e.g., an ion gauge
     pressure of 1.36e-05 Torr was returned as 0).

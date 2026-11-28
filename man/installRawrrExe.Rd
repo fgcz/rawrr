@@ -6,7 +6,7 @@
 \title{Download \code{rawrr} assembly}
 \usage{
 installRawrrExe(
-  sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/1.21.1/",
+  sourceUrl = "https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/1.23.2/",
   force = FALSE,
   ...
 )

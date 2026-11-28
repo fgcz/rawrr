@@ -20,6 +20,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Christian Panse \email{cp@fgcz.ethz.ch} (\href{https://orcid.org/0000-0003-1975-3064}{ORCID})
   \item Tobias Kockmann \email{tobias.kockmann@fgcz.ethz.ch} (\href{https://orcid.org/0000-0002-1847-885X}{ORCID})
 }
 

@@ -117,7 +117,9 @@
                     file.WriteLine("e$info <- list()\n");
                     file.WriteLine("e$info$`RAW file` <- '" + Path.GetFileName(rawFile.FileName) + "'");
                     file.WriteLine("e$info$`RAW file version` <- '" + rawFile.FileHeader.Revision + "'");
-                    file.WriteLine("e$info$`Creation date` <- '" + rawFile.FileHeader.CreationDate + "'");
+                    // fixed en-US style format (as rawrr always printed it on en-US systems)
+                    file.WriteLine("e$info$`Creation date` <- '" +
+                        rawFile.FileHeader.CreationDate.ToString("M/d/yyyy h:mm:ss tt", System.Globalization.CultureInfo.InvariantCulture) + "'");
                     file.WriteLine("e$info$Operator <- '" + rawFile.FileHeader.WhoCreatedId + "'");
                     file.WriteLine("e$info$`Number of instruments` <- {0}", rawFile.InstrumentCount);
                     file.WriteLine("e$info$Description <- '" + rawFile.FileHeader.FileDescription + "'");
@@ -704,6 +706,12 @@
 
 	        private static int Main(string[] args)
 	        {
+		        // All output is parsed by R: format numbers and dates independently of
+		        // the system locale (e.g. de_DE would print 0,00; CI runners print
+		        // dates as 02/13/2018 11:09:03).
+		        System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+		        System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
 		        if (args.Length == 0)
 		        {
 			        // health check used by rawrr:::.isAssemblyWorking(); keep text and exit code 0

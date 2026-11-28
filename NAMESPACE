@@ -36,17 +36,23 @@ export(tic)
 export(validate_rawrrIndex)
 export(validate_rawrrSpectrum)
 importFrom(grDevices,hcl.colors)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,text)
-importFrom(stats,lm)
-importFrom(stats,na.omit)
-importFrom(stats,predict)
+importFrom(graphics,
+  legend,
+  lines,
+  text
+)
+importFrom(stats,
+  lm,
+  na.omit,
+  predict
+)
 importFrom(tools,R_user_dir)
-importFrom(utils,download.file)
-importFrom(utils,head)
-importFrom(utils,object.size)
-importFrom(utils,packageVersion)
-importFrom(utils,read.csv2)
-importFrom(utils,read.table)
-importFrom(utils,tail)
+importFrom(utils,
+  download.file,
+  head,
+  object.size,
+  packageVersion,
+  read.csv2,
+  read.table,
+  tail
+)
