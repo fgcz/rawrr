@@ -616,38 +616,69 @@
 	        /// <summary>
 	        /// A rawrr mode (command line option).
 	        /// args[0] is the raw file, args[1] the mode, args[2..] the mode specific arguments.
+	        /// The table below is the single source of the CLI documentation:
+	        /// 'rawrr help', 'rawrr help &lt;mode&gt;', and 'rawrr help --markdown'
+	        /// (used by inst/rawrrassembly/README.md) are generated from it.
 	        /// </summary>
 	        /// <param name="Name">mode name, the second command line argument</param>
-	        /// <param name="Help">one line description, used by 'rawrr help'</param>
+	        /// <param name="Arguments">synopsis of the arguments after the mode; [] marks optional ones</param>
+	        /// <param name="Help">one line description</param>
+	        /// <param name="Output">what is written where</param>
 	        /// <param name="MinArgs">minimal number of arguments after the mode</param>
 	        /// <param name="Run">handler; returns the process exit code</param>
-	        private sealed record Command(string Name, string Help, int MinArgs, Func<IRawDataPlus, string[], int> Run);
+	        private sealed record Command(string Name, string Arguments, string Help, string Output,
+		        int MinArgs, Func<IRawDataPlus, string[], int> Run);
 
 	        /// <summary>
 	        /// All modes; the order defines the order of the help output.
-	        /// To add a mode, add an entry here.
+	        /// To add a mode, add an entry here and a '## `mode`' section to inst/rawrrassembly/README.md
+	        /// (enforced by tests/testthat/test-assembly-doc.R).
 	        /// </summary>
 	        private static readonly List<Command> Commands = new List<Command>()
 	        {
-		        new Command("index", "Prints index as csv of all scans.", 0,
+		        new Command("index", "",
+			        "Prints the index of all scans.",
+			        "csv (';' separated) on stdout", 0,
 			        (raw, a) => { raw.GetIndex(); return 0; }),
-		        new Command("headerR", "Writes the raw file's meta data as R code to a file.", 2,
+		        new Command("headerR", "<input file> <output file>",
+			        "Writes the raw file's meta data as R code to a file; the input file is ignored.",
+			        "R code in the output file", 2,
 			        (raw, a) => { raw.PrintHeaderAsRcode(a[3]); return 0; }),
-		        new Command("filter", "List all scan ids pass the filter string (option 2).", 3, Filter),
-		        new Command("getFilters", "List all scan filters of a given raw file.", 0, GetFilters),
-		        new Command("isValidFilter", "Checks whether the provided argument string (option 2) is a valid filter.", 1,
+		        new Command("filter", "<filter> <precision> <output file>",
+			        "Lists the scan numbers passing the filter string with the given mass precision.",
+			        "scan numbers in the output file, one per line", 3, Filter),
+		        new Command("getFilters", "",
+			        "Lists all scan filters of the raw file.",
+			        "filter strings on stdout, one per line", 0, GetFilters),
+		        new Command("isValidFilter", "<filter>",
+			        "Checks whether the filter string is valid.",
+			        "True or False on stdout", 1,
 			        (raw, a) => { Console.WriteLine(IsValidFilter(raw, a[2]).ToString()); return 0; }),
-		        new Command("scans", "Extracts scans (spectra) of a given ID as Rcode.", 2,
+		        new Command("scans", "<scan file> <output file>",
+			        "Extracts the scans (spectra) listed in the scan file (one scan number per line; empty file = all scans).",
+			        "R code in the output file", 2,
 			        (raw, a) => WriteScans(raw, a, barebone: false)),
-		        new Command("barebone", "Extracts 'barebone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode.", 2,
+		        new Command("barebone", "<scan file> <output file>",
+			        "Extracts 'barebone' scans (spectra), including only mZ, intensity, precursorMass, rtinseconds, and charge state.",
+			        "R code in the output file", 2,
 			        (raw, a) => WriteScans(raw, a, barebone: true)),
-		        new Command("chromatogram", "Extracts base peak and total ion count chromatograms into a file.", 0, Chromatogram),
-		        new Command("xic", "Extracts filtered (option 2) ion chromatograms within a given mass and mass tolerance [in ppm] (option 3) xic of a given raw file as R code into a file.", 4, Xic),
-		        new Command("trailer", "Prints all trailer labels, or the values of a given trailer label (option 2).", 0,
+		        new Command("chromatogram", "[<filter> [<output csv>]]",
+			        "Extracts base peak, total ion count, and mass range chromatograms (default filter: ms).",
+			        "csv (';' separated) in the output csv (default: chromatogram.csv)", 0, Chromatogram),
+		        new Command("xic", "<ppm> <filter> <mass file> <output file>",
+			        "Extracts filtered ion chromatograms of the masses in the mass file (one per line) within a mass tolerance in ppm.",
+			        "R code in the output file", 4, Xic),
+		        new Command("trailer", "[<label>]",
+			        "Prints all trailer labels, or the values of the given trailer label for all scans.",
+			        "labels or values on stdout, one per line", 0,
 			        (raw, a) => { if (a.Length > 2) raw.WriteTrailerValues(a[2]); else raw.WriteTrailerLabel(); return 0; }),
-		        new Command("devices", "Lists all instruments (devices) stored in the raw file.", 0,
+		        new Command("devices", "",
+			        "Lists all instruments (devices) stored in the raw file, e.g., MS, LC pump, autosampler.",
+			        "csv (';' separated) on stdout", 0,
 			        (raw, a) => { raw.WriteDevices(); return 0; }),
-		        new Command("statusLog", "Prints plottable status log labels of a device (option 2 = device type, e.g., MS or Other; option 3 = device index) or the trend of a label position (option 4).", 1, StatusLog),
+		        new Command("statusLog", "<device type> [<device index> [<position>]]",
+			        "Prints the plottable status log labels of a device, or the trend of the label at the given position (e.g., LC pump pressure).",
+			        "csv (';' separated) on stdout", 1, StatusLog),
 	        };
 
 	        private static int Main(string[] args)
@@ -659,16 +690,34 @@
 			        return 0;
 		        }
 
+		        // help [<mode> | --markdown]
+		        if (HelpOptions.Contains(args[0]))
+		        {
+			        if (args.Length == 1)
+			        {
+				        PrintHelp();
+				        return 0;
+			        }
+			        if (args[1] == "--markdown")
+			        {
+				        PrintMarkdown();
+				        return 0;
+			        }
+			        var c = Commands.FirstOrDefault(x => x.Name == args[1]);
+			        if (c == null)
+			        {
+				        Console.Error.WriteLine("Option '{0}' is not defined. Run 'rawrr.exe help'.", args[1]);
+				        return 1;
+			        }
+			        PrintCommandHelp(c);
+			        return 0;
+		        }
+
 		        if (args.Length == 1)
 		        {
 			        if (VersionOptions.Contains(args[0]))
 			        {
 				        Console.WriteLine(rawrr_version);
-				        return 0;
-			        }
-			        if (HelpOptions.Contains(args[0]))
-			        {
-				        PrintHelp();
 				        return 0;
 			        }
 			        Console.Error.WriteLine("run 'rawrr.exe help'.");
@@ -687,8 +736,9 @@
 
 		        if (args.Length - 2 < command.MinArgs)
 		        {
-			        Console.Error.WriteLine("Option '{0}' requires at least {1} argument(s) after the option name.\n  {0,-15}   {2}",
-				        command.Name, command.MinArgs, command.Help);
+			        Console.Error.WriteLine("Option '{0}' requires at least {1} argument(s) after the option name.",
+				        command.Name, command.MinArgs);
+			        Console.Error.WriteLine("Usage: {0}", Synopsis(command));
 			        return 1;
 		        }
 
@@ -728,15 +778,45 @@
 			        Console.WriteLine("  {0,-15}   {1}", c.Name, c.Help);
 	        }
 
+	        private static string Synopsis(Command c)
+	        {
+		        return ("rawrr.exe <raw file> " + c.Name + " " + c.Arguments).TrimEnd();
+	        }
+
 	        private static void PrintHelp()
 	        {
 		        Console.WriteLine("\nUsage:\n");
-		        Console.WriteLine("  rawrr.exe <raw file> <option>\n");
-		        Console.WriteLine("  rawrr.exe <raw file> <option> <input file> <output file>\n");
-		        Console.WriteLine("  rawrr.exe <raw file> <option 1> <option 2> <option 3> <input file> <output file>\n");
+		        Console.WriteLine("  rawrr.exe <raw file> <option> [<arguments>]");
+		        Console.WriteLine("  rawrr.exe help [<option> | --markdown]");
+		        Console.WriteLine("  rawrr.exe version");
 		        Console.WriteLine("\nOptions:\n");
 		        PrintOptions();
+		        Console.WriteLine("\nRun 'rawrr.exe help <option>' for the arguments and output of an option.");
 		        Console.WriteLine("\nReport bugs at <https://github.com/fgcz/rawrr/issues>.\n");
+	        }
+
+	        private static void PrintCommandHelp(Command c)
+	        {
+		        Console.WriteLine("Usage: {0}\n", Synopsis(c));
+		        Console.WriteLine("  {0}\n", c.Help);
+		        Console.WriteLine("Output: {0}", c.Output);
+	        }
+
+	        /// <summary>
+	        /// Prints the option table as markdown; embedded in inst/rawrrassembly/README.md.
+	        /// </summary>
+	        private static void PrintMarkdown()
+	        {
+		        Console.WriteLine("| Option | Arguments | Description | Output |");
+		        Console.WriteLine("|--------|-----------|-------------|--------|");
+		        foreach (var c in Commands)
+		        {
+			        Console.WriteLine("| `{0}` | {1} | {2} | {3} |",
+				        c.Name,
+				        string.IsNullOrEmpty(c.Arguments) ? "" : "`" + c.Arguments + "`",
+				        c.Help.Replace("|", "\\|"),
+				        c.Output.Replace("|", "\\|"));
+		        }
 	        }
 
 	        // filter <filter string> <precision> <output file>
