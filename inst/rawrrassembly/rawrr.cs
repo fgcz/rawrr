@@ -17,6 +17,7 @@
       2020-08-26 readSpectrum backend
       2021-05-03 reorder xic arguments
       2025-05-27 https://github.com/fgcz/rawrr/issues/84
+      2026-11-28 added devices and statusLog options (e.g., LC pump pressure profiles)
     */
 
     using System;
@@ -362,6 +363,62 @@
 		    }
 	    }
 
+            /// <summary>
+            /// Lists all instruments (devices / data streams) of the raw file as csv.
+            /// The device index is 1-based per device type, as required by SelectInstrument.
+            /// </summary>
+            public static void WriteDevices(this IRawDataPlus rawFile)
+            {
+                var counter = new Dictionary<Device, int>();
+                Console.WriteLine("deviceType;deviceIndex;name;model;serialNumber");
+                for (int i = 0; i < rawFile.InstrumentCount; i++)
+                {
+                    Device type = rawFile.GetInstrumentType(i);
+                    counter[type] = counter.ContainsKey(type) ? counter[type] + 1 : 1;
+                    string name = "", model = "", serial = "";
+                    try
+                    {
+                        rawFile.SelectInstrument(type, counter[type]);
+                        var data = rawFile.GetInstrumentData();
+                        name = data.Name ?? "";
+                        model = data.Model ?? "";
+                        serial = data.SerialNumber ?? "";
+                    }
+                    catch { }
+                    Console.WriteLine("{0};{1};{2};{3};{4}", type, counter[type],
+                        name.Replace(";", ","), model.Replace(";", ","), serial.Replace(";", ","));
+                }
+            }
+
+            /// <summary>
+            /// Prints position and label of all plottable (numeric) status log items of a device.
+            /// </summary>
+            public static void WriteStatusLogLabels(this IRawDataPlus rawFile, Device type, int index)
+            {
+                rawFile.SelectInstrument(type, index);
+                Console.WriteLine("position;label");
+                foreach (var kv in rawFile.StatusLogPlottableData)
+                {
+                    Console.WriteLine("{0};{1}", kv.Value, kv.Key.Replace(";", ","));
+                }
+            }
+
+            /// <summary>
+            /// Prints the trend (retention time [min]; value) of a status log item at a given position.
+            /// </summary>
+            public static void WriteStatusLogValues(this IRawDataPlus rawFile, Device type, int index, int position)
+            {
+                rawFile.SelectInstrument(type, index);
+                var log = rawFile.GetStatusLogAtPosition(position);
+                Console.WriteLine("times;values");
+                for (int i = 0; i < log.Times.Length; i++)
+                {
+                    Console.WriteLine("{0};{1}",
+                        log.Times[i].ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        log.Values[i].Trim());
+                }
+            }
+
             public static void WriteTrailerValues(this IRawDataPlus rawFile, string label)
 	    {
                 Dictionary<string, string> ScanTrailerDict;
@@ -555,7 +612,7 @@
 	        {
 		        // This local variable controls if the AnalyzeAllScans method is called
 		        // bool analyzeScans = false;
-		        const string rawrr_version = "1.21.1";
+		        const string rawrr_version = "1.23.2";
 		        string filename = string.Empty;
 		        string mode = string.Empty;
 		        string filterString = string.Empty;
@@ -573,7 +630,9 @@
 			        {"scans", "Extracts scans (spectra) of a given ID as Rcode."},
 			        {"barebone", "Extracts 'barebone' scans (spectra), including only mZ, intensity , precursorMass, rtinsecodonds and charge state, of a given ID as Rcode."},
 			        {"index", "Prints index as csv of all scans."},
-			        {"trailer", "Prints all trailer labels."}
+			        {"trailer", "Prints all trailer labels."},
+			        {"devices", "Lists all instruments (devices) stored in the raw file."},
+			        {"statusLog", "Prints plottable status log labels of a device (option 2 = device type, e.g., MS or Other; option 3 = device index) or the trend of a label position (option 4)."}
 		        };
 		        var helpOptions = new List<string>() {"help", "--help", "-h", "h", "/h"};
 		        var versionOptions = new List<string>() {"version", "--version", "-v", "-V", "/v"};
@@ -676,6 +735,39 @@
                     if (mode == "headerR"){
 	                    var outputFilename = args[3];
 	                    rawFile.PrintHeaderAsRcode(outputFilename);
+	                    return;
+                    }
+
+                    // device/status-log modes must run before any MS-only call (e.g. GetFilters)
+                    if (mode == "devices"){
+	                    rawFile.WriteDevices();
+	                    return;
+                    }
+
+                    if (mode == "statusLog"){
+	                    Device device;
+	                    int deviceIndex = 1;
+	                    if (args.Length < 3 || !Enum.TryParse<Device>(args[2], true, out device)){
+		                    Console.Error.WriteLine("statusLog: invalid or missing device type. Use one of: {0}",
+			                    string.Join(", ", Enum.GetNames(typeof(Device))));
+		                    Environment.Exit(1);
+		                    return;
+	                    }
+	                    if (args.Length >= 4 && !Int32.TryParse(args[3], out deviceIndex)){
+		                    Console.Error.WriteLine("statusLog: invalid device index '{0}'.", args[3]);
+		                    Environment.Exit(1);
+	                    }
+	                    try {
+		                    if (args.Length >= 5)
+			                    rawFile.WriteStatusLogValues(device, deviceIndex, Int32.Parse(args[4]));
+		                    else
+			                    rawFile.WriteStatusLogLabels(device, deviceIndex);
+	                    }
+	                    catch (Exception ex){
+		                    Console.Error.WriteLine("statusLog: failed to read status log of {0} {1}: {2}",
+			                    device, deviceIndex, ex.Message);
+		                    Environment.Exit(1);
+	                    }
 	                    return;
                     }
 

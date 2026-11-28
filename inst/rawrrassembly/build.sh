@@ -37,7 +37,7 @@ repo_dir="$1"
 dist_dir="$2"
 
 # rawrr R/Bioconductor package version these binaries are published under.
-pkg_version="1.21.1"
+pkg_version="1.23.2"
 
 cd "$repo_dir"
 

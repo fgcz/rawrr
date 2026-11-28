@@ -1577,6 +1577,184 @@ readTrailer <- function(rawfile, label = NULL) {
        blank.lines.skip = FALSE)
 }
 
+# statusLog ---------
+# runs rawrr.exe and returns stdout lines; stops with the stderr message on failure.
+.rawrrSystem2Lines <- function(rawfile, args){
+  .isAssemblyWorking()
+  rawfile <- normalizePath(rawfile)
+  .checkRawFile(rawfile)
+  exe <- .rawrrAssembly()
+
+  tfstderr <- tempfile(fileext = ".stderr")
+  on.exit(unlink(tfstderr))
+  out <- suppressWarnings(system2(exe, args = c(shQuote(rawfile), args),
+                                  stdout = TRUE, stderr = tfstderr))
+  status <- attr(out, "status")
+  if (any(grepl("is not defined", out))) {
+    stop(sprintf("The installed rawrr.exe does not support the '%s' option. ", args[1]),
+         "Please rebuild it by running 'rawrr::buildRawrrExe()'.")
+  }
+  if (!is.null(status) && status != 0) {
+    stop(paste(c(sprintf("rawrr.exe '%s' failed:", args[1]),
+                 readLines(tfstderr, warn = FALSE)), collapse = "\n"))
+  }
+  out
+}
+
+#' List the instruments (devices) stored in a raw file
+#'
+#' @description A Thermo raw file stores the data of each device of an
+#' LC-MS system (mass spectrometer, LC pump, autosampler, UV detector, ...)
+#' as a separate 'instrument'. Non-MS devices, e.g., the LC pump, usually
+#' log their data into a status log, see \code{\link{readStatusLog}}.
+#'
+#' @inheritParams readSpectrum
+#'
+#' @return a \code{data.frame} with the columns \code{deviceType}
+#' (e.g., \code{MS}, \code{Other}, \code{Analog}, \code{UV}, \code{Pda}),
+#' \code{deviceIndex} (1-based within each device type), \code{name},
+#' \code{model}, and \code{serialNumber}.
+#'
+#' @seealso \code{\link{readStatusLog}}, \code{\link{readPressureProfile}}
+#' @export
+#' @importFrom utils read.table
+#'
+#' @examples
+#' rawrr::sampleFilePath() |> rawrr::readDevices()
+readDevices <- function(rawfile){
+  out <- .rawrrSystem2Lines(rawfile, "devices")
+  read.table(text = out, header = TRUE, sep = ";", quote = "",
+             comment.char = "", stringsAsFactors = FALSE,
+             colClasses = c("character", "integer", "character",
+                            "character", "character"))
+}
+
+#' Read the status log of a device
+#'
+#' @description Status logs are time series recorded by each device, e.g.,
+#' the pump pressure of an LC pump or vacuum readings of the mass
+#' spectrometer. Only numeric ('plottable') status log items are
+#' considered.
+#'
+#' @inheritParams readSpectrum
+#' @param device device type as reported by \code{\link{readDevices}},
+#' e.g., \code{"MS"} or \code{"Other"} (LC pumps are usually logged as
+#' \code{"Other"}).
+#' @param deviceIndex 1-based index of the device within its type.
+#' @param label status log label. If \code{NULL}, all plottable labels of the
+#' device are returned.
+#'
+#' @return if \code{label} is \code{NULL}, a \code{data.frame} with the
+#' columns \code{position} and \code{label}; otherwise a \code{data.frame}
+#' with the columns \code{times} (retention time in minutes) and \code{values}
+#' (numeric).
+#'
+#' @seealso \code{\link{readDevices}}, \code{\link{readPressureProfile}}
+#' @export
+#'
+#' @examples
+#' f <- rawrr::sampleFilePath()
+#' L <- rawrr::readStatusLog(f, device = "MS")
+#' head(L)
+#' if (nrow(L) > 0) {
+#'   S <- rawrr::readStatusLog(f, device = "MS", label = L$label[1])
+#'   plot(S$times, S$values, type = "l", main = L$label[1],
+#'     xlab = "Retention Time [min]", ylab = L$label[1])
+#' }
+readStatusLog <- function(rawfile, device = "Other", deviceIndex = 1L,
+                          label = NULL){
+  stopifnot(is.character(device), length(device) == 1,
+            length(deviceIndex) == 1)
+  args <- c("statusLog", device, as.integer(deviceIndex))
+
+  labels <- read.table(text = .rawrrSystem2Lines(rawfile, args),
+                       header = TRUE, sep = ";", quote = "",
+                       comment.char = "", strip.white = TRUE,
+                       stringsAsFactors = FALSE,
+                       colClasses = c("integer", "character"))
+  if (is.null(label)) return(labels)
+
+  stopifnot(is.character(label), length(label) == 1)
+  idx <- which(labels$label == trimws(label))
+  if (length(idx) != 1) {
+    stop(sprintf("label '%s' not found in the status log of device %s %d. Available labels:\n%s",
+                 label, device, as.integer(deviceIndex),
+                 paste(labels$label, collapse = "\n")))
+  }
+
+  out <- .rawrrSystem2Lines(rawfile, c(args, labels$position[idx]))
+  rv <- read.table(text = out, header = TRUE, sep = ";", quote = "",
+                   comment.char = "", stringsAsFactors = FALSE,
+                   colClasses = c("numeric", "character"))
+  rv$values <- suppressWarnings(as.numeric(rv$values))
+  rv
+}
+
+#' Extract LC pressure profiles
+#'
+#' @description Convenience wrapper around \code{\link{readDevices}} and
+#' \code{\link{readStatusLog}}. It scans the status logs of the selected
+#' devices for labels matching \code{pattern} and returns their time
+#' series as a long \code{data.frame}.
+#'
+#' @inheritParams readSpectrum
+#' @param pattern regular expression used to select the status log labels,
+#' default \code{"[Pp]ressure"}.
+#' @param device device types to scan. If \code{NULL} (default), all non-MS
+#' devices are considered.
+#'
+#' @return a \code{data.frame} with the columns \code{deviceType},
+#' \code{deviceIndex}, \code{name}, \code{label}, \code{times}
+#' (retention time in minutes), and \code{pressure}. Units are those used
+#' by the device and are typically part of the label. Zero rows if no
+#' matching label is found.
+#'
+#' @seealso \code{\link{readDevices}}, \code{\link{readStatusLog}}
+#' @export
+#'
+#' @examples
+#' P <- rawrr::sampleFilePath() |> rawrr::readPressureProfile()
+#' \dontrun{
+#' P <- rawrr::readPressureProfile("yourLCMSrun.raw")
+#' lattice::xyplot(pressure ~ times | label, data = P, type = "l",
+#'   xlab = "Retention Time [min]", scales = list(y = list(relation = "free")))
+#' }
+readPressureProfile <- function(rawfile, pattern = "[Pp]ressure",
+                                device = NULL){
+  empty <- data.frame(deviceType = character(), deviceIndex = integer(),
+                      name = character(), label = character(),
+                      times = numeric(), pressure = numeric())
+
+  devices <- readDevices(rawfile)
+  if (is.null(device)) {
+    devices <- devices[devices$deviceType != "MS", , drop = FALSE]
+  } else {
+    devices <- devices[devices$deviceType %in% device, , drop = FALSE]
+  }
+
+  rv <- lapply(seq_len(nrow(devices)), function(i){
+    d <- devices[i, ]
+    labels <- tryCatch(
+      readStatusLog(rawfile, device = d$deviceType,
+                    deviceIndex = d$deviceIndex)$label,
+      error = function(e) character())
+    labels <- labels[grepl(pattern, labels)]
+    lapply(labels, function(l){
+      S <- readStatusLog(rawfile, device = d$deviceType,
+                         deviceIndex = d$deviceIndex, label = l)
+      if (nrow(S) == 0) return(NULL)
+      data.frame(deviceType = d$deviceType, deviceIndex = d$deviceIndex,
+                 name = d$name, label = l,
+                 times = S$times, pressure = S$values)
+    })
+  })
+  rv <- do.call("rbind", c(list(empty), unlist(rv, recursive = FALSE)))
+
+  if (nrow(rv) == 0)
+    message(sprintf("No status log label matching '%s' found.", pattern))
+  rv
+}
+
 #' @keywords internal
 "_PACKAGE"
 
