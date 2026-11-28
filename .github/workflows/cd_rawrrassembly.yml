@@ -1,93 +1,144 @@
 name: CD RawrrAssembly
+
+# Builds the rawrr executable for all six runtimes with inst/rawrrassembly/build.sh,
+# verifies the Linux binaries natively (.github/scripts/verify-rawrr.sh), and attaches
+# them to GitHub releases. The artifact rawrr-<version> has the layout of
+# https://fgcz-ms.uzh.ch/~cpanse/rawrr/dotnet/<version>/<runtime>/rawrr[.exe]
+# (incl. checksum.md5) used by rawrr::installRawrrExe().
+
 on:
   workflow_dispatch:
   release:
     types: [published]
-env:
-  DOTNET_DOCKER: mcr.microsoft.com/dotnet/sdk:8.0
+  push:
+    branches: [devel]
+    paths:
+      - 'inst/rawrrassembly/**'
+      - '.github/workflows/cd_rawrrassembly.yml'
+      - '.github/scripts/verify-rawrr.sh'
+  pull_request:
+    branches: [devel]
+    paths:
+      - 'inst/rawrrassembly/**'
+      - '.github/workflows/cd_rawrrassembly.yml'
+      - '.github/scripts/verify-rawrr.sh'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'release' }}
+
+permissions:
+  contents: read
+
 jobs:
   build:
-    name: Build Assembly
+    name: Build assembly
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-      - name: Pull image
-        run: docker pull $DOTNET_DOCKER
-      - name: Build
-        run: cd inst/rawrrassembly && docker run --rm -v $PWD:/app -w /app $DOTNET_DOCKER /app/build.sh /app /app/out
-      - name: Publish results
+
+      - name: Check version consistency
+        id: version
+        shell: bash
+        run: |
+          v=$(sed -n 's/^Version: *//p' DESCRIPTION)
+          echo "DESCRIPTION version: $v"
+          rc=0
+          grep -q "^pkg_version=\"$v\"" inst/rawrrassembly/build.sh || { echo "::error file=inst/rawrrassembly/build.sh::pkg_version differs from DESCRIPTION ($v)"; rc=1; }
+          grep -q "rawrr_version = \"$v\"" inst/rawrrassembly/rawrr.cs || { echo "::error file=inst/rawrrassembly/rawrr.cs::rawrr_version differs from DESCRIPTION ($v)"; rc=1; }
+          grep -q "rawrr/dotnet/$v/" R/dotNetAssembly.R || { echo "::error file=R/dotNetAssembly.R::installRawrrExe() sourceUrl differs from DESCRIPTION ($v)"; rc=1; }
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          exit $rc
+
+      - name: Set up .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build all runtimes
+        shell: bash
+        run: bash inst/rawrrassembly/build.sh "$GITHUB_WORKSPACE/inst/rawrrassembly" "$RUNNER_TEMP/dist"
+
+      - name: Checksums
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/dist/${{ steps.version.outputs.version }}"
+          md5sum ./*/rawrr* | tee checksum.md5
+          find . -type f -exec ls -l {} \;
+
+      - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
-          name: rawrr
-          path: inst/rawrrassembly/out
-          retention-days: 1
-  verify-linux:
-    name: Verify on Linux
-    runs-on: ubuntu-latest
+          name: rawrr-${{ steps.version.outputs.version }}
+          path: ${{ runner.temp }}/dist
+          if-no-files-found: error
+          retention-days: 7
+
+  verify:
+    name: Verify ${{ matrix.runtime }}
     needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runtime: linux-x64,   os: ubuntu-latest,    exe: rawrr }
+          - { runtime: linux-arm64, os: ubuntu-24.04-arm, exe: rawrr }
+          # The macOS and Windows binaries are built (and attached to releases)
+          # but not executed. To verify them, add e.g.
+          # - { runtime: win-x64,   os: windows-latest, exe: rawrr.exe }
+          # - { runtime: osx-arm64, os: macos-latest,   exe: rawrr }
     steps:
       - uses: actions/checkout@v4
-      - name: Download results
+
+      - name: Download binaries
         uses: actions/download-artifact@v4
         with:
-          name: rawrr
-      - name: List result
-        run: tree
-      - name: Make executable
-        run: chmod +x rawrr-linux-x64
-      - name: Execute on test file
-        run: ./rawrr-linux-x64 ./inst/extdata/sample.raw index
-  verify-windows:
-    name: Verify on Windows
-    runs-on: windows-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download results
-        uses: actions/download-artifact@v4
-        with:
-          name: rawrr
-      - name: List result
-        run: dir
-      - name: Execute on test file
-        run: .\rawrr-win-x64.exe .\inst\extdata\sample.raw index
-  verify-macos:
-    name: Verify on MacOS
-    runs-on: macos-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download results
-        uses: actions/download-artifact@v4
-        with:
-          name: rawrr
-      - name: List result
-        run: ls -l
-      - name: Make executable
-        run: chmod +x rawrr-osx-x64
-      - name: Execute on test file
-        run: ./rawrr-osx-x64 ./inst/extdata/sample.raw index
-  upload-release-artifacts:
-    name: Upload Release Artifacts
-    runs-on: ubuntu-latest
-    needs:
-      - verify-linux
-      - verify-windows
-      - verify-macos
-    if: github.event_name == 'release'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: rawrr
+          name: rawrr-${{ needs.build.outputs.version }}
           path: dist
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+
+      - name: Verify on sample.raw
+        shell: bash
+        run: >
+          bash .github/scripts/verify-rawrr.sh
+          "dist/${{ needs.build.outputs.version }}/${{ matrix.runtime }}/${{ matrix.exe }}"
+          inst/extdata/sample.raw
+          "${{ needs.build.outputs.version }}"
+
+  release:
+    name: Attach binaries to the release
+    needs: [build, verify]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v4
         with:
-          files: |
-            dist/rawrr-linux-x64
-            dist/rawrr-win-x64.exe
-            dist/rawrr-osx-x64
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: rawrr-${{ needs.build.outputs.version }}
+          path: dist
+
+      - name: Prepare release assets
+        shell: bash
+        run: |
+          v=${{ needs.build.outputs.version }}
+          mkdir assets
+          for d in dist/$v/*/; do
+            rid=$(basename "$d")
+            for f in "$d"rawrr "$d"rawrr.exe; do
+              [ -f "$f" ] || continue
+              ext=${f##*/rawrr}
+              cp "$f" "assets/rawrr-$rid$ext"
+            done
+          done
+          cp "dist/$v/checksum.md5" assets/
+          tar -czf "assets/rawrr-$v-dotnet.tar.gz" -C dist "$v"
+          ls -l assets
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: assets/*

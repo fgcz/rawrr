@@ -44,6 +44,21 @@ jobs:
           pak::pkg_install(c("covr", "rcmdcheck", "rmarkdown", "protViz", "testthat", "knitr", "bioc::BiocStyle", "bioc::ExperimentHub", "bioc::tartare"))
           pak::local_install_deps(dependencies = TRUE)
         shell: Rscript {0}
+      - name: Set up .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build the rawrr assembly from source
+        # buildRawrrExe() compiles inst/rawrrassembly/rawrr.cs of the installed
+        # package into tools::R_user_dir("rawrr", "cache"), where the tests and
+        # the vignette find it; installRawrrExe() then keeps it instead of
+        # downloading a published binary.
+        run: |
+          R CMD INSTALL .
+          Rscript -e 'rawrr::buildRawrrExe()'
+          Rscript -e 'stopifnot(rawrr:::.getRawrrAssemblyVersion() == as.character(packageVersion("rawrr")))'
+          "$(Rscript -e 'cat(rawrr:::.rawrrAssembly())')" help
+        shell: bash
       - name: Check
         run: rcmdcheck::rcmdcheck(build_args = "", args = "", error_on = "error", check_dir = "/tmp/rawrr.Rcheck")
         shell: Rscript {0}
